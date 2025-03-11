@@ -12,7 +12,7 @@ function App() {
   const [selectedPlayerUnit, setSelectedPlayerUnit] = useState(null);
   const [selectedEnemyUnit, setSelectedEnemyUnit] = useState(null);
   const [attackingUnit, setAttackingUnit] = useState(null);
-  
+
   const [playerUnits, setPlayerUnits] = useState([
     {
       id: "p1",
@@ -23,7 +23,7 @@ function App() {
       acted: false,
       isDead: false,
       image: varenPortrait,
-      actions: ["Attack", "Pass"]
+      actions: ["Attack", "Pass"],
     },
     {
       id: "p2",
@@ -34,7 +34,7 @@ function App() {
       acted: false,
       isDead: false,
       image: emberhowlPortrait,
-      actions: ["Attack", "Pass"]
+      actions: ["Attack", "Pass"],
     },
     {
       id: "p3",
@@ -45,7 +45,7 @@ function App() {
       acted: false,
       isDead: false,
       image: silkfangPortrait,
-      actions: ["Attack", "Pass"]
+      actions: ["Attack", "Pass"],
     },
     {
       id: "p4",
@@ -56,8 +56,8 @@ function App() {
       acted: false,
       isDead: false,
       image: silkfangPortrait,
-      actions: ["Attack", "Pass"]
-    }
+      actions: ["Attack", "Pass"],
+    },
   ]);
 
   const [enemyUnits, setEnemyUnits] = useState([
@@ -149,7 +149,6 @@ function App() {
         setFirstTurnUsed(true);
         endPlayerTurn();
       }
-
     } else {
       // Enemy is attacking
       const attacker = enemyUnits.find((u) => u.id === attackerId);
@@ -307,8 +306,10 @@ function App() {
             key={unit.id}
             unit={unit}
             team={team}
-            isSelected={(team === "player" && selectedPlayerUnit?.id === unit.id) || 
-                      (team === "enemy" && selectedEnemyUnit?.id === unit.id)}
+            isSelected={
+              (team === "player" && selectedPlayerUnit?.id === unit.id) ||
+              (team === "enemy" && selectedEnemyUnit?.id === unit.id)
+            }
             isAttacking={attackingUnit?.id === unit.id}
             onClick={() => handleUnitClick(unit, team)}
           />
@@ -320,9 +321,13 @@ function App() {
   return (
     <div className="App">
       <div className="game-container">
+        <div className={`turn-indicator ${activeTeam}-turn`}>
+          <span className="turn-icon">⚔️</span>
+          <span>{activeTeam === "player" ? "Your Turn" : "Enemy Turn"}</span>
+        </div>
         {selectedPlayerUnit ? (
-          <Sidebar 
-            unit={selectedPlayerUnit} 
+          <Sidebar
+            unit={selectedPlayerUnit}
             onClose={() => {
               setSelectedPlayerUnit(null);
               setAttackingUnit(null);
@@ -337,23 +342,22 @@ function App() {
         )}
         <div className="battlefield" data-attacking={!!attackingUnit}>
           {attackingUnit && selectedEnemyUnit && (
-            <div className="attack-line" style={{
-              '--start-x': `${attackingUnit.cardPosition?.x || 0}px`,
-              '--start-y': `${attackingUnit.cardPosition?.y || 0}px`,
-              '--end-x': `${selectedEnemyUnit.cardPosition?.x || 0}px`,
-              '--end-y': `${selectedEnemyUnit.cardPosition?.y || 0}px`,
-            }} />
+            <div
+              className="attack-line"
+              style={{
+                "--start-x": `${attackingUnit.cardPosition?.x || 0}px`,
+                "--start-y": `${attackingUnit.cardPosition?.y || 0}px`,
+                "--end-x": `${selectedEnemyUnit.cardPosition?.x || 0}px`,
+                "--end-y": `${selectedEnemyUnit.cardPosition?.y || 0}px`,
+              }}
+            />
           )}
-          <div className="side enemy-side">
-            {renderUnitList(enemyUnits, "enemy")}
-          </div>
-          <div className="side player-side">
-            {renderUnitList(playerUnits, "player")}
-          </div>
+          <div className="side enemy-side">{renderUnitList(enemyUnits, "enemy")}</div>
+          <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
         </div>
         {selectedEnemyUnit ? (
-          <Sidebar 
-            unit={selectedEnemyUnit} 
+          <Sidebar
+            unit={selectedEnemyUnit}
             onClose={() => setSelectedEnemyUnit(null)}
             position="right"
           />
