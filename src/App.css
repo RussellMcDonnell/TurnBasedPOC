@@ -1,0 +1,116 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 20px;
+  background: #f0f0f0;
+}
+.game-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.battlefield {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 800px; /* Increased height for more spacing */
+}
+.side {
+  width: 100%;
+  border-radius: 8px;
+  padding: 20px;
+}
+.enemy-side {
+  background: rgba(255, 0, 0, 0.05);
+}
+.player-side {
+  background: rgba(0, 0, 255, 0.05);
+}
+.unit-list {
+  display: flex;
+  flex-wrap: nowrap;  /* Prevent wrapping */
+  justify-content: space-between;  /* Distribute space evenly */
+  gap: 10px;  /* Reduced gap */
+  width: 100%;
+  overflow-x: auto;  /* Allow horizontal scroll if needed */
+}
+.unit-card {
+  border: 2px solid #666;
+  border-radius: 12px;
+  padding: 15px;
+  width: 150px;  /* Slightly reduced width */
+  height: 280px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;  /* Prevent cards from shrinking */
+}
+.unit-card:hover:not(.dead):not(.acted) {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+.unit-card.selected {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px #007bff;
+}
+.unit-card.acted {
+  opacity: 0.6;
+  cursor: default;
+}
+.unit-card.dead {
+  background: #f5f5f5;
+  opacity: 0.4;
+  cursor: default;
+}
+.unit-name {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0 0 8px;
+  order: -1;  /* Move name to top */
+}
+.unit-image {
+  width: 100px;  /* Slightly smaller image */
+  height: 100px;
+  border-radius: 8px;
+  margin: 0 auto 12px;
+  object-fit: cover;
+}
+.unit-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: auto;
+  font-size: 0.85em;
+  width: calc(100% - 12px);  /* Account for padding */
+  box-sizing: border-box;
+}
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 2px;  /* Reduced gap */
+  white-space: nowrap;
+}
+.stat-icon {
+  font-size: 1em;  /* Slightly smaller icons */
+}
+.status {
+  margin: 20px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+.game-over {
+  margin: 20px 0;
+  color: #dc3545;
+  font-size: 1.2rem;
+}
