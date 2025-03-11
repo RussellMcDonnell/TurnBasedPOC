@@ -1,9 +1,18 @@
 .sidebar {
   width: 300px;
   background: #fff;
-  border-left: 1px solid #ccc;
   padding: 20px;
   position: relative;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.left {
+  border-right: 1px solid #ccc;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.right {
+  border-left: 1px solid #ccc;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
 }
 

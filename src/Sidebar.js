@@ -1,11 +1,11 @@
 import React from "react";
 import "./Sidebar.css";
 
-function Sidebar({ unit, onClose, onAction }) {
+function Sidebar({ unit, onClose, onAction, position = "right" }) {
   if (!unit) return null;
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${position}`}>
       <button className="close-btn" onClick={onClose}>×</button>
       <div className="unit-details">
         <img src={unit.image} alt={unit.name} className="unit-detail-image" />

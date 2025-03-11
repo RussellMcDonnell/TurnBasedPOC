@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
+import varenPortrait from "./images/varen-stormrune-portrait-picture.png";
+import ashbringerPortrait from "./images/ashbringer-portrait-picture.png";
+import lynValkenPortrait from "./images/lyn-valken-portrait-picture.png";
+import emberhowlPortrait from "./images/emberhowl-portrait-picture.png";
+import silkfangPortrait from "./images/silkfang-portrait-picture.png";
 
 function App() {
-  const [selectedUnit, setSelectedUnit] = useState(null);
+  const [selectedPlayerUnit, setSelectedPlayerUnit] = useState(null);
+  const [selectedEnemyUnit, setSelectedEnemyUnit] = useState(null);
   
-  // Example unit data with images
   const [playerUnits, setPlayerUnits] = useState([
     {
       id: "p1",
@@ -15,86 +20,64 @@ function App() {
       damage: 5,
       acted: false,
       isDead: false,
-      image: "https://placekitten.com/100/100", // placeholder image
+      image: varenPortrait,
       actions: ["Attack", "Pass"]
     },
     {
       id: "p2",
-      name: "Wolf",
+      name: "Emberhowl",
       maxHP: 20,
       hp: 20,
       damage: 4,
       acted: false,
       isDead: false,
-      image: "https://placekitten.com/100/100", // placeholder image
+      image: emberhowlPortrait,
       actions: ["Attack", "Pass"]
     },
     {
       id: "p3",
-      name: "Spider",
+      name: "Silkfang",
       maxHP: 15,
       hp: 15,
       damage: 3,
       acted: false,
       isDead: false,
-      image: "https://placekitten.com/100/100", // placeholder image
+      image: silkfangPortrait,
       actions: ["Attack", "Pass"]
     },
     {
       id: "p4",
-      name: "Spider",
+      name: "Silkfang Twin",
       maxHP: 15,
       hp: 15,
       damage: 3,
       acted: false,
       isDead: false,
-      image: "https://placekitten.com/100/100", // placeholder image
+      image: silkfangPortrait,
       actions: ["Attack", "Pass"]
-    },
-    {
-      id: "p5",
-      name: "Spell",
-      maxHP: 15,
-      hp: 15,
-      damage: 3,
-      acted: false,
-      isDead: false,
-      image: "https://placekitten.com/100/100", // placeholder image
-      actions: ["Attack", "Pass"]
-    },
-    {
-      id: "p6",
-      name: "Wolf",
-      maxHP: 20,
-      hp: 20,
-      damage: 4,
-      acted: false,
-      isDead: false,
-      image: "https://placekitten.com/100/100", // placeholder image
-      actions: ["Attack", "Pass"]
-    },
+    }
   ]);
 
   const [enemyUnits, setEnemyUnits] = useState([
     {
       id: "e1",
-      name: "Ashbringer (Dragon)",
+      name: "Ashbringer",
       maxHP: 50,
       hp: 50,
       damage: 8,
       acted: false,
       isDead: false,
-      image: "https://placekitten.com/101/101", // placeholder image
+      image: ashbringerPortrait,
     },
     {
       id: "e2",
-      name: "Lyn Valken (Human)",
+      name: "Lyn Valken",
       maxHP: 20,
       hp: 20,
       damage: 4,
       acted: false,
       isDead: false,
-      image: "https://placekitten.com/101/101", // placeholder image
+      image: lynValkenPortrait,
     },
   ]);
 
@@ -264,24 +247,38 @@ function App() {
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
-    if (team === "player" && activeTeam === "player" && !unit.acted && !unit.isDead) {
-      setSelectedUnit(unit);
+    if (team === "player") {
+      if (selectedPlayerUnit?.id === unit.id) {
+        // Deselect if clicking the same unit
+        setSelectedPlayerUnit(null);
+      } else if (activeTeam === "player" && !unit.acted && !unit.isDead) {
+        // Select new unit if valid
+        setSelectedPlayerUnit(unit);
+      }
+    } else if (team === "enemy") {
+      if (selectedEnemyUnit?.id === unit.id) {
+        // Deselect if clicking the same unit
+        setSelectedEnemyUnit(null);
+      } else {
+        // Select new enemy unit
+        setSelectedEnemyUnit(unit);
+      }
     }
   };
 
   // Handle action selection from sidebar
   const handleAction = (action) => {
-    if (!selectedUnit) return;
+    if (!selectedPlayerUnit) return;
 
     if (action === "Attack") {
       const firstAliveEnemy = enemyUnits.find(e => !e.isDead);
       if (firstAliveEnemy) {
-        handleBasicAttack("player", selectedUnit.id, firstAliveEnemy.id);
+        handleBasicAttack("player", selectedPlayerUnit.id, firstAliveEnemy.id);
       }
     } else if (action === "Pass") {
-      handlePass("player", selectedUnit.id);
+      handlePass("player", selectedPlayerUnit.id);
     }
-    setSelectedUnit(null);
+    setSelectedPlayerUnit(null);
   };
 
   // UI Helpers
@@ -293,7 +290,8 @@ function App() {
             key={unit.id}
             className={`unit-card ${unit.isDead ? "dead" : ""} ${
               unit.acted ? "acted" : ""
-            } ${selectedUnit?.id === unit.id ? "selected" : ""}`}
+            } ${(team === "player" && selectedPlayerUnit?.id === unit.id) || 
+               (team === "enemy" && selectedEnemyUnit?.id === unit.id) ? "selected" : ""}`}
             onClick={() => handleUnitClick(unit, team)}
           >
             <h3 className="unit-name">{unit.name}</h3>
@@ -319,38 +317,34 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Turn-Based Combat Demo</h1>
-
-      {gameOver ? (
-        <div className="game-over">
-          <h2>Game Over!</h2>
-          {winner === "player" ? <p>You Won!</p> : <p>You Lost!</p>}
-        </div>
-      ) : (
-        <div className="status">
-          <p>Active Team: {activeTeam.toUpperCase()}</p>
-          {!firstTurnUsed && activeTeam === "player" && (
-            <p>First turn: You only get 1 action this round.</p>
-          )}
-        </div>
-      )}
-
       <div className="game-container">
+        {selectedPlayerUnit ? (
+          <Sidebar 
+            unit={selectedPlayerUnit} 
+            onClose={() => setSelectedPlayerUnit(null)}
+            onAction={handleAction}
+            position="left"
+          />
+        ) : (
+          <div className="sidebar-placeholder" />
+        )}
         <div className="battlefield">
           <div className="side enemy-side">
-            <h2>Enemy Units</h2>
             {renderUnitList(enemyUnits, "enemy")}
           </div>
           <div className="side player-side">
-            <h2>Player Units</h2>
             {renderUnitList(playerUnits, "player")}
           </div>
         </div>
-        <Sidebar 
-          unit={selectedUnit} 
-          onClose={() => setSelectedUnit(null)}
-          onAction={handleAction}
-        />
+        {selectedEnemyUnit ? (
+          <Sidebar 
+            unit={selectedEnemyUnit} 
+            onClose={() => setSelectedEnemyUnit(null)}
+            position="right"
+          />
+        ) : (
+          <div className="sidebar-placeholder" />
+        )}
       </div>
     </div>
   );
