@@ -1,7 +1,7 @@
 import React from "react";
 import "./Sidebar.css";
 
-function Sidebar({ unit, onClose, onAction, position = "right" }) {
+function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = false, hasTarget = false }) {
   if (!unit) return null;
 
   return (
@@ -14,18 +14,39 @@ function Sidebar({ unit, onClose, onAction, position = "right" }) {
           <p>HP: {unit.hp}/{unit.maxHP}</p>
           <p>Damage: {unit.damage}</p>
         </div>
-        <div className="action-list">
-          <h3>Actions</h3>
-          {unit.actions?.map((action, index) => (
-            <button 
-              key={index} 
-              className="action-button"
-              onClick={() => onAction(action)}
-            >
-              {action}
-            </button>
-          ))}
-        </div>
+        {unit.actions && (
+          <div className="action-list">
+            <h3>Actions</h3>
+            {isAttacking ? (
+              <>
+                {hasTarget && (
+                  <button 
+                    className="action-button confirm"
+                    onClick={() => onAction("Confirm")}
+                  >
+                    Confirm Attack
+                  </button>
+                )}
+                <button 
+                  className="action-button cancel"
+                  onClick={() => onAction("Cancel")}
+                >
+                  Cancel Attack
+                </button>
+              </>
+            ) : (
+              unit.actions.map((action, index) => (
+                <button 
+                  key={index} 
+                  className="action-button"
+                  onClick={() => onAction(action)}
+                >
+                  {action}
+                </button>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

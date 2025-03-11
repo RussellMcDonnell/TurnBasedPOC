@@ -24,6 +24,72 @@
   padding: 0 20px;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 12px;
+  position: relative;
+}
+
+.battlefield[data-attacking="true"] .enemy-side .unit-card:not(.dead):hover {
+  cursor: crosshair;
+  box-shadow: 0 0 0 2px #dc3545, 0 0 12px rgba(220, 53, 69, 0.4);
+}
+
+.unit-card.attacking {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px #dc3545;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.8);
+  }
+}
+
+.attack-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.attack-line::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--start-y) + 140px);
+  left: calc(var(--start-x) + 75px);
+  height: 6px;
+  background: linear-gradient(90deg, 
+    rgba(220, 53, 69, 1) 0%,
+    rgba(220, 53, 69, 0.6) 100%
+  );
+  box-shadow: 0 0 12px rgba(220, 53, 69, 0.3);
+  transform-origin: left;
+  animation: attackPulse 1.5s infinite;
+}
+
+@keyframes attackPulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.attack-line::before {
+  content: '▶';
+  position: absolute;
+  top: calc(var(--end-y) + 140px);
+  left: calc(var(--end-x) + 65px);
+  color: #dc3545;
+  font-size: 20px;
+  animation: attackPulse 1.5s infinite;
+  text-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
 }
 
 /* Add placeholder for sidebars when not visible */

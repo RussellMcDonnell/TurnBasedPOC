@@ -69,10 +69,26 @@
   transition: background-color 0.2s;
 }
 
-.action-button:hover {
+.action-button.hover {
   background: #0056b3;
 }
 
 .action-button:active {
   background: #004085;
+}
+
+.action-button.confirm {
+  background: #28a745;
+}
+
+.action-button.confirm:hover {
+  background: #218838;
+}
+
+.action-button.cancel {
+  background: #dc3545;
+}
+
+.action-button.cancel:hover {
+  background: #c82333;
 }

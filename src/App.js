@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
+import UnitCard from "./UnitCard";
 import varenPortrait from "./images/varen-stormrune-portrait-picture.png";
 import ashbringerPortrait from "./images/ashbringer-portrait-picture.png";
 import lynValkenPortrait from "./images/lyn-valken-portrait-picture.png";
@@ -10,6 +11,7 @@ import silkfangPortrait from "./images/silkfang-portrait-picture.png";
 function App() {
   const [selectedPlayerUnit, setSelectedPlayerUnit] = useState(null);
   const [selectedEnemyUnit, setSelectedEnemyUnit] = useState(null);
+  const [attackingUnit, setAttackingUnit] = useState(null);
   
   const [playerUnits, setPlayerUnits] = useState([
     {
@@ -247,6 +249,16 @@ function App() {
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
+    if (attackingUnit) {
+      // If we're in attack mode and clicked an enemy
+      if (team === "enemy" && !unit.isDead) {
+        handleBasicAttack("player", attackingUnit.id, unit.id);
+        setAttackingUnit(null);
+        setSelectedPlayerUnit(null);
+      }
+      return;
+    }
+
     if (team === "player") {
       if (selectedPlayerUnit?.id === unit.id) {
         // Deselect if clicking the same unit
@@ -254,6 +266,7 @@ function App() {
       } else if (activeTeam === "player" && !unit.acted && !unit.isDead) {
         // Select new unit if valid
         setSelectedPlayerUnit(unit);
+        setSelectedEnemyUnit(null);
       }
     } else if (team === "enemy") {
       if (selectedEnemyUnit?.id === unit.id) {
@@ -271,14 +284,18 @@ function App() {
     if (!selectedPlayerUnit) return;
 
     if (action === "Attack") {
-      const firstAliveEnemy = enemyUnits.find(e => !e.isDead);
-      if (firstAliveEnemy) {
-        handleBasicAttack("player", selectedPlayerUnit.id, firstAliveEnemy.id);
-      }
+      setAttackingUnit(selectedPlayerUnit);
+    } else if (action === "Confirm") {
+      handleBasicAttack("player", attackingUnit.id, selectedEnemyUnit.id);
+      setAttackingUnit(null);
+      setSelectedPlayerUnit(null);
+      setSelectedEnemyUnit(null);
+    } else if (action === "Cancel") {
+      setAttackingUnit(null);
     } else if (action === "Pass") {
       handlePass("player", selectedPlayerUnit.id);
+      setSelectedPlayerUnit(null);
     }
-    setSelectedPlayerUnit(null);
   };
 
   // UI Helpers
@@ -286,30 +303,15 @@ function App() {
     return (
       <div className="unit-list">
         {units.map((unit) => (
-          <div
+          <UnitCard
             key={unit.id}
-            className={`unit-card ${unit.isDead ? "dead" : ""} ${
-              unit.acted ? "acted" : ""
-            } ${(team === "player" && selectedPlayerUnit?.id === unit.id) || 
-               (team === "enemy" && selectedEnemyUnit?.id === unit.id) ? "selected" : ""}`}
+            unit={unit}
+            team={team}
+            isSelected={(team === "player" && selectedPlayerUnit?.id === unit.id) || 
+                      (team === "enemy" && selectedEnemyUnit?.id === unit.id)}
+            isAttacking={attackingUnit?.id === unit.id}
             onClick={() => handleUnitClick(unit, team)}
-          >
-            <h3 className="unit-name">{unit.name}</h3>
-            <img src={unit.image} alt={unit.name} className="unit-image" />
-            <div className="unit-description">
-              {team === "player" ? "Allied Unit" : "Enemy Unit"}
-            </div>
-            <div className="unit-stats">
-              <div className="stat">
-                <span className="stat-icon">❤️</span>
-                <span>{unit.hp}/{unit.maxHP}</span>
-              </div>
-              <div className="stat">
-                <span className="stat-icon">⚔️</span>
-                <span>{unit.damage}</span>
-              </div>
-            </div>
-          </div>
+          />
         ))}
       </div>
     );
@@ -321,14 +323,27 @@ function App() {
         {selectedPlayerUnit ? (
           <Sidebar 
             unit={selectedPlayerUnit} 
-            onClose={() => setSelectedPlayerUnit(null)}
+            onClose={() => {
+              setSelectedPlayerUnit(null);
+              setAttackingUnit(null);
+            }}
             onAction={handleAction}
             position="left"
+            isAttacking={!!attackingUnit}
+            hasTarget={!!selectedEnemyUnit}
           />
         ) : (
           <div className="sidebar-placeholder" />
         )}
-        <div className="battlefield">
+        <div className="battlefield" data-attacking={!!attackingUnit}>
+          {attackingUnit && selectedEnemyUnit && (
+            <div className="attack-line" style={{
+              '--start-x': `${attackingUnit.cardPosition?.x || 0}px`,
+              '--start-y': `${attackingUnit.cardPosition?.y || 0}px`,
+              '--end-x': `${selectedEnemyUnit.cardPosition?.x || 0}px`,
+              '--end-y': `${selectedEnemyUnit.cardPosition?.y || 0}px`,
+            }} />
+          )}
           <div className="side enemy-side">
             {renderUnitList(enemyUnits, "enemy")}
           </div>
