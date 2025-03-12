@@ -151,6 +151,7 @@
 
 .enemy-side {
   background: rgba(255, 0, 0, 0.05);
+  padding-left: 0px;
 }
 
 .enemy-side .unit-list {
@@ -160,6 +161,7 @@
 
 .player-side {
   background: rgba(0, 0, 255, 0.05);
+  padding-left: 0px;
 }
 
 .unit-list {

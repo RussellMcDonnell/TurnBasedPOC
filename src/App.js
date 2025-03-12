@@ -229,6 +229,7 @@ function App() {
   function endPlayerTurn() {
     setActiveTeam("enemy");
     resetActedStatus("player");
+    setCurrentlyAttacking(null); // Reset currentlyAttacking state
   }
 
   // After the enemy acts, switch to player
