@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
 import UnitCard from "./UnitCard";
@@ -25,6 +25,10 @@ function App() {
   // Add new state for ability usage
   const [usingAbility, setUsingAbility] = useState(false);
   const [animatingAbility, setAnimatingAbility] = useState(false);
+
+  // Add new state for action history log
+  const [actionLog, setActionLog] = useState([]);
+  const [showActionLog, setShowActionLog] = useState(false);
 
   const [playerUnits, setPlayerUnits] = useState([
     {
@@ -147,6 +151,38 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
 
+  // Add ref for auto-scrolling the log
+  const logScrollRef = useRef(null);
+  
+  // Modified function to add an entry to the action log with structured format
+  const addToActionLog = (entry) => {
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Add timestamp to all log entries
+    if (typeof entry === 'string') {
+      // Simple turn markers or text-only logs
+      setActionLog(prev => [...prev, { 
+        text: entry, 
+        time: timestamp,
+        type: entry.includes("turn ends") ? "turn-end" : 
+              entry.includes("turn begins") ? "turn-start" : "normal"
+      }]);
+    } else {
+      // Entry is already an object with appropriate format
+      setActionLog(prev => [...prev, {
+        ...entry,
+        time: timestamp
+      }]);
+    }
+    
+    // Scroll to bottom of log when new entries are added
+    setTimeout(() => {
+      if (logScrollRef.current) {
+        logScrollRef.current.scrollTop = logScrollRef.current.scrollHeight;
+      }
+    }, 100);
+  };
+
   // This effect checks after every action if someone won.
   useEffect(() => {
     checkVictoryCondition();
@@ -177,19 +213,40 @@ function App() {
     if (allEnemiesDead && !gameOver) {
       setGameOver(true);
       setWinner("player");
+      addToActionLog({
+        text: "Victory! All enemies have been defeated!",
+        type: "victory"
+      });
     } else if (allPlayersDead && !gameOver) {
       setGameOver(true);
       setWinner("enemy");
+      addToActionLog({
+        text: "Defeat! Your party has been wiped out!",
+        type: "defeat"
+      });
     }
   }
 
-  // Modified handleBasicAttack to play animation only after target selection
+  // Modified handleBasicAttack to use new log format
   function handleBasicAttack(attackerTeam, attackerId, targetId) {
     if (gameOver) return;
 
     if (attackerTeam === "player") {
       const attacker = playerUnits.find((u) => u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
+
+      const target = enemyUnits.find((u) => u.id === targetId);
+      if (!target) return;
+
+      // Add to action log with new format
+      addToActionLog({
+        unit: attacker.name,
+        type: "attack",
+        targets: [{
+          unit: target.name,
+          Damage: attacker.damage.toString()
+        }]
+      });
 
       // Clear any existing animations
       setAnimatingUnitId(null);
@@ -205,6 +262,14 @@ function App() {
           prev.map((unit) => {
             if (unit.id === targetId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
+              
+              if (newHP <= 0) {
+                addToActionLog({
+                  text: `${unit.name} is defeated!`,
+                  type: "defeat"
+                });
+              }
+              
               return {
                 ...unit,
                 hp: newHP,
@@ -235,6 +300,19 @@ function App() {
       const attacker = enemyUnits.find((u) => u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
+      const target = playerUnits.find((u) => u.id === targetId);
+      if (!target) return;
+
+      // Add to action log with new format
+      addToActionLog({
+        unit: attacker.name,
+        type: "attack",
+        targets: [{
+          unit: target.name,
+          Damage: attacker.damage.toString()
+        }]
+      });
+
       // Clear any existing animations
       setAnimatingUnitId(null);
       setDamagedUnitId(null);
@@ -248,6 +326,14 @@ function App() {
           prev.map((unit) => {
             if (unit.id === targetId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
+              
+              if (newHP <= 0) {
+                addToActionLog({
+                  text: `${unit.name} is defeated!`,
+                  type: "defeat"
+                });
+              }
+              
               return {
                 ...unit,
                 hp: newHP,
@@ -284,10 +370,18 @@ function App() {
     // Handle specific abilities
     switch(unit.name) {
       case "Varen Stormrune":
+        // Create a log entry object for the ability
+        const abilityLogEntry = {
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        };
+        
         // Blizzard ability - damages all enemies with chance to stun
         setTimeout(() => {
           const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead);
-
+          
           // Apply damage to all enemies
           setEnemyUnits(prev =>
             prev.map(enemy => {
@@ -295,7 +389,14 @@ function App() {
 
               const newHP = enemy.hp - unit.damage;
               const isStunned = Math.random() < 0.25; // 25% chance to stun
-
+              
+              // Add target to the ability log entry
+              abilityLogEntry.targets.push({
+                unit: enemy.name,
+                Damage: unit.damage.toString(),
+                Status: isStunned ? "Frozen" : "None"
+              });
+              
               const newStatusEffects = [...enemy.statusEffects];
 
               if (isStunned) {
@@ -308,6 +409,13 @@ function App() {
                 });
               }
 
+              if (newHP <= 0) {
+                addToActionLog({
+                  text: `${enemy.name} is defeated!`,
+                  type: "defeat"
+                });
+              }
+
               return {
                 ...enemy,
                 hp: newHP,
@@ -316,6 +424,9 @@ function App() {
               };
             })
           );
+
+          // Add the complete ability log after processing all effects
+          addToActionLog(abilityLogEntry);
 
           // Set ability on cooldown
           setPlayerUnits(prev =>
@@ -343,16 +454,34 @@ function App() {
         break;
 
       case "Emberhowl":
+        // Log ability use
+        addToActionLog({
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        });
         // For now, we'll handle other abilities generically
-        // In a real implementation, each ability would have specific effects
         setUsingAbility(true);
         break;
 
       case "Silkfang":
+        addToActionLog({
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        });
         setUsingAbility(true);
         break;
 
       case "Silkfang Twin":
+        addToActionLog({
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        });
         setUsingAbility(true);
         break;
 
@@ -372,14 +501,33 @@ function App() {
     if (gameOver) return;
 
     if (team === "player") {
+      const unit = playerUnits.find(u => u.id === unitId);
+      if (!unit) return;
+      
+      addToActionLog({
+        unit: unit.name,
+        type: "skip",
+        targets: []
+      });
+      
       setPlayerUnits((prev) =>
         prev.map((u) => (u.id === unitId ? { ...u, acted: true } : u))
       );
+      
       if (!firstTurnUsed) {
         setFirstTurnUsed(true);
         endPlayerTurn();
       }
     } else {
+      const unit = enemyUnits.find(u => u.id === unitId);
+      if (!unit) return;
+      
+      addToActionLog({
+        unit: unit.name,
+        type: "skip",
+        targets: []
+      });
+      
       setEnemyUnits((prev) =>
         prev.map((u) => (u.id === unitId ? { ...u, acted: true } : u))
       );
@@ -388,6 +536,7 @@ function App() {
 
   // After the player has either used all units or (on first turn) done 1 action, switch to enemy
   function endPlayerTurn() {
+    addToActionLog("--- Player turn ends ---");
     setActiveTeam("enemy");
     resetActedStatus("player");
     setCurrentlyAttacking(null); // Reset currentlyAttacking state
@@ -400,40 +549,78 @@ function App() {
 
     // Process cooldowns at turn end
     setPlayerUnits(prev =>
-      prev.map(unit => ({
-        ...unit,
-        ability: unit.ability ? {
-          ...unit.ability,
-          currentCooldown: Math.max(0, unit.ability.currentCooldown - 1)
-        } : null
-      }))
+      prev.map(unit => {
+        const newCooldown = unit.ability ? Math.max(0, unit.ability.currentCooldown - 1) : 0;
+        if (unit.ability && unit.ability.currentCooldown > 0 && newCooldown === 0) {
+          addToActionLog({
+            text: `${unit.name}'s ${unit.ability.name} is ready!`,
+            type: "cooldown"
+          });
+        }
+        return {
+          ...unit,
+          ability: unit.ability ? {
+            ...unit.ability,
+            currentCooldown: newCooldown
+          } : null
+        };
+      })
     );
 
     // Process status effects at turn end
     setEnemyUnits(prev =>
-      prev.map(unit => ({
-        ...unit,
-        statusEffects: unit.statusEffects
-          .map(effect => ({ ...effect, duration: effect.duration - 1 }))
-          .filter(effect => effect.duration > 0)
-      }))
+      prev.map(unit => {
+        const expiredEffects = unit.statusEffects.filter(effect => effect.duration === 1);
+        if (expiredEffects.length > 0) {
+          expiredEffects.forEach(effect => {
+            addToActionLog({
+              text: `${effect.name} on ${unit.name} has expired`,
+              type: "status"
+            });
+          });
+        }
+        
+        return {
+          ...unit,
+          statusEffects: unit.statusEffects
+            .map(effect => ({ ...effect, duration: effect.duration - 1 }))
+            .filter(effect => effect.duration > 0)
+        };
+      })
     );
+    
+    addToActionLog("--- Enemy turn begins ---");
   }
 
   // After the enemy acts, switch to player
   function endEnemyTurn() {
+    addToActionLog("--- Enemy turn ends ---");
     setActiveTeam("player");
     resetActedStatus("enemy");
 
     // Process status effects at turn end
     setPlayerUnits(prev =>
-      prev.map(unit => ({
-        ...unit,
-        statusEffects: unit.statusEffects
-          .map(effect => ({ ...effect, duration: effect.duration - 1 }))
-          .filter(effect => effect.duration > 0)
-      }))
+      prev.map(unit => {
+        const expiredEffects = unit.statusEffects.filter(effect => effect.duration === 1);
+        if (expiredEffects.length > 0) {
+          expiredEffects.forEach(effect => {
+            addToActionLog({
+              text: `${effect.name} on ${unit.name} has expired`,
+              type: "status"
+            });
+          });
+        }
+        
+        return {
+          ...unit,
+          statusEffects: unit.statusEffects
+            .map(effect => ({ ...effect, duration: effect.duration - 1 }))
+            .filter(effect => effect.duration > 0)
+        };
+      })
     );
+    
+    addToActionLog("--- Player turn begins ---");
   }
 
   // Reset the "acted" field so that each unit can act again in the new round
@@ -462,6 +649,22 @@ function App() {
                 !enemy.acted &&
                 !enemy.statusEffects.some(effect => effect.type === "frozen")
       );
+
+      // Log frozen enemies
+      const frozenEnemies = enemyUnits.filter(
+        enemy => !enemy.isDead && 
+                !enemy.acted && 
+                enemy.statusEffects.some(effect => effect.type === "frozen")
+      );
+      
+      if (frozenEnemies.length > 0) {
+        frozenEnemies.forEach(enemy => {
+          addToActionLog({
+            text: `${enemy.name} is Frozen and cannot act!`,
+            type: "status"
+          });
+        });
+      }
 
       if (activeEnemies.length === 0) {
         // All enemies are either dead or stunned, end turn
@@ -556,6 +759,10 @@ function App() {
     switch (action) {
       case "Attack":
         setAttackingUnit(selectedPlayerUnit);
+        addToActionLog({
+          text: `${selectedPlayerUnit.name} prepares to attack`,
+          type: "normal"
+        });
         break;
 
       case "UseAbility":
@@ -570,10 +777,18 @@ function App() {
         break;
 
       case "Cancel":
+        addToActionLog({
+          text: `${selectedPlayerUnit.name} cancels their action`,
+          type: "normal"
+        });
         setAttackingUnit(null);
         break;
 
       case "CancelAbility":
+        addToActionLog({
+          text: `${selectedPlayerUnit.name} cancels their ability`,
+          type: "normal"
+        });
         setUsingAbility(false);
         break;
 
@@ -623,6 +838,66 @@ function App() {
     setViewingFullArt(null);
   };
 
+  // Function to export action log as JSON
+  const exportActionLog = () => {
+    // Create a JSON blob from the action log data
+    const logData = JSON.stringify(actionLog, null, 2);
+    const blob = new Blob([logData], { type: 'application/json' });
+    
+    // Create a temporary download link
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = `battle-log-${new Date().toISOString().split('T')[0]}.json`;
+    
+    // Trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    
+    // Clean up
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(downloadLink.href);
+  };
+
+  // Toggle action log visibility
+  const toggleActionLog = () => {
+    setShowActionLog(!showActionLog);
+  };
+
+  // Function to render log entries with appropriate text
+  const renderLogEntry = (entry, index) => {
+    let content = <span className="log-text">{entry.text}</span>;
+    
+    // Handle different log entry types
+    if (entry.type === "attack" && entry.targets) {
+      content = (
+        <>
+          <span className="log-text">
+            {entry.unit} attacks {entry.targets.map(t => `${t.unit} (${t.Damage} dmg)`).join(", ")}
+          </span>
+        </>
+      );
+    } else if (entry.type === "ability" && entry.targets) {
+      content = (
+        <>
+          <span className="log-text">
+            {entry.unit} uses {entry.abilityName} on {entry.targets.map(t => 
+              `${t.unit} (${t.Damage} dmg${t.Status !== "None" ? `, ${t.Status}` : ''})`
+            ).join(", ")}
+          </span>
+        </>
+      );
+    } else if (entry.type === "skip") {
+      content = <span className="log-text">{entry.unit} passes their turn</span>;
+    }
+    
+    return (
+      <div key={index} className={`log-entry ${entry.type}`}>
+        <span className="log-time">{entry.time}</span>
+        {content}
+      </div>
+    );
+  };
+
   return (
     <div className="App">
       <div className="game-container">
@@ -669,6 +944,33 @@ function App() {
           )}
           <div className="side enemy-side">{renderUnitList(enemyUnits, "enemy")}</div>
           <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
+          
+          {/* Action Log Toggle Button */}
+          <button 
+            className="action-log-toggle" 
+            onClick={toggleActionLog}
+          >
+            {showActionLog ? "Hide Log" : "Show Battle Log"}
+          </button>
+          
+          {/* Action Log Panel */}
+          {showActionLog && (
+            <div className="action-log-panel">
+              <div className="action-log-header">
+                <h3>Battle Log</h3>
+                <button 
+                  className="export-log-btn" 
+                  onClick={exportActionLog}
+                  title="Export log as JSON"
+                >
+                  📥 Export
+                </button>
+              </div>
+              <div className="action-log-scroll" ref={logScrollRef}>
+                {actionLog.map((entry, index) => renderLogEntry(entry, index))}
+              </div>
+            </div>
+          )}
         </div>
         {selectedEnemyUnit ? (
           <Sidebar
