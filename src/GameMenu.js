@@ -4,7 +4,13 @@ function GameMenu({
   onSurrender, 
   onResetGame, 
   onOpenSettings,
-  isGameOver
+  isGameOver,
+  selectedTeam,
+  selectedEnemyTeam,
+  availableTeams,
+  enemyTeams,
+  onTeamChange,
+  onEnemyTeamChange
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSurrenderDialog, setShowSurrenderDialog] = useState(false);
@@ -53,6 +59,30 @@ function GameMenu({
             Game Menu
           </div>
           <div className="menu-options">
+            <div className="menu-section">
+              <h4>Team Selection</h4>
+              <select 
+                value={selectedTeam}
+                onChange={(e) => onTeamChange(e.target.value)}
+                className="team-select"
+              >
+                {availableTeams.map(team => (
+                  <option key={team} value={team}>{team}</option>
+                ))}
+              </select>
+              
+              <h4>Enemy Selection</h4>
+              <select 
+                value={selectedEnemyTeam}
+                onChange={(e) => onEnemyTeamChange(e.target.value)}
+                className="team-select"
+              >
+                {enemyTeams.map(team => (
+                  <option key={team} value={team}>{team}</option>
+                ))}
+              </select>
+            </div>
+            
             <div className="menu-option" onClick={handleSettingsClick}>
               <span className="menu-option-icon">⚙️</span>
               <span className="menu-option-text">Settings</span>

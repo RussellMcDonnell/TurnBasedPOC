@@ -9,6 +9,24 @@ function Settings({ isOpen, onClose, gameSettings, onSettingsChange }) {
         <h2>Game Settings</h2>
         
         <div className="settings-list">
+          <div className="setting-item">
+            <div className="setting-item-content">
+              <span className="setting-label">Enable Retaliation</span>
+              <p className="setting-description">
+                When enabled, units will automatically counter-attack when they are attacked, 
+                dealing their full damage to the attacker.
+              </p>
+            </div>
+            <label className="toggle-switch">
+              <input 
+                type="checkbox" 
+                checked={gameSettings.enableRetaliation || false}
+                onChange={(e) => onSettingsChange('enableRetaliation', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          
           <h3>Keyboard Shortcuts</h3>
           <div className="setting-item">
             <div className="shortcuts-list">

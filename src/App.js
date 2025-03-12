@@ -5,14 +5,13 @@ import UnitCard from "./UnitCard";
 import DeveloperPanel from "./DeveloperPanel";
 import GameMenu from "./GameMenu";
 import Settings from "./Settings";
-import varenPortrait from "./images/varen-stormrune-portrait-picture.png";
-import ashbringerPortrait from "./images/ashbringer-portrait-picture.png";
-import lynValkenPortrait from "./images/lyn-valken-portrait-picture.png";
-import emberhowlPortrait from "./images/emberhowl-portrait-picture.png";
-import silkfangPortrait from "./images/silkfang-portrait-picture.png";
-import varenFullArt from "./images/varen-stormrune-full-art.png";
+import { availableTeams, enemyTeams } from "./data/units";
 
 function App() {
+  // Add team selection state
+  const [selectedTeam, setSelectedTeam] = useState("Classic Team");
+  const [selectedEnemyTeam, setSelectedEnemyTeam] = useState("Basic Enemies");
+  
   // Add game settings state
   const [gameSettings, setGameSettings] = useState({
     enableRetaliation: false,
@@ -44,125 +43,29 @@ function App() {
   // Add new state for action history log
   const [actionLog, setActionLog] = useState([]);
 
-  // Store the full game state in a single object
-  const [gameState, setGameState] = useState({
-    playerUnits: [],
-    enemyUnits: [],
-    activeTeam: "player",
-    firstTurnUsed: false,
-    gameOver: false,
-    winner: null
-  });
+  // Helper function to prepare units for the game state
+  const prepareUnits = (units) => {
+    return units.map(unit => ({
+      ...unit,
+      acted: false,
+      isDead: false,
+      hp: unit.maxHP,
+      statusEffects: [],
+      ability: unit.ability ? {
+        ...unit.ability,
+        currentCooldown: 0
+      } : null
+    }));
+  };
 
-  const [playerUnits, setPlayerUnits] = useState([
-    {
-      id: "p1",
-      name: "Varen Stormrune",
-      maxHP: 30,
-      hp: 30,
-      damage: 5,
-      acted: false,
-      isDead: false,
-      image: varenPortrait,
-      fullArt: varenFullArt, // Add fullArt property
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Blizzard",
-        icon: "❄️",
-        description: "Deals damage to all enemy units equal to ATK. Each enemy has a 25% chance to be Stunned for 1 turn (cannot act).",
-        currentCooldown: 0,
-        maxCooldown: 2,
-      },
-      statusEffects: []
-    },
-    {
-      id: "p2",
-      name: "Emberhowl",
-      maxHP: 20,
-      hp: 20,
-      damage: 4,
-      acted: false,
-      isDead: false,
-      image: emberhowlPortrait,
-      fullArt: emberhowlPortrait, // Temporarily using portrait as full art
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Flame Burst",
-        icon: "🔥",
-        description: "Deals 150% ATK damage to one enemy.",
-        currentCooldown: 0,
-        maxCooldown: 1,
-      },
-      statusEffects: []
-    },
-    {
-      id: "p3",
-      name: "Silkfang",
-      maxHP: 15,
-      hp: 15,
-      damage: 3,
-      acted: false,
-      isDead: false,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait, // Temporarily using portrait as full art
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Venomous Bite",
-        icon: "🦂",
-        description: "Applies poison to an enemy, dealing 2 damage per turn for 2 turns.",
-        currentCooldown: 0,
-        maxCooldown: 3,
-      },
-      statusEffects: []
-    },
-    {
-      id: "p4",
-      name: "Silkfang Twin",
-      maxHP: 15,
-      hp: 15,
-      damage: 3,
-      acted: false,
-      isDead: false,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait, // Temporarily using portrait as full art
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Web Trap",
-        icon: "🕸️",
-        description: "Immobilizes an enemy for 1 turn, reducing their damage by 50%.",
-        currentCooldown: 0,
-        maxCooldown: 2,
-      },
-      statusEffects: []
-    },
-  ]);
-
-  const [enemyUnits, setEnemyUnits] = useState([
-    {
-      id: "e1",
-      name: "Ashbringer",
-      maxHP: 50,
-      hp: 50,
-      damage: 8,
-      acted: false,
-      isDead: false,
-      image: ashbringerPortrait,
-      fullArt: ashbringerPortrait, // Temporarily using portrait as full art
-      statusEffects: []
-    },
-    {
-      id: "e2",
-      name: "Lyn Valken",
-      maxHP: 20,
-      hp: 20,
-      damage: 4,
-      acted: false,
-      isDead: false,
-      image: lynValkenPortrait,
-      fullArt: lynValkenPortrait, // Temporarily using portrait as full art
-      statusEffects: []
-    },
-  ]);
+  // Initialize player and enemy units from selected teams
+  const [playerUnits, setPlayerUnits] = useState(() => 
+    prepareUnits(availableTeams[selectedTeam])
+  );
+  
+  const [enemyUnits, setEnemyUnits] = useState(() =>
+    prepareUnits(enemyTeams[selectedEnemyTeam])
+  );
 
   // Track whose turn it is: "player" or "enemy"
   const [activeTeam, setActiveTeam] = useState("player");
@@ -177,7 +80,45 @@ function App() {
 
   // Add ref for auto-scrolling the log
   const logScrollRef = useRef(null);
-  
+
+  // Store the full game state in a single object
+  const [gameState, setGameState] = useState({
+    playerUnits,
+    enemyUnits,
+    activeTeam: "player",
+    firstTurnUsed: false,
+    gameOver: false,
+    winner: null,
+    selectedTeam,
+    selectedEnemyTeam
+  });
+
+  // Effect to update player units when team changes
+  useEffect(() => {
+    setPlayerUnits(prepareUnits(availableTeams[selectedTeam]));
+  }, [selectedTeam]);
+
+  // Effect to update enemy units when enemy team changes
+  useEffect(() => {
+    setEnemyUnits(prepareUnits(enemyTeams[selectedEnemyTeam]));
+  }, [selectedEnemyTeam]);
+
+  // Function to change teams
+  const handleTeamChange = (teamName) => {
+    if (availableTeams[teamName]) {
+      setSelectedTeam(teamName);
+      handleResetGame(teamName, selectedEnemyTeam);
+    }
+  };
+
+  // Function to change enemy teams
+  const handleEnemyTeamChange = (teamName) => {
+    if (enemyTeams[teamName]) {
+      setSelectedEnemyTeam(teamName);
+      handleResetGame(selectedTeam, teamName);
+    }
+  };
+
   // Modified function to add an entry to the action log with structured format
   const addToActionLog = (entry) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -215,13 +156,19 @@ function App() {
       activeTeam,
       firstTurnUsed,
       gameOver,
-      winner
+      winner,
+      selectedTeam,
+      selectedEnemyTeam
     });
-  }, [playerUnits, enemyUnits, activeTeam, firstTurnUsed, gameOver, winner]);
+  }, [playerUnits, enemyUnits, activeTeam, firstTurnUsed, gameOver, winner, selectedTeam, selectedEnemyTeam]);
 
   // Handle imported game state
   const handleImportGameState = (importedState) => {
     try {
+      // Set team selections if present
+      if (importedState.selectedTeam) setSelectedTeam(importedState.selectedTeam);
+      if (importedState.selectedEnemyTeam) setSelectedEnemyTeam(importedState.selectedEnemyTeam);
+      
       // Set all the game state from imported data
       if (importedState.playerUnits) setPlayerUnits(importedState.playerUnits);
       if (importedState.enemyUnits) setEnemyUnits(importedState.enemyUnits);
@@ -262,33 +209,13 @@ function App() {
     });
   };
 
-  // Handle game reset
-  const handleResetGame = () => {
-    // Reset player units
-    setPlayerUnits(prev =>
-      prev.map(unit => ({
-        ...unit,
-        hp: unit.maxHP,
-        acted: false,
-        isDead: false,
-        statusEffects: [],
-        ability: unit.ability ? {
-          ...unit.ability,
-          currentCooldown: 0
-        } : null
-      }))
-    );
+  // Modified handleResetGame to support team selection
+  const handleResetGame = (newTeam = selectedTeam, newEnemyTeam = selectedEnemyTeam) => {
+    // Reset player units with potentially new team
+    setPlayerUnits(prepareUnits(availableTeams[newTeam]));
     
-    // Reset enemy units
-    setEnemyUnits(prev =>
-      prev.map(unit => ({
-        ...unit,
-        hp: unit.maxHP,
-        acted: false,
-        isDead: false,
-        statusEffects: []
-      }))
-    );
+    // Reset enemy units with potentially new team
+    setEnemyUnits(prepareUnits(enemyTeams[newEnemyTeam]));
     
     // Reset game state
     setActiveTeam("player");
@@ -304,7 +231,7 @@ function App() {
     
     // Log the reset
     addToActionLog({
-      text: "Game has been reset. A new battle begins!",
+      text: `Game reset with ${newTeam} vs ${newEnemyTeam}`,
       type: "normal"
     });
     
@@ -326,23 +253,6 @@ function App() {
   useEffect(() => {
     checkVictoryCondition();
   }, [playerUnits, enemyUnits]);
-
-  // Add new effect to check if all player units have acted and end turn automatically
-  useEffect(() => {
-    if (activeTeam === "player" && !gameOver && firstTurnUsed) {
-      // Check if all alive player units have acted
-      const allActed = playerUnits
-        .filter(unit => !unit.isDead)
-        .every(unit => unit.acted);
-
-      if (allActed && playerUnits.some(unit => !unit.isDead)) {
-        // All alive units have acted, end the player's turn
-        setTimeout(() => {
-          endPlayerTurn();
-        }, 500);
-      }
-    }
-  }, [playerUnits, activeTeam, gameOver, firstTurnUsed]);
 
   // Check if all enemies or all players are defeated
   function checkVictoryCondition() {
@@ -432,7 +342,24 @@ function App() {
     }, 750); // Apply retaliation damage after the main attack animation completes
   }
 
-  // Modified handleBasicAttack to use new log format and include retaliation
+  // Check if all player units have acted and end turn automatically
+  useEffect(() => {
+    if (activeTeam === "player" && !gameOver && firstTurnUsed) {
+      // Check if all alive player units have acted
+      const allActed = playerUnits
+        .filter(unit => !unit.isDead)
+        .every(unit => unit.acted);
+
+      if (allActed && playerUnits.some(unit => !unit.isDead)) {
+        // All alive units have acted, end the player's turn
+        setTimeout(() => {
+          endPlayerTurn();
+        }, 500);
+      }
+    }
+  }, [playerUnits, activeTeam, gameOver, firstTurnUsed]);
+
+  // Function to handle basic attack
   function handleBasicAttack(attackerTeam, attackerId, targetId) {
     if (gameOver) return;
 
@@ -574,7 +501,7 @@ function App() {
     }
   }
 
-  // Function to create ice particles for the blizzard animation
+  // Function to create ice particles for blizzard animation
   const generateIceParticles = () => {
     const particles = [];
     
@@ -594,7 +521,7 @@ function App() {
     return particles;
   };
 
-  // Activate the blizzard animation effect
+  // Activate blizzard animation effect
   const activateBlizzard = () => {
     setBlizzardActive(true);
     setIceParticles(generateIceParticles());
@@ -1122,12 +1049,18 @@ function App() {
 
   return (
     <div className="App">
-      {/* Add Game Menu */}
+      {/* Add Game Menu with team selection */}
       <GameMenu 
         onSurrender={handleSurrender}
         onResetGame={handleResetGame}
         onOpenSettings={() => setIsSettingsOpen(true)}
         isGameOver={gameOver}
+        selectedTeam={selectedTeam}
+        selectedEnemyTeam={selectedEnemyTeam}
+        availableTeams={Object.keys(availableTeams)}
+        enemyTeams={Object.keys(enemyTeams)}
+        onTeamChange={handleTeamChange}
+        onEnemyTeamChange={handleEnemyTeamChange}
       />
       
       {/* Add Settings Dialog */}

@@ -898,6 +898,49 @@
   flex-grow: 1;
 }
 
+/* Team Selection Styling */
+.menu-section {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-section h4 {
+  color: #a0c8ff;
+  margin: 0 0 8px 0;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.team-select {
+  width: 100%;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  font-size: 0.9em;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.team-select:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.team-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+.team-select option {
+  background: #2c3e50;
+  color: white;
+}
+
 /* Surrender Confirmation Dialog */
 .surrender-dialog {
   position: fixed;
