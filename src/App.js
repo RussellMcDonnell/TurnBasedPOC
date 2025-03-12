@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
 import UnitCard from "./UnitCard";
+import DeveloperPanel from "./DeveloperPanel"; // Import DeveloperPanel
 import varenPortrait from "./images/varen-stormrune-portrait-picture.png";
 import ashbringerPortrait from "./images/ashbringer-portrait-picture.png";
 import lynValkenPortrait from "./images/lyn-valken-portrait-picture.png";
@@ -28,7 +29,16 @@ function App() {
 
   // Add new state for action history log
   const [actionLog, setActionLog] = useState([]);
-  const [showActionLog, setShowActionLog] = useState(false);
+
+  // Store the full game state in a single object
+  const [gameState, setGameState] = useState({
+    playerUnits: [],
+    enemyUnits: [],
+    activeTeam: "player",
+    firstTurnUsed: false,
+    gameOver: false,
+    winner: null
+  });
 
   const [playerUnits, setPlayerUnits] = useState([
     {
@@ -153,6 +163,48 @@ function App() {
 
   // Add ref for auto-scrolling the log
   const logScrollRef = useRef(null);
+  
+  // Update gameState whenever relevant pieces change
+  useEffect(() => {
+    setGameState({
+      playerUnits,
+      enemyUnits,
+      activeTeam,
+      firstTurnUsed,
+      gameOver,
+      winner
+    });
+  }, [playerUnits, enemyUnits, activeTeam, firstTurnUsed, gameOver, winner]);
+
+  // Handle imported game state
+  const handleImportGameState = (importedState) => {
+    try {
+      // Set all the game state from imported data
+      if (importedState.playerUnits) setPlayerUnits(importedState.playerUnits);
+      if (importedState.enemyUnits) setEnemyUnits(importedState.enemyUnits);
+      if (importedState.activeTeam) setActiveTeam(importedState.activeTeam);
+      if (importedState.firstTurnUsed !== undefined) setFirstTurnUsed(importedState.firstTurnUsed);
+      if (importedState.gameOver !== undefined) setGameOver(importedState.gameOver);
+      if (importedState.winner !== undefined) setWinner(importedState.winner);
+      
+      // Reset UI states
+      setSelectedPlayerUnit(null);
+      setSelectedEnemyUnit(null);
+      setAttackingUnit(null);
+      setUsingAbility(false);
+      
+      addToActionLog({
+        text: `Game state imported successfully`,
+        type: "normal"
+      });
+    } catch (error) {
+      addToActionLog({
+        text: `Error importing game state: ${error.message}`,
+        type: "error"
+      });
+      console.error("Error importing game state:", error);
+    }
+  };
   
   // Modified function to add an entry to the action log with structured format
   const addToActionLog = (entry) => {
@@ -619,7 +671,7 @@ function App() {
         };
       })
     );
-    
+
     addToActionLog("--- Player turn begins ---");
   }
 
@@ -838,66 +890,6 @@ function App() {
     setViewingFullArt(null);
   };
 
-  // Function to export action log as JSON
-  const exportActionLog = () => {
-    // Create a JSON blob from the action log data
-    const logData = JSON.stringify(actionLog, null, 2);
-    const blob = new Blob([logData], { type: 'application/json' });
-    
-    // Create a temporary download link
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = `battle-log-${new Date().toISOString().split('T')[0]}.json`;
-    
-    // Trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    
-    // Clean up
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(downloadLink.href);
-  };
-
-  // Toggle action log visibility
-  const toggleActionLog = () => {
-    setShowActionLog(!showActionLog);
-  };
-
-  // Function to render log entries with appropriate text
-  const renderLogEntry = (entry, index) => {
-    let content = <span className="log-text">{entry.text}</span>;
-    
-    // Handle different log entry types
-    if (entry.type === "attack" && entry.targets) {
-      content = (
-        <>
-          <span className="log-text">
-            {entry.unit} attacks {entry.targets.map(t => `${t.unit} (${t.Damage} dmg)`).join(", ")}
-          </span>
-        </>
-      );
-    } else if (entry.type === "ability" && entry.targets) {
-      content = (
-        <>
-          <span className="log-text">
-            {entry.unit} uses {entry.abilityName} on {entry.targets.map(t => 
-              `${t.unit} (${t.Damage} dmg${t.Status !== "None" ? `, ${t.Status}` : ''})`
-            ).join(", ")}
-          </span>
-        </>
-      );
-    } else if (entry.type === "skip") {
-      content = <span className="log-text">{entry.unit} passes their turn</span>;
-    }
-    
-    return (
-      <div key={index} className={`log-entry ${entry.type}`}>
-        <span className="log-time">{entry.time}</span>
-        {content}
-      </div>
-    );
-  };
-
   return (
     <div className="App">
       <div className="game-container">
@@ -944,33 +936,6 @@ function App() {
           )}
           <div className="side enemy-side">{renderUnitList(enemyUnits, "enemy")}</div>
           <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
-          
-          {/* Action Log Toggle Button */}
-          <button 
-            className="action-log-toggle" 
-            onClick={toggleActionLog}
-          >
-            {showActionLog ? "Hide Log" : "Show Battle Log"}
-          </button>
-          
-          {/* Action Log Panel */}
-          {showActionLog && (
-            <div className="action-log-panel">
-              <div className="action-log-header">
-                <h3>Battle Log</h3>
-                <button 
-                  className="export-log-btn" 
-                  onClick={exportActionLog}
-                  title="Export log as JSON"
-                >
-                  📥 Export
-                </button>
-              </div>
-              <div className="action-log-scroll" ref={logScrollRef}>
-                {actionLog.map((entry, index) => renderLogEntry(entry, index))}
-              </div>
-            </div>
-          )}
         </div>
         {selectedEnemyUnit ? (
           <Sidebar
@@ -1014,6 +979,13 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Add Developer Panel */}
+      <DeveloperPanel 
+        actionLog={actionLog}
+        gameState={gameState}
+        onImportGameState={handleImportGameState}
+      />
     </div>
   );
 }
