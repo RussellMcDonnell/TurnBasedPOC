@@ -142,6 +142,23 @@ function App() {
     checkVictoryCondition();
   }, [playerUnits, enemyUnits]);
 
+  // Add new effect to check if all player units have acted and end turn automatically
+  useEffect(() => {
+    if (activeTeam === "player" && !gameOver && firstTurnUsed) {
+      // Check if all alive player units have acted
+      const allActed = playerUnits
+        .filter(unit => !unit.isDead)
+        .every(unit => unit.acted);
+
+      if (allActed && playerUnits.some(unit => !unit.isDead)) {
+        // All alive units have acted, end the player's turn
+        setTimeout(() => {
+          endPlayerTurn();
+        }, 500);
+      }
+    }
+  }, [playerUnits, activeTeam, gameOver, firstTurnUsed]);
+
   // Check if all enemies or all players are defeated
   function checkVictoryCondition() {
     const allEnemiesDead = enemyUnits.every((unit) => unit.isDead);
@@ -364,6 +381,12 @@ function App() {
     setActiveTeam("enemy");
     resetActedStatus("player");
     setCurrentlyAttacking(null); // Reset currentlyAttacking state
+    
+    // Clear any selected units and attack state when ending turn
+    setSelectedPlayerUnit(null);
+    setSelectedEnemyUnit(null);
+    setAttackingUnit(null);
+    setUsingAbility(false);
 
     // Process cooldowns at turn end
     setPlayerUnits(prev =>
