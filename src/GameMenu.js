@@ -37,16 +37,6 @@ function GameMenu({
     setIsMenuOpen(false);
   };
   
-  const handleTeamClick = () => {
-    navigate("/team");
-    setIsMenuOpen(false);
-  };
-  
-  const handleStoreClick = () => {
-    navigate("/store");
-    setIsMenuOpen(false);
-  };
-  
   const confirmSurrender = () => {
     setShowSurrenderDialog(false);
     onSurrender();
@@ -98,21 +88,6 @@ function GameMenu({
             <div className="menu-option" onClick={handleSettingsClick}>
               <span className="menu-option-icon">⚙️</span>
               <span className="menu-option-text">Settings</span>
-            </div>
-            
-            <div className="menu-option" onClick={handleTeamClick}>
-              <span className="menu-option-icon">👥</span>
-              <span className="menu-option-text">Team</span>
-            </div>
-            
-            <div className="menu-option" onClick={handleStoreClick}>
-              <span className="menu-option-icon">🛒</span>
-              <span className="menu-option-text">Store</span>
-            </div>
-            
-            <div className="menu-option" onClick={handleResetClick}>
-              <span className="menu-option-icon">🔄</span>
-              <span className="menu-option-text">Reset Game</span>
             </div>
             
             {!isGameOver && (
