@@ -1,0 +1,68 @@
+.main-menu {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  position: fixed; /* Change to fixed positioning */
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.main-menu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.menu-content {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.menu-content h1 {
+  font-size: 4em;
+  color: white;
+  margin-bottom: 1em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.menu-button {
+  padding: 15px 40px;
+  font-size: 1.5em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.play-button {
+  background: linear-gradient(45deg, #2ecc71, #27ae60);
+  color: white;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.play-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+  background: linear-gradient(45deg, #27ae60, #219a52);
+}

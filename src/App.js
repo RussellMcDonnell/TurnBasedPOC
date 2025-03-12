@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
+import MainMenu from "./MainMenu";
 import Sidebar from "./Sidebar";
 import UnitCard from "./UnitCard";
 import DeveloperPanel from "./DeveloperPanel";
@@ -8,6 +9,8 @@ import Settings from "./Settings";
 import { availableTeams, enemyTeams } from "./data/units";
 
 function App() {
+  const [isInGame, setIsInGame] = useState(false);
+
   // Add team selection state
   const [selectedTeam, setSelectedTeam] = useState("Classic Team");
   const [selectedEnemyTeam, setSelectedEnemyTeam] = useState("Basic Enemies");
@@ -239,7 +242,13 @@ function App() {
     addToActionLog("--- Player turn begins ---");
   };
   
-  // Handle surrender
+  // Handle starting the game from main menu
+  const handleStartGame = () => {
+    setIsInGame(true);
+    handleResetGame(); // Reset the game state when starting
+  };
+
+  // Modified handleResetGame to support returning to main menu
   const handleSurrender = () => {
     setGameOver(true);
     setWinner("enemy");
@@ -247,8 +256,13 @@ function App() {
       text: "You have surrendered the battle!",
       type: "defeat"
     });
+
+    // Return to main menu after a delay
+    setTimeout(() => {
+      setIsInGame(false);
+    }, 2000);
   };
-  
+
   // This effect checks after every action if someone won.
   useEffect(() => {
     checkVictoryCondition();
@@ -1049,143 +1063,149 @@ function App() {
 
   return (
     <div className="App">
-      {/* Add Game Menu with team selection */}
-      <GameMenu 
-        onSurrender={handleSurrender}
-        onResetGame={handleResetGame}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        isGameOver={gameOver}
-        selectedTeam={selectedTeam}
-        selectedEnemyTeam={selectedEnemyTeam}
-        availableTeams={Object.keys(availableTeams)}
-        enemyTeams={Object.keys(enemyTeams)}
-        onTeamChange={handleTeamChange}
-        onEnemyTeamChange={handleEnemyTeamChange}
-      />
-      
-      {/* Add Settings Dialog */}
-      <Settings 
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        gameSettings={gameSettings}
-        onSettingsChange={handleSettingsChange}
-      />
-      
-      <div className="game-container">
-        <div className={`turn-indicator ${activeTeam}-turn`}>
-          <span className="turn-icon">⚔️</span>
-          <span>
-            {activeTeam === "player"
-              ? "Your Turn"
-              : currentlyAttacking
-                ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
-                : "Enemy Turn"
-            }
-          </span>
-        </div>
-        {selectedPlayerUnit ? (
-          <Sidebar
-            unit={selectedPlayerUnit}
-            onClose={() => {
-              setSelectedPlayerUnit(null);
-              setAttackingUnit(null);
-              setUsingAbility(false);
-            }}
-            onAction={handleAction}
-            onViewFullArt={handleViewFullArt}
-            position="left"
-            isAttacking={!!attackingUnit}
-            hasTarget={!!selectedEnemyUnit}
-            isUsingAbility={usingAbility}
+      {!isInGame ? (
+        <MainMenu onStartGame={handleStartGame} />
+      ) : (
+        <>
+          <GameMenu 
+            selectedTeam={selectedTeam}
+            selectedEnemyTeam={selectedEnemyTeam}
+            availableTeams={Object.keys(availableTeams)}
+            enemyTeams={Object.keys(enemyTeams)}
+            onTeamChange={handleTeamChange}
+            onEnemyTeamChange={handleEnemyTeamChange}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            isGameOver={gameOver}
+            onSurrender={handleSurrender}
           />
-        ) : (
-          <div className="sidebar-placeholder" />
-        )}
-        <div className="battlefield" data-attacking={!!attackingUnit}>
-          {attackingUnit && selectedEnemyUnit && (
-            <div
-              className="attack-line"
-              style={{
-                "--start-x": `${attackingUnit.cardPosition?.x || 0}px`,
-                "--start-y": `${attackingUnit.cardPosition?.y || 0}px`,
-                "--end-x": `${selectedEnemyUnit.cardPosition?.x || 0}px`,
-                "--end-y": `${selectedEnemyUnit.cardPosition?.y || 0}px`,
-              }}
-            />
-          )}
-          <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
-            {blizzardActive && (
-              <>
-                <div className="blizzard-overlay" />
-                {iceParticles.map((particle) => (
-                  <div
-                    key={particle.id}
-                    className={particle.type}
-                    style={{
-                      left: particle.left,
-                      top: particle.top,
-                      animationDuration: particle.animationDuration,
-                      animationDelay: particle.animationDelay
-                    }}
-                  />
-                ))}
-              </>
+          
+          <Settings 
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+            gameSettings={gameSettings}
+            onSettingsChange={handleSettingsChange}
+          />
+          
+          <div className="game-container">
+            <div className={`turn-indicator ${activeTeam}-turn`}>
+              <span className="turn-icon">⚔️</span>
+              <span>
+                {activeTeam === "player"
+                  ? "Your Turn"
+                  : currentlyAttacking
+                    ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
+                    : "Enemy Turn"
+                }
+              </span>
+            </div>
+            {selectedPlayerUnit ? (
+              <Sidebar
+                unit={selectedPlayerUnit}
+                onClose={() => {
+                  setSelectedPlayerUnit(null);
+                  setAttackingUnit(null);
+                  setUsingAbility(false);
+                }}
+                onAction={handleAction}
+                onViewFullArt={handleViewFullArt}
+                position="left"
+                isAttacking={!!attackingUnit}
+                hasTarget={!!selectedEnemyUnit}
+                isUsingAbility={usingAbility}
+              />
+            ) : (
+              <div className="sidebar-placeholder" />
             )}
-            {renderUnitList(enemyUnits, "enemy")}
-          </div>
-          <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
-        </div>
-        {selectedEnemyUnit ? (
-          <Sidebar
-            unit={selectedEnemyUnit}
-            onClose={() => setSelectedEnemyUnit(null)}
-            onViewFullArt={handleViewFullArt}
-            position="right"
-          />
-        ) : (
-          <div className="sidebar-placeholder" />
-        )}
-      </div>
-
-      {gameOver && (
-        <div className="game-over">
-          <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
-          <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
-        </div>
-      )}
-
-      {/* Show status effects on units */}
-      {playerUnits.concat(enemyUnits).map(unit =>
-        unit.statusEffects && unit.statusEffects.length > 0 && (
-          <div key={`status-${unit.id}`} className="status-effects">
-            {unit.statusEffects.map((effect, idx) => (
-              <div key={`${unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
-                {effect.icon}
+            <div className="battlefield" data-attacking={!!attackingUnit}>
+              {attackingUnit && selectedEnemyUnit && (
+                <div
+                  className="attack-line"
+                  style={{
+                    "--start-x": `${attackingUnit.cardPosition?.x || 0}px`,
+                    "--start-y": `${attackingUnit.cardPosition?.y || 0}px`,
+                    "--end-x": `${selectedEnemyUnit.cardPosition?.x || 0}px`,
+                    "--end-y": `${selectedEnemyUnit.cardPosition?.y || 0}px`,
+                  }}
+                />
+              )}
+              <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
+                {blizzardActive && (
+                  <>
+                    <div className="blizzard-overlay" />
+                    {iceParticles.map((particle) => (
+                      <div
+                        key={particle.id}
+                        className={particle.type}
+                        style={{
+                          left: particle.left,
+                          top: particle.top,
+                          animationDuration: particle.animationDuration,
+                          animationDelay: particle.animationDelay
+                        }}
+                      />
+                    ))}
+                  </>
+                )}
+                {renderUnitList(enemyUnits, "enemy")}
               </div>
-            ))}
+              <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
+            </div>
+            {selectedEnemyUnit ? (
+              <Sidebar
+                unit={selectedEnemyUnit}
+                onClose={() => setSelectedEnemyUnit(null)}
+                onViewFullArt={handleViewFullArt}
+                position="right"
+              />
+            ) : (
+              <div className="sidebar-placeholder" />
+            )}
           </div>
-        )
-      )}
 
-      {/* Display full art if applicable */}
-      {viewingFullArt && (
-        <div className="full-art-overlay" onClick={closeFullArt}>
-          <div className="full-art-container">
-            <button className="close-full-art" onClick={closeFullArt}>×</button>
-            <img src={viewingFullArt.fullArt} alt={viewingFullArt.name} />
-            <h3 className="full-art-title">{viewingFullArt.name}</h3>
-          </div>
-        </div>
-      )}
+          {gameOver && (
+            <div className="game-over">
+              <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
+              <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
+              <button className="return-to-menu" onClick={() => setIsInGame(false)}>
+                Return to Main Menu
+              </button>
+            </div>
+          )}
 
-      {/* Updated Developer Panel with new props */}
-      <DeveloperPanel 
-        actionLog={actionLog}
-        gameState={gameState}
-        onImportGameState={handleImportGameState}
-        gameSettings={gameSettings}
-        onSettingsChange={handleSettingsChange}
-      />
+          {/* Show status effects on units */}
+          {playerUnits.concat(enemyUnits).map(unit =>
+            unit.statusEffects && unit.statusEffects.length > 0 && (
+              <div key={`status-${unit.id}`} className="status-effects">
+                {unit.statusEffects.map((effect, idx) => (
+                  <div key={`${unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
+                    {effect.icon}
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+
+          {/* Display full art if applicable */}
+          {viewingFullArt && (
+            <div className="full-art-overlay" onClick={closeFullArt}>
+              <div className="full-art-container">
+                <button className="close-full-art" onClick={closeFullArt}>×</button>
+                <img src={viewingFullArt.fullArt} alt={viewingFullArt.name} />
+                <h3 className="full-art-title">{viewingFullArt.name}</h3>
+              </div>
+            </div>
+          )}
+
+          {/* Updated Developer Panel with new props */}
+          <DeveloperPanel 
+            actionLog={actionLog}
+            gameState={gameState}
+            onImportGameState={handleImportGameState}
+            gameSettings={gameSettings}
+            onSettingsChange={handleSettingsChange}
+          />
+        </>
+      )}
     </div>
   );
 }
