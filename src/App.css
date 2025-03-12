@@ -347,6 +347,85 @@
   animation: ability-glow 1.2s ease-in-out;
 }
 
+/* Blizzard effect styles */
+.battlefield.blizzard-active {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Update enemy-side specific blizzard styles */
+.enemy-side.blizzard-active {
+  position: relative;
+  overflow: hidden;
+}
+
+.enemy-side .blizzard-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+  background: linear-gradient(180deg, rgba(175, 238, 255, 0.1) 0%, rgba(175, 238, 255, 0) 100%);
+  animation: blizzardFlash 3s ease-in-out;
+}
+
+@keyframes blizzardFlash {
+  0% { background-color: rgba(175, 238, 255, 0); }
+  25% { background-color: rgba(175, 238, 255, 0.1); }
+  35% { background-color: rgba(175, 238, 255, 0.2); }
+  60% { background-color: rgba(175, 238, 255, 0.1); }
+  100% { background-color: rgba(175, 238, 255, 0); }
+}
+
+.enemy-side .ice-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #afeeff;
+  opacity: 0.7;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 2px #ffffff);
+  animation-name: enemyFalling;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  z-index: 101;
+}
+
+.enemy-side .ice-shard {
+  position: absolute;
+  width: 4px;
+  height: 15px;
+  background-color: #d9f8ff;
+  opacity: 0.7;
+  border-radius: 2px;
+  filter: drop-shadow(0 0 3px #afeeff);
+  transform: rotate(25deg);
+  animation-name: enemyFalling;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  z-index: 101;
+}
+
+/* Update the enemy falling animation to work better with the enemy side container */
+@keyframes enemyFalling {
+  0% {
+    transform: translateY(-30px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(350px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
 /* Status effect styling */
 .status-effects {
   display: flex;

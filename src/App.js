@@ -20,6 +20,10 @@ function App() {
   const [animatingUnitId, setAnimatingUnitId] = useState(null);
   const [damagedUnitId, setDamagedUnitId] = useState(null);
 
+  // Add state for blizzard animation
+  const [blizzardActive, setBlizzardActive] = useState(false);
+  const [iceParticles, setIceParticles] = useState([]);
+
   const [selectedPlayerUnit, setSelectedPlayerUnit] = useState(null);
   const [selectedEnemyUnit, setSelectedEnemyUnit] = useState(null);
   const [attackingUnit, setAttackingUnit] = useState(null);
@@ -505,6 +509,38 @@ function App() {
     }
   }
 
+  // Function to create ice particles for the blizzard animation
+  const generateIceParticles = () => {
+    const particles = [];
+    
+    // Create 30 ice particles
+    for (let i = 0; i < 30; i++) {
+      const isRegularIce = Math.random() > 0.3; // 70% regular ice particles, 30% ice shards
+      particles.push({
+        id: `ice-${i}`,
+        left: `${Math.random() * 100}%`,
+        top: `-${Math.random() * 10}%`, // Start slightly above the element
+        animationDuration: `${1 + Math.random() * 3}s`,
+        animationDelay: `${Math.random() * 2}s`,
+        type: isRegularIce ? 'ice-particle' : 'ice-shard',
+      });
+    }
+    
+    return particles;
+  };
+
+  // Activate the blizzard animation effect
+  const activateBlizzard = () => {
+    setBlizzardActive(true);
+    setIceParticles(generateIceParticles());
+    
+    // End the effect after animation completes
+    setTimeout(() => {
+      setBlizzardActive(false);
+      setIceParticles([]);
+    }, 3000); // Match this time with the CSS animation duration
+  };
+
   // New function to handle ability usage
   function handleAbilityUse(unitId) {
     if (gameOver) return;
@@ -525,6 +561,9 @@ function App() {
           abilityName: unit.ability.name,
           targets: []
         };
+        
+        // Activate blizzard animation effect
+        activateBlizzard();
         
         // Blizzard ability - damages all enemies with chance to stun
         setTimeout(() => {
@@ -1031,7 +1070,27 @@ function App() {
               }}
             />
           )}
-          <div className="side enemy-side">{renderUnitList(enemyUnits, "enemy")}</div>
+          <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
+            {/* Blizzard animation elements */}
+            {blizzardActive && (
+              <>
+                <div className="blizzard-overlay"></div>
+                {iceParticles.map(particle => (
+                  <div
+                    key={particle.id}
+                    className={particle.type}
+                    style={{
+                      left: particle.left,
+                      top: particle.top,
+                      animationDuration: particle.animationDuration,
+                      animationDelay: particle.animationDelay
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            {renderUnitList(enemyUnits, "enemy")}
+          </div>
           <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
         </div>
         {selectedEnemyUnit ? (
