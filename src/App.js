@@ -1180,7 +1180,26 @@ function App() {
               }}
             />
           )}
-          <div className="side enemy-side">{renderUnitList(enemyUnits, "enemy")}</div>
+          <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
+            {blizzardActive && (
+              <>
+                <div className="blizzard-overlay" />
+                {iceParticles.map((particle) => (
+                  <div
+                    key={particle.id}
+                    className={particle.type}
+                    style={{
+                      left: particle.left,
+                      top: particle.top,
+                      animationDuration: particle.animationDuration,
+                      animationDelay: particle.animationDelay
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            {renderUnitList(enemyUnits, "enemy")}
+          </div>
           <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
         </div>
         {selectedEnemyUnit ? (
