@@ -1,0 +1,88 @@
+.team-page {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.search-bar {
+  flex: 1;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.filter-button {
+  padding: 5px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: #ffffff;
+  cursor: not-allowed; /* Not implemented yet */
+}
+
+.left-sidebar {
+  width: 200px;
+  background-color: #f1f3f5;
+  border-right: 1px solid #dee2e6;
+  overflow-y: auto;
+}
+
+.team-list {
+  padding: 10px;
+}
+
+.team-item {
+  padding: 10px;
+  margin-bottom: 5px;
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-team-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background-color: #007bff;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.main-content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.unit-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.unit-card {
+  width: 150px;
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.unit-image {
+  width: 100%;
+  height: auto;
+}
+
+.unit-details {
+  margin-top: 10px;
+}
