@@ -18,6 +18,10 @@ function App() {
   const [attackingUnit, setAttackingUnit] = useState(null);
   const [currentlyAttacking, setCurrentlyAttacking] = useState(null);
 
+  // Add new state for ability usage
+  const [usingAbility, setUsingAbility] = useState(false);
+  const [animatingAbility, setAnimatingAbility] = useState(false);
+
   const [playerUnits, setPlayerUnits] = useState([
     {
       id: "p1",
@@ -29,6 +33,14 @@ function App() {
       isDead: false,
       image: varenPortrait,
       actions: ["Attack", "Pass"],
+      ability: {
+        name: "Blizzard",
+        icon: "❄️",
+        description: "Deals damage to all enemy units equal to ATK. Each enemy has a 25% chance to be Stunned for 1 turn (cannot act).",
+        currentCooldown: 0,
+        maxCooldown: 2,
+      },
+      statusEffects: []
     },
     {
       id: "p2",
@@ -40,6 +52,14 @@ function App() {
       isDead: false,
       image: emberhowlPortrait,
       actions: ["Attack", "Pass"],
+      ability: {
+        name: "Flame Burst",
+        icon: "🔥",
+        description: "Deals 150% ATK damage to one enemy.",
+        currentCooldown: 0,
+        maxCooldown: 1,
+      },
+      statusEffects: []
     },
     {
       id: "p3",
@@ -51,6 +71,14 @@ function App() {
       isDead: false,
       image: silkfangPortrait,
       actions: ["Attack", "Pass"],
+      ability: {
+        name: "Venomous Bite",
+        icon: "🦂",
+        description: "Applies poison to an enemy, dealing 2 damage per turn for 2 turns.",
+        currentCooldown: 0,
+        maxCooldown: 3,
+      },
+      statusEffects: []
     },
     {
       id: "p4",
@@ -62,6 +90,14 @@ function App() {
       isDead: false,
       image: silkfangPortrait,
       actions: ["Attack", "Pass"],
+      ability: {
+        name: "Web Trap",
+        icon: "🕸️",
+        description: "Immobilizes an enemy for 1 turn, reducing their damage by 50%.",
+        currentCooldown: 0,
+        maxCooldown: 2,
+      },
+      statusEffects: []
     },
   ]);
 
@@ -75,6 +111,7 @@ function App() {
       acted: false,
       isDead: false,
       image: ashbringerPortrait,
+      statusEffects: []
     },
     {
       id: "e2",
@@ -85,6 +122,7 @@ function App() {
       acted: false,
       isDead: false,
       image: lynValkenPortrait,
+      statusEffects: []
     },
   ]);
 
@@ -132,7 +170,7 @@ function App() {
 
       // Start attack animation immediately
       setAnimatingUnitId(attackerId);
-      
+
       // Apply damage after animation starts
       setTimeout(() => {
         setDamagedUnitId(targetId);
@@ -176,7 +214,7 @@ function App() {
 
       // Start attack animation immediately
       setAnimatingUnitId(attackerId);
-      
+
       setTimeout(() => {
         setDamagedUnitId(targetId);
         setPlayerUnits((prev) =>
@@ -206,6 +244,102 @@ function App() {
     }
   }
 
+  // New function to handle ability usage
+  function handleAbilityUse(unitId) {
+    if (gameOver) return;
+
+    const unit = playerUnits.find(u => u.id === unitId);
+    if (!unit || unit.acted || unit.isDead || unit.ability.currentCooldown > 0) return;
+
+    setAnimatingUnitId(unitId);
+    setAnimatingAbility(true);
+
+    // Handle specific abilities
+    switch(unit.name) {
+      case "Varen Stormrune":
+        // Blizzard ability - damages all enemies with chance to stun
+        setTimeout(() => {
+          const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead);
+
+          // Apply damage to all enemies
+          setEnemyUnits(prev =>
+            prev.map(enemy => {
+              if (enemy.isDead) return enemy;
+
+              const newHP = enemy.hp - unit.damage;
+              const isStunned = Math.random() < 0.25; // 25% chance to stun
+
+              const newStatusEffects = [...enemy.statusEffects];
+
+              if (isStunned) {
+                // Add stunned status effect
+                newStatusEffects.push({
+                  type: "frozen",
+                  name: "Frozen",
+                  icon: "❄️",
+                  duration: 1
+                });
+              }
+
+              return {
+                ...enemy,
+                hp: newHP,
+                isDead: newHP <= 0,
+                statusEffects: newStatusEffects
+              };
+            })
+          );
+
+          // Set ability on cooldown
+          setPlayerUnits(prev =>
+            prev.map(u => {
+              if (u.id === unitId) {
+                return {
+                  ...u,
+                  acted: true,
+                  ability: {
+                    ...u.ability,
+                    currentCooldown: u.ability.maxCooldown
+                  }
+                };
+              }
+              return u;
+            })
+          );
+
+          // Clear animations
+          setTimeout(() => {
+            setAnimatingUnitId(null);
+            setAnimatingAbility(false);
+          }, 800);
+        }, 500);
+        break;
+
+      case "Emberhowl":
+        // For now, we'll handle other abilities generically
+        // In a real implementation, each ability would have specific effects
+        setUsingAbility(true);
+        break;
+
+      case "Silkfang":
+        setUsingAbility(true);
+        break;
+
+      case "Silkfang Twin":
+        setUsingAbility(true);
+        break;
+
+      default:
+        // Generic ability handling
+        setUsingAbility(true);
+    }
+
+    if (!firstTurnUsed) {
+      setFirstTurnUsed(true);
+      setTimeout(() => endPlayerTurn(), 1500);
+    }
+  }
+
   // Pass action
   function handlePass(team, unitId) {
     if (gameOver) return;
@@ -230,12 +364,43 @@ function App() {
     setActiveTeam("enemy");
     resetActedStatus("player");
     setCurrentlyAttacking(null); // Reset currentlyAttacking state
+
+    // Process cooldowns at turn end
+    setPlayerUnits(prev =>
+      prev.map(unit => ({
+        ...unit,
+        ability: unit.ability ? {
+          ...unit.ability,
+          currentCooldown: Math.max(0, unit.ability.currentCooldown - 1)
+        } : null
+      }))
+    );
+
+    // Process status effects at turn end
+    setEnemyUnits(prev =>
+      prev.map(unit => ({
+        ...unit,
+        statusEffects: unit.statusEffects
+          .map(effect => ({ ...effect, duration: effect.duration - 1 }))
+          .filter(effect => effect.duration > 0)
+      }))
+    );
   }
 
   // After the enemy acts, switch to player
   function endEnemyTurn() {
     setActiveTeam("player");
     resetActedStatus("enemy");
+
+    // Process status effects at turn end
+    setPlayerUnits(prev =>
+      prev.map(unit => ({
+        ...unit,
+        statusEffects: unit.statusEffects
+          .map(effect => ({ ...effect, duration: effect.duration - 1 }))
+          .filter(effect => effect.duration > 0)
+      }))
+    );
   }
 
   // Reset the "acted" field so that each unit can act again in the new round
@@ -258,14 +423,28 @@ function App() {
   // Modified enemy turn logic for sequential attacks
   useEffect(() => {
     if (activeTeam === "enemy" && !gameOver) {
+      // Check for stunned enemies first
+      const activeEnemies = enemyUnits.filter(
+        enemy => !enemy.isDead &&
+                !enemy.acted &&
+                !enemy.statusEffects.some(effect => effect.type === "frozen")
+      );
+
+      if (activeEnemies.length === 0) {
+        // All enemies are either dead or stunned, end turn
+        setTimeout(() => {
+          endEnemyTurn();
+        }, 500);
+        return;
+      }
+
       // Let each enemy unit do a basic attack on the first alive player unit, then end turn.
       const alivePlayerUnits = playerUnits.filter((u) => !u.isDead);
       const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].id : null;
-      const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead && !enemy.acted);
 
-      if (targetId && aliveEnemies.length > 0) {
+      if (targetId && activeEnemies.length > 0) {
         const performEnemyAttack = (index) => {
-          const enemy = aliveEnemies[index];
+          const enemy = activeEnemies[index];
           if (!enemy) {
             // All enemies have attacked, end turn
             setCurrentlyAttacking(null);
@@ -296,6 +475,17 @@ function App() {
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
+    if (gameOver) return;
+
+    if (usingAbility) {
+      if (team === "enemy" && !unit.isDead) {
+        // Implement target selection for abilities that need targets
+        // For now, cancel ability mode when clicking an enemy during ability use
+        setUsingAbility(false);
+      }
+      return;
+    }
+
     if (attackingUnit) {
       // If we're in attack mode and clicked an enemy
       if (team === "enemy" && !unit.isDead) {
@@ -330,18 +520,37 @@ function App() {
   const handleAction = (action) => {
     if (!selectedPlayerUnit) return;
 
-    if (action === "Attack") {
-      setAttackingUnit(selectedPlayerUnit);
-    } else if (action === "Confirm") {
-      handleBasicAttack("player", attackingUnit.id, selectedEnemyUnit.id);
-      setAttackingUnit(null);
-      setSelectedPlayerUnit(null);
-      setSelectedEnemyUnit(null);
-    } else if (action === "Cancel") {
-      setAttackingUnit(null);
-    } else if (action === "Pass") {
-      handlePass("player", selectedPlayerUnit.id);
-      setSelectedPlayerUnit(null);
+    switch (action) {
+      case "Attack":
+        setAttackingUnit(selectedPlayerUnit);
+        break;
+
+      case "UseAbility":
+        handleAbilityUse(selectedPlayerUnit.id);
+        break;
+
+      case "Confirm":
+        handleBasicAttack("player", attackingUnit.id, selectedEnemyUnit.id);
+        setAttackingUnit(null);
+        setSelectedPlayerUnit(null);
+        setSelectedEnemyUnit(null);
+        break;
+
+      case "Cancel":
+        setAttackingUnit(null);
+        break;
+
+      case "CancelAbility":
+        setUsingAbility(false);
+        break;
+
+      case "Pass":
+        handlePass("player", selectedPlayerUnit.id);
+        setSelectedPlayerUnit(null);
+        break;
+
+      default:
+        console.warn(`Unknown action: ${action}`);
     }
   };
 
@@ -360,7 +569,7 @@ function App() {
             }
             isAttacking={attackingUnit?.id === unit.id}
             className={`
-              ${animatingUnitId === unit.id ? 'attacking' : ''}
+              ${animatingUnitId === unit.id ? (animatingAbility ? 'using-ability' : 'attacking') : ''}
               ${damagedUnitId === unit.id ? 'taking-damage' : ''}
             `}
             onClick={() => handleUnitClick(unit, team)}
@@ -376,9 +585,9 @@ function App() {
         <div className={`turn-indicator ${activeTeam}-turn`}>
           <span className="turn-icon">⚔️</span>
           <span>
-            {activeTeam === "player" 
-              ? "Your Turn" 
-              : currentlyAttacking 
+            {activeTeam === "player"
+              ? "Your Turn"
+              : currentlyAttacking
                 ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
                 : "Enemy Turn"
             }
@@ -390,11 +599,13 @@ function App() {
             onClose={() => {
               setSelectedPlayerUnit(null);
               setAttackingUnit(null);
+              setUsingAbility(false);
             }}
             onAction={handleAction}
             position="left"
             isAttacking={!!attackingUnit}
             hasTarget={!!selectedEnemyUnit}
+            isUsingAbility={usingAbility}
           />
         ) : (
           <div className="sidebar-placeholder" />
@@ -424,6 +635,26 @@ function App() {
           <div className="sidebar-placeholder" />
         )}
       </div>
+
+      {gameOver && (
+        <div className="game-over">
+          <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
+          <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
+        </div>
+      )}
+
+      {/* Show status effects on units */}
+      {playerUnits.concat(enemyUnits).map(unit =>
+        unit.statusEffects && unit.statusEffects.length > 0 && (
+          <div key={`status-${unit.id}`} className="status-effects">
+            {unit.statusEffects.map((effect, idx) => (
+              <div key={`${unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
+                {effect.icon}
+              </div>
+            ))}
+          </div>
+        )
+      )}
     </div>
   );
 }
