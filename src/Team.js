@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Team.css'; // Import the CSS file below
 
 // Example data for teams
@@ -71,9 +72,14 @@ const initialCards = [
 function Team() {
   const [searchTerm, setSearchTerm] = useState('');
   const [cards] = useState(initialCards);
+  const navigate = useNavigate();
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleBackClick = () => {
+    navigate('/');
   };
 
   // Filter cards based on the search term (by name or type)
@@ -97,6 +103,7 @@ function Team() {
       {/* Main content */}
       <main className="main-content">
         <header className="header-bar">
+          <button className="back-button" onClick={handleBackClick}>Back</button>
           <h1>Default Team View</h1>
           <div className="search-box">
             <input
