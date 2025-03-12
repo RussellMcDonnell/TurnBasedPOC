@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Team.css'; // Assuming you will create a CSS file for styling
 
-function Team({ teams, units, onSearch, onCreateTeam }) {
+function Team({ teams = [], units = [], onSearch, onCreateTeam }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchChange = (e) => {
