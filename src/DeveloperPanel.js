@@ -98,9 +98,15 @@ function DeveloperPanel({
         </>
       );
     } else if (entry.type === "skip") {
-      content = <span className="log-text">{entry.unit} passes their turn</span>;
+      content = <span className="log-text">{entry.unit} skips their turn</span>;
+    } else if (entry.type === "ability") {
+      content = (
+        <>
+          <span className="log-text">{entry.text}</span>
+        </>
+      );
     }
-    
+
     return (
       <div key={index} className={`log-entry ${entry.type}`}>
         <span className="log-time">{entry.time}</span>

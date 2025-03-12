@@ -65,7 +65,7 @@ function App() {
       isDead: false,
       image: varenPortrait,
       fullArt: varenFullArt, // Add fullArt property
-      actions: ["Attack", "Pass"],
+      actions: ["Attack", "Skip"],
       ability: {
         name: "Blizzard",
         icon: "❄️",
@@ -85,7 +85,7 @@ function App() {
       isDead: false,
       image: emberhowlPortrait,
       fullArt: emberhowlPortrait, // Temporarily using portrait as full art
-      actions: ["Attack", "Pass"],
+      actions: ["Attack", "Skip"],
       ability: {
         name: "Flame Burst",
         icon: "🔥",
@@ -105,7 +105,7 @@ function App() {
       isDead: false,
       image: silkfangPortrait,
       fullArt: silkfangPortrait, // Temporarily using portrait as full art
-      actions: ["Attack", "Pass"],
+      actions: ["Attack", "Skip"],
       ability: {
         name: "Venomous Bite",
         icon: "🦂",
@@ -125,7 +125,7 @@ function App() {
       isDead: false,
       image: silkfangPortrait,
       fullArt: silkfangPortrait, // Temporarily using portrait as full art
-      actions: ["Attack", "Pass"],
+      actions: ["Attack", "Skip"],
       ability: {
         name: "Web Trap",
         icon: "🕸️",
@@ -748,8 +748,8 @@ function App() {
     }
   }
 
-  // Pass action
-  function handlePass(team, unitId) {
+  // Skip action
+  function handleSkip(team, unitId) {
     if (gameOver) return;
 
     if (team === "player") {
@@ -979,7 +979,7 @@ function App() {
           break;
         case 's':
           // Skip
-          handleAction("Pass");
+          handleAction("Skip");
           break;
         default:
           break;
@@ -1073,8 +1073,8 @@ function App() {
         setUsingAbility(false);
         break;
 
-      case "Pass":
-        handlePass("player", selectedPlayerUnit.id);
+      case "Skip":
+        handleSkip("player", selectedPlayerUnit.id);
         setSelectedPlayerUnit(null);
         break;
 
@@ -1180,27 +1180,7 @@ function App() {
               }}
             />
           )}
-          <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
-            {/* Blizzard animation elements */}
-            {blizzardActive && (
-              <>
-                <div className="blizzard-overlay"></div>
-                {iceParticles.map(particle => (
-                  <div
-                    key={particle.id}
-                    className={particle.type}
-                    style={{
-                      left: particle.left,
-                      top: particle.top,
-                      animationDuration: particle.animationDuration,
-                      animationDelay: particle.animationDelay
-                    }}
-                  />
-                ))}
-              </>
-            )}
-            {renderUnitList(enemyUnits, "enemy")}
-          </div>
+          <div className="side enemy-side">{renderUnitList(enemyUnits, "enemy")}</div>
           <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
         </div>
         {selectedEnemyUnit ? (
