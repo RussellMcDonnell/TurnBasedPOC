@@ -1,9 +1,10 @@
-import varenPortrait from "../images/varen-stormrune-portrait-picture.png";
-import ashbringerPortrait from "../images/ashbringer-portrait-picture.png";
-import lynValkenPortrait from "../images/lyn-valken-portrait-picture.png";
-import emberhowlPortrait from "../images/emberhowl-portrait-picture.png";
-import silkfangPortrait from "../images/silkfang-portrait-picture.png";
-import varenFullArt from "../images/varen-stormrune-full-art.png";
+// Import unit portraits and full art from new locations
+import varenPortrait from "../images/units/varen-stormrune-portrait-picture.png";
+import ashbringerPortrait from "../images/units/ashbringer-portrait-picture.png";
+import lynValkenPortrait from "../images/units/lyn-valken-portrait-picture.png";
+import emberhowlPortrait from "../images/units/emberhowl-portrait-picture.png";
+import silkfangPortrait from "../images/units/silkfang-portrait-picture.png";
+import varenFullArt from "../images/units/varen-stormrune-full-art.png";
 
 // Team configurations
 export const availableTeams = {
