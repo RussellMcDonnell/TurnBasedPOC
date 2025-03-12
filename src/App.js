@@ -9,9 +9,14 @@ import emberhowlPortrait from "./images/emberhowl-portrait-picture.png";
 import silkfangPortrait from "./images/silkfang-portrait-picture.png";
 
 function App() {
+  // Add new state for animation
+  const [animatingUnitId, setAnimatingUnitId] = useState(null);
+  const [damagedUnitId, setDamagedUnitId] = useState(null);
+
   const [selectedPlayerUnit, setSelectedPlayerUnit] = useState(null);
   const [selectedEnemyUnit, setSelectedEnemyUnit] = useState(null);
   const [attackingUnit, setAttackingUnit] = useState(null);
+  const [currentlyAttacking, setCurrentlyAttacking] = useState(null);
 
   const [playerUnits, setPlayerUnits] = useState([
     {
@@ -113,10 +118,7 @@ function App() {
     }
   }
 
-  // Basic Attack action
-  // attackerTeam is either "player" or "enemy"
-  // attackerId is the ID of the unit attacking
-  // targetId is the ID of the enemy unit
+  // Modified handleBasicAttack to play animation only after target selection
   function handleBasicAttack(attackerTeam, attackerId, targetId) {
     if (gameOver) return;
 
@@ -124,52 +126,80 @@ function App() {
       const attacker = playerUnits.find((u) => u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
-      // Attack an enemy
-      setEnemyUnits((prev) =>
-        prev.map((unit) => {
-          if (unit.id === targetId && !unit.isDead) {
-            const newHP = unit.hp - attacker.damage;
-            return {
-              ...unit,
-              hp: newHP,
-              isDead: newHP <= 0,
-            };
-          }
-          return unit;
-        })
-      );
+      // Clear any existing animations
+      setAnimatingUnitId(null);
+      setDamagedUnitId(null);
 
-      // Mark attacker as having acted
+      // Start attack animation immediately
+      setAnimatingUnitId(attackerId);
+      
+      // Apply damage after animation starts
+      setTimeout(() => {
+        setDamagedUnitId(targetId);
+        setEnemyUnits((prev) =>
+          prev.map((unit) => {
+            if (unit.id === targetId && !unit.isDead) {
+              const newHP = unit.hp - attacker.damage;
+              return {
+                ...unit,
+                hp: newHP,
+                isDead: newHP <= 0,
+              };
+            }
+            return unit;
+          })
+        );
+
+        // Clear animations after damage
+        setTimeout(() => {
+          setAnimatingUnitId(null);
+          setDamagedUnitId(null);
+        }, 500);
+      }, 250);
+
       setPlayerUnits((prev) =>
         prev.map((u) => (u.id === attackerId ? { ...u, acted: true } : u))
       );
 
-      // If it's the first turn, switch to enemy after one action
       if (!firstTurnUsed) {
         setFirstTurnUsed(true);
         endPlayerTurn();
       }
     } else {
-      // Enemy is attacking
+      // Enemy attack with similar timing
       const attacker = enemyUnits.find((u) => u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
-      // Attack a player unit (for simplicity, pick first alive unit)
-      setPlayerUnits((prev) =>
-        prev.map((unit) => {
-          if (unit.id === targetId && !unit.isDead) {
-            const newHP = unit.hp - attacker.damage;
-            return {
-              ...unit,
-              hp: newHP,
-              isDead: newHP <= 0,
-            };
-          }
-          return unit;
-        })
-      );
+      // Clear any existing animations
+      setAnimatingUnitId(null);
+      setDamagedUnitId(null);
 
-      // Mark attacker as having acted
+      // Start attack animation immediately
+      setAnimatingUnitId(attackerId);
+      
+      setTimeout(() => {
+        setDamagedUnitId(targetId);
+        setPlayerUnits((prev) =>
+          prev.map((unit) => {
+            if (unit.id === targetId && !unit.isDead) {
+              const newHP = unit.hp - attacker.damage;
+              return {
+                ...unit,
+                hp: newHP,
+                isDead: newHP <= 0,
+              };
+            }
+            return unit;
+          })
+        );
+
+        // Clear animations after damage
+        setTimeout(() => {
+          setAnimatingUnitId(null);
+          setDamagedUnitId(null);
+        }, 500);
+      }, 250);
+
       setEnemyUnits((prev) =>
         prev.map((u) => (u.id === attackerId ? { ...u, acted: true } : u))
       );
@@ -224,27 +254,44 @@ function App() {
     }
   }
 
-  // Simple AI for the enemy: If it's enemy's turn, each alive enemy unit attacks once.
+  // Modified enemy turn logic for sequential attacks
   useEffect(() => {
     if (activeTeam === "enemy" && !gameOver) {
       // Let each enemy unit do a basic attack on the first alive player unit, then end turn.
       const alivePlayerUnits = playerUnits.filter((u) => !u.isDead);
       const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].id : null;
+      const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead && !enemy.acted);
 
-      if (targetId) {
-        // Go through each enemy unit that is alive & hasn't acted
-        enemyUnits.forEach((enemy) => {
-          if (!enemy.isDead && !enemy.acted) {
-            handleBasicAttack("enemy", enemy.id, targetId);
+      if (targetId && aliveEnemies.length > 0) {
+        const performEnemyAttack = (index) => {
+          const enemy = aliveEnemies[index];
+          if (!enemy) {
+            // All enemies have attacked, end turn
+            setCurrentlyAttacking(null);
+            setTimeout(() => {
+              endEnemyTurn();
+            }, 500);
+            return;
           }
-        });
-      }
-      // End enemy turn
-      setTimeout(() => {
+
+          setCurrentlyAttacking(enemy.id);
+          setTimeout(() => {
+            handleBasicAttack("enemy", enemy.id, targetId);
+            // Move to next enemy after attack
+            setTimeout(() => {
+              performEnemyAttack(index + 1);
+            }, 500);
+          }, 1000);
+        };
+
+        // Start the sequential attacks
+        performEnemyAttack(0);
+      } else {
+        // No valid attacks possible, end turn
         endEnemyTurn();
-      }, 500); // small delay to simulate turn
+      }
     }
-  }, [activeTeam, enemyUnits, playerUnits, gameOver]);
+  }, [activeTeam, gameOver]);
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
@@ -297,7 +344,7 @@ function App() {
     }
   };
 
-  // UI Helpers
+  // Modified renderUnitList to include animation classes
   function renderUnitList(units, team) {
     return (
       <div className="unit-list">
@@ -311,6 +358,10 @@ function App() {
               (team === "enemy" && selectedEnemyUnit?.id === unit.id)
             }
             isAttacking={attackingUnit?.id === unit.id}
+            className={`
+              ${animatingUnitId === unit.id ? 'attacking' : ''}
+              ${damagedUnitId === unit.id ? 'taking-damage' : ''}
+            `}
             onClick={() => handleUnitClick(unit, team)}
           />
         ))}
@@ -323,7 +374,14 @@ function App() {
       <div className="game-container">
         <div className={`turn-indicator ${activeTeam}-turn`}>
           <span className="turn-icon">⚔️</span>
-          <span>{activeTeam === "player" ? "Your Turn" : "Enemy Turn"}</span>
+          <span>
+            {activeTeam === "player" 
+              ? "Your Turn" 
+              : currentlyAttacking 
+                ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
+                : "Enemy Turn"
+            }
+          </span>
         </div>
         {selectedPlayerUnit ? (
           <Sidebar

@@ -33,22 +33,66 @@
   box-shadow: 0 0 0 2px #dc3545, 0 0 12px rgba(220, 53, 69, 0.4);
 }
 
-.unit-card.attacking {
-  border-color: #dc3545;
-  box-shadow: 0 0 0 2px #dc3545;
-  animation: pulse 1.5s infinite;
+.unit-card {
+  border: 2px solid #666;
+  border-radius: 12px;
+  padding: 15px;
+  width: 150px;  /* Slightly reduced width */
+  height: 280px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex: 0 0 auto;
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
-@keyframes pulse {
+@keyframes lunge {
   0% {
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.8);
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-20px) translateX(var(--lunge-direction, 15px));
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.4);
+    transform: translateY(0) translateX(var(--lunge-direction, 15px));
   }
   100% {
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.8);
+    transform: translateY(0) translateX(0);
   }
+}
+
+.unit-card.attacking {
+  animation: lunge 0.8s cubic-bezier(0.2, 0, 0.3, 1);
+  z-index: 10;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+}
+
+.unit-card.attacking {
+  animation: lunge 0.5s ease-in-out;
+}
+
+.unit-card.taking-damage {
+  animation: shake 0.5s ease-in-out;
 }
 
 .attack-line {
@@ -98,21 +142,26 @@
   width: 300px;
   visibility: hidden;
 }
+
 .side {
   width: 100%;
   border-radius: 8px;
   padding: 20px;
 }
+
 .enemy-side {
   background: rgba(255, 0, 0, 0.05);
 }
+
 .enemy-side .unit-list {
   justify-content: center; /* Center enemy units */
   gap: 20px; /* Larger gap between enemy units */
 }
+
 .player-side {
   background: rgba(0, 0, 255, 0.05);
 }
+
 .unit-list {
   display: flex;
   flex-wrap: nowrap;  /* Prevent wrapping */
@@ -121,6 +170,7 @@
   width: 100%;
   overflow-x: auto;  /* Allow horizontal scroll if needed */
 }
+
 .unit-card {
   border: 2px solid #666;
   border-radius: 12px;
@@ -136,29 +186,35 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;  /* Prevent cards from shrinking */
 }
+
 .unit-card:hover:not(.dead):not(.acted) {
   transform: translateY(-4px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
+
 .unit-card.selected {
   border-color: #007bff;
   box-shadow: 0 0 0 2px #007bff;
 }
+
 .unit-card.acted {
   opacity: 0.6;
   cursor: default;
 }
+
 .unit-card.dead {
   background: #f5f5f5;
   opacity: 0.4;
   cursor: default;
 }
+
 .unit-name {
   font-size: 1.1em;
   font-weight: bold;
   margin: 0 0 8px;
   order: -1;  /* Move name to top */
 }
+
 .unit-image {
   width: 100px;  /* Slightly smaller image */
   height: 100px;
@@ -166,6 +222,7 @@
   margin: 0 auto 12px;
   object-fit: cover;
 }
+
 .unit-stats {
   display: flex;
   justify-content: space-between;
@@ -178,21 +235,25 @@
   width: calc(100% - 12px);  /* Account for padding */
   box-sizing: border-box;
 }
+
 .stat {
   display: flex;
   align-items: center;
   gap: 2px;  /* Reduced gap */
   white-space: nowrap;
 }
+
 .stat-icon {
   font-size: 1em;  /* Slightly smaller icons */
 }
+
 .status {
   margin: 20px 0;
   padding: 10px;
   background: #f8f9fa;
   border-radius: 4px;
 }
+
 .game-over {
   margin: 20px 0;
   color: #dc3545;
@@ -225,10 +286,6 @@
 
 .turn-indicator.enemy-turn {
   background: rgba(220, 53, 69, 0.8);
-}
-
-.turn-indicator.enemy-turn .turn-icon {
-  order: 1; /* Place icon on right for enemy turn */
 }
 
 .turn-icon {
