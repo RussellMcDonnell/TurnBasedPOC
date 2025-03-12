@@ -720,8 +720,6 @@
   border-radius: 4px;
   padding: 8px 10px;
   font-weight: bold;
-  margin: 10px 0;
-  text-align: center;
 }
 
 .log-entry.turn-start {
@@ -780,6 +778,405 @@
 .log-entry.turn-start .log-time,
 .log-entry.turn-end .log-time {
   opacity: 0.7;
+}
+
+/* Game Menu Button and Panel Styling */
+.game-menu-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 15px;
+  background: linear-gradient(to right, #4a6d8c, #2c3e50);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-menu-button:hover {
+  background: linear-gradient(to right, #3a5d7c, #1c2e40);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.game-menu-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.game-menu-panel {
+  position: absolute;
+  top: 70px;
+  left: 20px;
+  width: 250px;
+  background: rgba(5, 13, 24, 0.95);
+  border: 1px solid #496b87;
+  border-radius: 8px;
+  color: #fff;
+  z-index: 50;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-menu-header {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #496b87;
+  background: linear-gradient(to bottom, rgba(50, 70, 90, 0.8), rgba(30, 50, 70, 0.8));
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.menu-option {
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(3px);
+}
+
+.menu-option:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(1px);
+}
+
+.menu-option.danger {
+  background: rgba(220, 53, 69, 0.2);
+}
+
+.menu-option.danger:hover {
+  background: rgba(220, 53, 69, 0.3);
+}
+
+.menu-option-icon {
+  font-size: 1.2em;
+}
+
+.menu-option-text {
+  flex-grow: 1;
+}
+
+/* Surrender Confirmation Dialog */
+.surrender-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+  backdrop-filter: blur(4px);
+}
+
+.surrender-dialog-content {
+  background: linear-gradient(to bottom, #2c3e50, #1a2533);
+  border: 2px solid #d63031;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 0 30px rgba(214, 48, 49, 0.3);
+  text-align: center;
+  color: white;
+}
+
+.surrender-dialog h2 {
+  margin-top: 0;
+  color: #ff6b6b;
+  font-size: 1.8em;
+}
+
+.surrender-dialog p {
+  margin-bottom: 25px;
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+.surrender-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.surrender-button {
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.1em;
+  border: none;
+}
+
+.confirm-surrender {
+  background: #d63031;
+  color: white;
+}
+
+.confirm-surrender:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.cancel-surrender {
+  background: #7f8c8d;
+  color: white;
+}
+
+.cancel-surrender:hover {
+  background: #6c7a7d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Reset Game Dialog */
+.reset-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+  backdrop-filter: blur(4px);
+}
+
+.reset-dialog-content {
+  background: linear-gradient(to bottom, #2c3e50, #1a2533);
+  border: 2px solid #3498db;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
+  text-align: center;
+  color: white;
+}
+
+.reset-dialog h2 {
+  margin-top: 0;
+  color: #3498db;
+  font-size: 1.8em;
+}
+
+.reset-dialog p {
+  margin-bottom: 25px;
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+.reset-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.reset-button {
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.1em;
+  border: none;
+}
+
+.confirm-reset {
+  background: #3498db;
+  color: white;
+}
+
+.confirm-reset:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.cancel-reset {
+  background: #7f8c8d;
+  color: white;
+}
+
+.cancel-reset:hover {
+  background: #6c7a7d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Settings Dialog */
+.settings-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+  backdrop-filter: blur(4px);
+}
+
+.settings-dialog-content {
+  background: linear-gradient(to bottom, #2c3e50, #1a2533);
+  border: 2px solid #2ecc71;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 0 30px rgba(46, 204, 113, 0.3);
+  color: white;
+}
+
+.settings-dialog h2 {
+  margin-top: 0;
+  color: #2ecc71;
+  font-size: 1.8em;
+}
+
+.settings-list {
+  margin-bottom: 25px;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  flex-grow: 1;
+  font-size: 1.1em;
+}
+
+.setting-control {
+  display: flex;
+  align-items: center;
+}
+
+.settings-close-button {
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.1em;
+  border: none;
+  background: #2ecc71;
+  color: white;
+  display: block;
+  margin: 0 auto;
+}
+
+.settings-close-button:hover {
+  background: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Toggle switch styling */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #2ecc71;
+}
+
+input:focus + .toggle-slider {
+  box-shadow: 0 0 1px #2ecc71;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
 }
 
 /* Auto-scroll to the bottom of the log when new entries appear */

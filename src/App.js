@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
 import UnitCard from "./UnitCard";
-import DeveloperPanel from "./DeveloperPanel"; // Import DeveloperPanel
+import DeveloperPanel from "./DeveloperPanel";
+import GameMenu from "./GameMenu";
+import Settings from "./Settings";
 import varenPortrait from "./images/varen-stormrune-portrait-picture.png";
 import ashbringerPortrait from "./images/ashbringer-portrait-picture.png";
 import lynValkenPortrait from "./images/lyn-valken-portrait-picture.png";
@@ -15,6 +17,9 @@ function App() {
   const [gameSettings, setGameSettings] = useState({
     enableRetaliation: false,
   });
+  
+  // Add settings dialog state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Add new state for animation
   const [animatingUnitId, setAnimatingUnitId] = useState(null);
@@ -173,6 +178,35 @@ function App() {
   // Add ref for auto-scrolling the log
   const logScrollRef = useRef(null);
   
+  // Modified function to add an entry to the action log with structured format
+  const addToActionLog = (entry) => {
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Add timestamp to all log entries
+    if (typeof entry === 'string') {
+      // Simple turn markers or text-only logs
+      setActionLog(prev => [...prev, { 
+        text: entry, 
+        time: timestamp,
+        type: entry.includes("turn ends") ? "turn-end" : 
+              entry.includes("turn begins") ? "turn-start" : "normal"
+      }]);
+    } else {
+      // Entry is already an object with appropriate format
+      setActionLog(prev => [...prev, {
+        ...entry,
+        time: timestamp
+      }]);
+    }
+    
+    // Scroll to bottom of log when new entries are added
+    setTimeout(() => {
+      if (logScrollRef.current) {
+        logScrollRef.current.scrollTop = logScrollRef.current.scrollHeight;
+      }
+    }, 100);
+  };
+
   // Update gameState whenever relevant pieces change
   useEffect(() => {
     setGameState({
@@ -228,35 +262,66 @@ function App() {
     });
   };
 
-  // Modified function to add an entry to the action log with structured format
-  const addToActionLog = (entry) => {
-    const timestamp = new Date().toLocaleTimeString();
+  // Handle game reset
+  const handleResetGame = () => {
+    // Reset player units
+    setPlayerUnits(prev =>
+      prev.map(unit => ({
+        ...unit,
+        hp: unit.maxHP,
+        acted: false,
+        isDead: false,
+        statusEffects: [],
+        ability: unit.ability ? {
+          ...unit.ability,
+          currentCooldown: 0
+        } : null
+      }))
+    );
     
-    // Add timestamp to all log entries
-    if (typeof entry === 'string') {
-      // Simple turn markers or text-only logs
-      setActionLog(prev => [...prev, { 
-        text: entry, 
-        time: timestamp,
-        type: entry.includes("turn ends") ? "turn-end" : 
-              entry.includes("turn begins") ? "turn-start" : "normal"
-      }]);
-    } else {
-      // Entry is already an object with appropriate format
-      setActionLog(prev => [...prev, {
-        ...entry,
-        time: timestamp
-      }]);
-    }
+    // Reset enemy units
+    setEnemyUnits(prev =>
+      prev.map(unit => ({
+        ...unit,
+        hp: unit.maxHP,
+        acted: false,
+        isDead: false,
+        statusEffects: []
+      }))
+    );
     
-    // Scroll to bottom of log when new entries are added
-    setTimeout(() => {
-      if (logScrollRef.current) {
-        logScrollRef.current.scrollTop = logScrollRef.current.scrollHeight;
-      }
-    }, 100);
+    // Reset game state
+    setActiveTeam("player");
+    setFirstTurnUsed(false);
+    setGameOver(false);
+    setWinner(null);
+    
+    // Reset UI states
+    setSelectedPlayerUnit(null);
+    setSelectedEnemyUnit(null);
+    setAttackingUnit(null);
+    setUsingAbility(false);
+    
+    // Log the reset
+    addToActionLog({
+      text: "Game has been reset. A new battle begins!",
+      type: "normal"
+    });
+    
+    // Add new battle start log
+    addToActionLog("--- Player turn begins ---");
   };
-
+  
+  // Handle surrender
+  const handleSurrender = () => {
+    setGameOver(true);
+    setWinner("enemy");
+    addToActionLog({
+      text: "You have surrendered the battle!",
+      type: "defeat"
+    });
+  };
+  
   // This effect checks after every action if someone won.
   useEffect(() => {
     checkVictoryCondition();
@@ -1028,6 +1093,22 @@ function App() {
 
   return (
     <div className="App">
+      {/* Add Game Menu */}
+      <GameMenu 
+        onSurrender={handleSurrender}
+        onResetGame={handleResetGame}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        isGameOver={gameOver}
+      />
+      
+      {/* Add Settings Dialog */}
+      <Settings 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        gameSettings={gameSettings}
+        onSettingsChange={handleSettingsChange}
+      />
+      
       <div className="game-container">
         <div className={`turn-indicator ${activeTeam}-turn`}>
           <span className="turn-icon">⚔️</span>
