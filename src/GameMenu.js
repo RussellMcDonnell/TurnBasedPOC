@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function GameMenu({ 
   onSurrender, 
@@ -15,6 +16,7 @@ function GameMenu({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSurrenderDialog, setShowSurrenderDialog] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const navigate = useNavigate();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -32,6 +34,16 @@ function GameMenu({
   
   const handleSettingsClick = () => {
     onOpenSettings();
+    setIsMenuOpen(false);
+  };
+  
+  const handleTeamClick = () => {
+    navigate("/team");
+    setIsMenuOpen(false);
+  };
+  
+  const handleStoreClick = () => {
+    navigate("/store");
     setIsMenuOpen(false);
   };
   
@@ -86,6 +98,16 @@ function GameMenu({
             <div className="menu-option" onClick={handleSettingsClick}>
               <span className="menu-option-icon">⚙️</span>
               <span className="menu-option-text">Settings</span>
+            </div>
+            
+            <div className="menu-option" onClick={handleTeamClick}>
+              <span className="menu-option-icon">👥</span>
+              <span className="menu-option-text">Team</span>
+            </div>
+            
+            <div className="menu-option" onClick={handleStoreClick}>
+              <span className="menu-option-icon">🛒</span>
+              <span className="menu-option-text">Store</span>
             </div>
             
             <div className="menu-option" onClick={handleResetClick}>

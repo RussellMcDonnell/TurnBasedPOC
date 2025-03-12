@@ -66,3 +66,27 @@
   box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
   background: linear-gradient(45deg, #27ae60, #219a52);
 }
+
+.menu-button.team-button {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  color: white;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.menu-button.team-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+  background: linear-gradient(45deg, #2980b9, #2471a3);
+}
+
+.menu-button.store-button {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+.menu-button.store-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+  background: linear-gradient(45deg, #c0392b, #a93226);
+}
