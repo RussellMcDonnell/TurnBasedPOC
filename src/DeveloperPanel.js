@@ -204,17 +204,20 @@ function DeveloperPanel({
             </div>
             <div className="settings-options">
               <div className="setting-item">
-                <label>
+                <div className="setting-item-content">
+                  <span className="setting-label">Enable Retaliation Damage</span>
+                  <p className="setting-description">
+                    When enabled, units will automatically counter-attack when they are attacked, dealing their full damage to the attacker.
+                  </p>
+                </div>
+                <label className="toggle-switch">
                   <input 
                     type="checkbox" 
                     checked={gameSettings.enableRetaliation || false}
                     onChange={(e) => handleSettingChange('enableRetaliation', e.target.checked)}
                   />
-                  Enable Retaliation Damage
+                  <span className="toggle-slider"></span>
                 </label>
-                <p className="setting-description">
-                  When enabled, units will automatically counter-attack when they are attacked, dealing their full damage to the attacker.
-                </p>
               </div>
             </div>
           </div>
