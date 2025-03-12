@@ -11,6 +11,11 @@ import silkfangPortrait from "./images/silkfang-portrait-picture.png";
 import varenFullArt from "./images/varen-stormrune-full-art.png";
 
 function App() {
+  // Add game settings state
+  const [gameSettings, setGameSettings] = useState({
+    enableRetaliation: false,
+  });
+  
   // Add new state for animation
   const [animatingUnitId, setAnimatingUnitId] = useState(null);
   const [damagedUnitId, setDamagedUnitId] = useState(null);
@@ -206,6 +211,19 @@ function App() {
     }
   };
   
+  // Handle game setting changes
+  const handleSettingsChange = (setting, value) => {
+    setGameSettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+    
+    addToActionLog({
+      text: `Game setting changed: ${setting} = ${value}`,
+      type: "normal"
+    });
+  };
+
   // Modified function to add an entry to the action log with structured format
   const addToActionLog = (entry) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -279,7 +297,73 @@ function App() {
     }
   }
 
-  // Modified handleBasicAttack to use new log format
+  // Function to apply retaliation damage
+  function applyRetaliationDamage(attacker, target, attackerTeam) {
+    if (!gameSettings.enableRetaliation || target.isDead) return;
+    
+    // Add retaliation to action log
+    addToActionLog({
+      unit: target.name,
+      type: "retaliation",
+      targets: [{
+        unit: attacker.name,
+        Damage: target.damage.toString()
+      }]
+    });
+    
+    // Apply retaliation damage after a delay
+    setTimeout(() => {
+      if (attackerTeam === "player") {
+        // Apply damage to player unit
+        setPlayerUnits(prev =>
+          prev.map(unit => {
+            if (unit.id === attacker.id) {
+              const newHP = unit.hp - target.damage;
+              
+              if (newHP <= 0) {
+                addToActionLog({
+                  text: `${unit.name} is defeated by retaliation!`,
+                  type: "defeat"
+                });
+              }
+              
+              return {
+                ...unit,
+                hp: Math.max(0, newHP),
+                isDead: newHP <= 0
+              };
+            }
+            return unit;
+          })
+        );
+      } else {
+        // Apply damage to enemy unit
+        setEnemyUnits(prev =>
+          prev.map(unit => {
+            if (unit.id === attacker.id) {
+              const newHP = unit.hp - target.damage;
+              
+              if (newHP <= 0) {
+                addToActionLog({
+                  text: `${unit.name} is defeated by retaliation!`,
+                  type: "defeat"
+                });
+              }
+              
+              return {
+                ...unit,
+                hp: Math.max(0, newHP),
+                isDead: newHP <= 0
+              };
+            }
+            return unit;
+          })
+        );
+      }
+    }, 750); // Apply retaliation damage after the main attack animation completes
+  }
+
+  // Modified handleBasicAttack to use new log format and include retaliation
   function handleBasicAttack(attackerTeam, attackerId, targetId) {
     if (gameOver) return;
 
@@ -331,6 +415,12 @@ function App() {
             return unit;
           })
         );
+
+        // Process retaliation if enabled
+        if (gameSettings.enableRetaliation && !target.isDead) {
+          // Apply retaliation damage from target to attacker
+          applyRetaliationDamage(attacker, target, attackerTeam);
+        }
 
         // Clear animations after damage
         setTimeout(() => {
@@ -395,6 +485,12 @@ function App() {
             return unit;
           })
         );
+
+        // Process retaliation if enabled
+        if (gameSettings.enableRetaliation && !target.isDead) {
+          // Apply retaliation damage from target to attacker
+          applyRetaliationDamage(attacker, target, attackerTeam);
+        }
 
         // Clear animations after damage
         setTimeout(() => {
@@ -981,11 +1077,13 @@ function App() {
         </div>
       )}
 
-      {/* Add Developer Panel */}
+      {/* Updated Developer Panel with new props */}
       <DeveloperPanel 
         actionLog={actionLog}
         gameState={gameState}
         onImportGameState={handleImportGameState}
+        gameSettings={gameSettings}
+        onSettingsChange={handleSettingsChange}
       />
     </div>
   );

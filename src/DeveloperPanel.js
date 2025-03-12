@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
 import "./DeveloperPanel.css";
-
 function DeveloperPanel({ 
   actionLog, 
   gameState, 
   onImportGameState,
-  onExpandCollapse 
+  onExpandCollapse,
+  gameSettings = {}, // Add gameSettings prop with default empty object
+  onSettingsChange // Add onSettingsChange prop
 }) {
   const [activeTab, setActiveTab] = useState("log");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -20,13 +21,11 @@ function DeveloperPanel({
       onExpandCollapse(newExpandState);
     }
   };
-
   // Function to export action log as JSON
   const exportActionLog = () => {
     const logData = JSON.stringify(actionLog, null, 2);
     downloadJson(logData, `battle-log-${new Date().toISOString().split('T')[0]}.json`);
   };
-
   // Function to export entire game state
   const exportGameState = () => {
     const gameStateData = JSON.stringify(gameState, null, 2);
@@ -45,12 +44,10 @@ function DeveloperPanel({
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
   };
-
   // Handle the file import
   const handleImportClick = () => {
     fileInputRef.current.click();
   };
-
   // Process the imported file
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -69,7 +66,14 @@ function DeveloperPanel({
     // Reset the file input so the same file can be selected again
     event.target.value = null;
   };
-
+  
+  // Handle settings changes
+  const handleSettingChange = (setting, value) => {
+    if (onSettingsChange) {
+      onSettingsChange(setting, value);
+    }
+  };
+  
   // Function to render log entries with appropriate text
   const renderLogEntry = (entry, index) => {
     let content = <span className="log-text">{entry.text}</span>;
@@ -104,7 +108,6 @@ function DeveloperPanel({
       </div>
     );
   };
-
   return (
     <div className={`developer-panel ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <div className="developer-header">
@@ -132,6 +135,12 @@ function DeveloperPanel({
           onClick={() => setActiveTab('gamestate')}
         >
           Game State
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
         </button>
       </div>
       
@@ -181,9 +190,31 @@ function DeveloperPanel({
             </div>
           </div>
         )}
+        
+        {activeTab === 'settings' && (
+          <div className="settings-tab">
+            <div className="tab-description">
+              <p>Configure game behavior and mechanics.</p>
+            </div>
+            <div className="settings-options">
+              <div className="setting-item">
+                <label>
+                  <input 
+                    type="checkbox" 
+                    checked={gameSettings.enableRetaliation || false}
+                    onChange={(e) => handleSettingChange('enableRetaliation', e.target.checked)}
+                  />
+                  Enable Retaliation Damage
+                </label>
+                <p className="setting-description">
+                  When enabled, units will automatically counter-attack when they are attacked, dealing their full damage to the attacker.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
 export default DeveloperPanel;
