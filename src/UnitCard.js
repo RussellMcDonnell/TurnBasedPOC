@@ -3,12 +3,15 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
   // Ensure className is trimmed and properly formatted
   const trimmedClassName = className.replace(/\s+/g, ' ').trim();
   
+  // Only apply 'attacking' class when both conditions are met: 
+  // 1. This is the attacking unit 
+  // 2. A target has been selected (passed through className)
   const classes = `
     unit-card
     ${isSelected ? "selected" : ""}
     ${unit.acted ? "acted" : ""}
     ${unit.isDead ? "dead" : ""}
-    ${isAttacking ? "attacking" : ""}
+    ${isAttacking && className.includes('target-selected') ? "attacking" : ""}
     ${trimmedClassName}
   `.trim();
   

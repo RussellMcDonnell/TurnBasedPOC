@@ -871,6 +871,7 @@ function App() {
             className={`
               ${animatingUnitId === unit.id ? (animatingAbility ? 'using-ability' : 'attacking') : ''}
               ${damagedUnitId === unit.id ? 'taking-damage' : ''}
+              ${selectedEnemyUnit && attackingUnit ? 'target-selected' : ''}
             `}
             onClick={() => handleUnitClick(unit, team)}
             onViewArt={handleViewFullArt}
