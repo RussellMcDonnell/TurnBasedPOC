@@ -11,6 +11,7 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
     ${isAttacking ? "attacking" : ""}
     ${trimmedClassName}
   `.trim();
+  
   return (
     <div className={classes} onClick={onClick}>
       <h3 className="unit-name">{unit.name}</h3>

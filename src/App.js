@@ -7,6 +7,7 @@ import ashbringerPortrait from "./images/ashbringer-portrait-picture.png";
 import lynValkenPortrait from "./images/lyn-valken-portrait-picture.png";
 import emberhowlPortrait from "./images/emberhowl-portrait-picture.png";
 import silkfangPortrait from "./images/silkfang-portrait-picture.png";
+import varenFullArt from "./images/varen-stormrune-full-art.png";
 
 function App() {
   // Add new state for animation
@@ -17,6 +18,9 @@ function App() {
   const [selectedEnemyUnit, setSelectedEnemyUnit] = useState(null);
   const [attackingUnit, setAttackingUnit] = useState(null);
   const [currentlyAttacking, setCurrentlyAttacking] = useState(null);
+
+  // Add new state for viewing full art
+  const [viewingFullArt, setViewingFullArt] = useState(null);
 
   // Add new state for ability usage
   const [usingAbility, setUsingAbility] = useState(false);
@@ -32,6 +36,7 @@ function App() {
       acted: false,
       isDead: false,
       image: varenPortrait,
+      fullArt: varenFullArt, // Add fullArt property
       actions: ["Attack", "Pass"],
       ability: {
         name: "Blizzard",
@@ -51,6 +56,7 @@ function App() {
       acted: false,
       isDead: false,
       image: emberhowlPortrait,
+      fullArt: emberhowlPortrait, // Temporarily using portrait as full art
       actions: ["Attack", "Pass"],
       ability: {
         name: "Flame Burst",
@@ -70,6 +76,7 @@ function App() {
       acted: false,
       isDead: false,
       image: silkfangPortrait,
+      fullArt: silkfangPortrait, // Temporarily using portrait as full art
       actions: ["Attack", "Pass"],
       ability: {
         name: "Venomous Bite",
@@ -89,6 +96,7 @@ function App() {
       acted: false,
       isDead: false,
       image: silkfangPortrait,
+      fullArt: silkfangPortrait, // Temporarily using portrait as full art
       actions: ["Attack", "Pass"],
       ability: {
         name: "Web Trap",
@@ -111,6 +119,7 @@ function App() {
       acted: false,
       isDead: false,
       image: ashbringerPortrait,
+      fullArt: ashbringerPortrait, // Temporarily using portrait as full art
       statusEffects: []
     },
     {
@@ -122,6 +131,7 @@ function App() {
       acted: false,
       isDead: false,
       image: lynValkenPortrait,
+      fullArt: lynValkenPortrait, // Temporarily using portrait as full art
       statusEffects: []
     },
   ]);
@@ -577,7 +587,7 @@ function App() {
     }
   };
 
-  // Modified renderUnitList to include animation classes
+  // Modified renderUnitList to include animation classes and handle full art button
   function renderUnitList(units, team) {
     return (
       <div className="unit-list">
@@ -596,11 +606,22 @@ function App() {
               ${damagedUnitId === unit.id ? 'taking-damage' : ''}
             `}
             onClick={() => handleUnitClick(unit, team)}
+            onViewArt={handleViewFullArt}
           />
         ))}
       </div>
     );
   }
+
+  // Function to handle viewing full art
+  const handleViewFullArt = (unit) => {
+    setViewingFullArt(unit);
+  };
+
+  // Function to close full art view
+  const closeFullArt = () => {
+    setViewingFullArt(null);
+  };
 
   return (
     <div className="App">
@@ -625,6 +646,7 @@ function App() {
               setUsingAbility(false);
             }}
             onAction={handleAction}
+            onViewFullArt={handleViewFullArt}
             position="left"
             isAttacking={!!attackingUnit}
             hasTarget={!!selectedEnemyUnit}
@@ -652,6 +674,7 @@ function App() {
           <Sidebar
             unit={selectedEnemyUnit}
             onClose={() => setSelectedEnemyUnit(null)}
+            onViewFullArt={handleViewFullArt}
             position="right"
           />
         ) : (
@@ -677,6 +700,17 @@ function App() {
             ))}
           </div>
         )
+      )}
+
+      {/* Display full art if applicable */}
+      {viewingFullArt && (
+        <div className="full-art-overlay" onClick={closeFullArt}>
+          <div className="full-art-container">
+            <button className="close-full-art" onClick={closeFullArt}>×</button>
+            <img src={viewingFullArt.fullArt} alt={viewingFullArt.name} />
+            <h3 className="full-art-title">{viewingFullArt.name}</h3>
+          </div>
+        </div>
       )}
     </div>
   );

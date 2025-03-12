@@ -1,6 +1,6 @@
 import React from "react";
 import "./Sidebar.css";
-function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = false, hasTarget = false, isUsingAbility = false }) {
+function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = false, hasTarget = false, isUsingAbility = false, onViewFullArt }) {
   if (!unit) return null;
   
   return (
@@ -9,6 +9,16 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
       <div className="unit-details">
         <img src={unit.image} alt={unit.name} className="unit-detail-image" />
         <h2>{unit.name}</h2>
+        
+        {/* Add View Full Art button below the unit image */}
+        {unit.fullArt && (
+          <button 
+            className="view-art-btn sidebar-btn" 
+            onClick={() => onViewFullArt && onViewFullArt(unit)}
+          >
+            🖼️ View Full Art
+          </button>
+        )}
         
         <div className="unit-stats">
           <p>HP: {unit.hp}/{unit.maxHP}</p>
