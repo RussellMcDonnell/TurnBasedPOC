@@ -11,7 +11,7 @@
   grid-template-columns: 300px 1fr 300px;
   gap: 0;
   max-width: 1800px;
-  margin: 20px 20px 20px 0;
+  margin: 20px auto; /* Center horizontally */
 }
 
 .battlefield {
