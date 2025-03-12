@@ -1179,6 +1179,40 @@ input:checked + .toggle-slider:before {
   transform: translateX(24px);
 }
 
+/* Settings Dialog - Keyboard Shortcuts */
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.shortcut kbd {
+  background: #2ecc71;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  min-width: 24px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.shortcut span {
+  color: #fff;
+  font-size: 0.95em;
+}
+
 /* Auto-scroll to the bottom of the log when new entries appear */
 .action-log-scroll {
   scroll-behavior: smooth;
