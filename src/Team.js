@@ -97,7 +97,7 @@ function Team() {
                     Edit Team
                   </button>
                   <button 
-                    className="delete-team-button"
+                    className="cancel-btn"
                     onClick={() => handleDeleteTeam(selectedTeam.id)}
                   >
                     Delete

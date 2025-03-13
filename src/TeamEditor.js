@@ -64,10 +64,10 @@ function TeamEditor() {
       setSelectedUnits(selectedUnits.filter(u => u.id !== unit.id));
     } else {
       // Add the unit to selected units if not already selected and not exceeding max team size
-      if (selectedUnits.length < 6) {
+      if (selectedUnits.length < 5) {
         setSelectedUnits([...selectedUnits, unit]);
       } else {
-        alert('Maximum team size is 6 units');
+        alert('Maximum team size is 5 units');
       }
     }
   };
@@ -200,7 +200,7 @@ function TeamEditor() {
               maxLength={30}
             />
             <span className="team-size-indicator">
-              {selectedUnits.length}/6 units
+              {selectedUnits.length}/5 units
             </span>
           </div>
           
@@ -231,7 +231,7 @@ function TeamEditor() {
             ))}
             
             {/* Empty slots */}
-            {Array(Math.max(0, 6 - selectedUnits.length)).fill().map((_, index) => (
+            {Array(Math.max(0, 5 - selectedUnits.length)).fill().map((_, index) => (
               <div 
                 key={`empty-${index}`}
                 className="team-unit-slot"

@@ -2,9 +2,9 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 // Initial default teams data - used only if localStorage is empty
 const defaultTeams = [
-  { id: 1, name: 'The Arcane Wardens', units: ['varen', 'emberhowl', 'silkfang'] },
-  { id: 2, name: 'Blades of the Fallen', units: ['silkfangAlpha', 'silkfangHunter'] },
-  { id: 3, name: 'Shadow Stalkers', units: ['silkfangTwin', 'silkfangScout'] },
+  { id: 1, name: 'The Arcane Wardens', units: ['varen', 'emberhowl', 'silkfang', 'ashbringer', 'lyn'] },
+  { id: 2, name: 'Blades of the Fallen', units: ['silkfangAlpha', 'silkfangHunter', 'varen', 'emberhowl', 'silkfang'] },
+  { id: 3, name: 'Shadow Stalkers', units: ['silkfangTwin', 'silkfangScout', 'ashbringer', 'lyn', 'varen'] },
 ];
 
 // Create the context

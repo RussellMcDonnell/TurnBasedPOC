@@ -124,15 +124,26 @@
   color: #2c3e50;
 }
 
+.team-actions-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.team-actions-buttons button {
+  min-width: 120px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
 .edit-team-button {
   background-color: #3498db;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .edit-team-button:hover {
@@ -400,12 +411,6 @@
   background-color: #2ecc71;
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .save-team-btn:hover {
@@ -416,12 +421,6 @@
   background-color: #e74c3c;
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .cancel-btn:hover {
