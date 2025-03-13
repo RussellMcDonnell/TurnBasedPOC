@@ -1,78 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Team.css'; // Import the CSS file below
+import './Team.css';
+import { playerUnits } from './data/playerUnits';
 
-// Example data for teams
-const teams = ['The Arcane Wardens', 'Blades of the Fallen'];
-
-// Example card data
-const initialCards = [
-  {
-    id: 1,
-    name: 'Silkfang',
-    type: 'Spider',
-    image: 'https://via.placeholder.com/100?text=Spider',
-    stats: [
-      { label: 'Armor', value: 1, icon: '🛡️' },
-      { label: 'Damage', value: 2, icon: '⚔️' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Einhørhowl',
-    type: 'Wolf',
-    image: 'https://via.placeholder.com/100?text=Wolf',
-    stats: [
-      { label: 'Renew', value: 1, icon: '➕' },
-      { label: 'Damage', value: 2, icon: '⚔️' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Varre Stormrune',
-    type: 'Mage',
-    image: 'https://via.placeholder.com/100?text=Mage',
-    stats: [
-      { label: 'First Strike', value: 1, icon: '⚡' },
-      { label: 'Damage', value: 3, icon: '⚔️' },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Lyphaxos',
-    type: 'Wolf',
-    image: 'https://via.placeholder.com/100?text=Wolf',
-    stats: [
-      { label: 'Armor', value: 2, icon: '🛡️' },
-      { label: 'Damage', value: 3, icon: '⚔️' },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Nightmare',
-    type: 'Demon',
-    image: 'https://via.placeholder.com/100?text=Demon',
-    stats: [
-      { label: 'Damage', value: 4, icon: '⚔️' },
-      { label: 'Fear', value: 2, icon: '😱' },
-    ],
-  },
-  {
-    id: 6,
-    name: 'Scorchwing',
-    type: 'Dragon',
-    image: 'https://via.placeholder.com/100?text=Dragon',
-    stats: [
-      { label: 'Armor', value: 3, icon: '🛡️' },
-      { label: 'Damage', value: 5, icon: '⚔️' },
-    ],
-  },
+// Example data for teams - this would come from a database or state management in a real app
+const exampleTeams = [
+  { id: 1, name: 'The Arcane Wardens', units: ['varen', 'emberhowl', 'silkfang'] },
+  { id: 2, name: 'Blades of the Fallen', units: ['silkfangAlpha', 'silkfangHunter'] },
+  { id: 3, name: 'Shadow Stalkers', units: ['silkfangTwin', 'silkfangScout'] },
 ];
 
 function Team() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [cards] = useState(initialCards);
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const navigate = useNavigate();
+
+  // Convert playerUnits object to an array for easier rendering
+  const unitsList = Object.values(playerUnits);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -82,58 +26,97 @@ function Team() {
     navigate('/');
   };
 
-  // Filter cards based on the search term (by name or type)
-  const filteredCards = cards.filter((card) => {
-    const combinedText = (card.name + card.type).toLowerCase();
-    return combinedText.includes(searchTerm.toLowerCase());
+  const handleTeamClick = (teamId) => {
+    setSelectedTeam(teamId);
+  };
+
+  // Filter units based on the search term
+  const filteredUnits = unitsList.filter((unit) => {
+    return unit.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
     <div className="team-builder-container">
-      {/* Sidebar with team names */}
+      {/* Left Sidebar - Teams */}
       <aside className="sidebar">
         <h2 className="sidebar-title">Teams</h2>
-        {teams.map((team) => (
-          <div key={team} className="team-name">
-            {team}
-          </div>
-        ))}
+        <p className="sidebar-description">Select a team to view or edit</p>
+        
+        <div className="teams-list">
+          {exampleTeams.map((team) => (
+            <div 
+              key={team.id} 
+              className={`team-name ${selectedTeam === team.id ? 'selected' : ''}`}
+              onClick={() => handleTeamClick(team.id)}
+            >
+              <h3>{team.name}</h3>
+              <p className="team-unit-count">{team.units.length} units</p>
+            </div>
+          ))}
+        </div>
+        
+        <button className="create-team-button">
+          + Create New Team
+        </button>
       </aside>
 
-      {/* Main content */}
+      {/* Main Content */}
       <main className="main-content">
+        {/* Header Bar */}
         <header className="header-bar">
-          <button className="back-button" onClick={handleBackClick}>Back</button>
-          <h1>Default Team View</h1>
+          <button 
+            className="back-button" 
+            onClick={handleBackClick}
+          >
+            Back
+          </button>
+          
+          <h1>Unit Selection</h1>
+          
           <div className="search-box">
             <input
               type="text"
-              placeholder="Search"
+              placeholder="Search units..."
               value={searchTerm}
               onChange={handleSearchChange}
             />
+            <button className="filter-button">
+              Filter
+            </button>
           </div>
         </header>
 
-        {/* Cards grid */}
-        <section className="cards-grid">
-          {filteredCards.map((card) => (
-            <div key={card.id} className="card">
-              <img src={card.image} alt={card.name} className="card-image" />
-              <h2 className="card-name">{card.name}</h2>
-              <p className="card-type">{card.type}</p>
-              <div className="card-stats">
-                {card.stats.map((stat, index) => (
-                  <div key={index} className="stat">
-                    <span className="stat-icon">{stat.icon}</span>
-                    <span className="stat-label">{stat.label}</span>
-                    <span className="stat-value">{stat.value}</span>
-                  </div>
-                ))}
+        {/* Units Grid */}
+        <div className="cards-grid">
+          {filteredUnits.map((unit) => (
+            <div key={unit.id} className="card unit-card">
+              <h3 className="unit-name">{unit.name}</h3>
+              <img 
+                src={unit.image} 
+                alt={unit.name} 
+                className="unit-image" 
+              />
+              
+              <div className="unit-ability">
+                <div className="ability-header">
+                  <span className="ability-icon">{unit.ability.icon}</span>
+                  <span className="ability-name">{unit.ability.name}</span>
+                </div>
+              </div>
+              
+              <div className="unit-stats">
+                <span className="stat">
+                  <span className="stat-icon">❤️</span>
+                  {unit.maxHP}/{unit.maxHP}
+                </span>
+                <span className="stat">
+                  <span className="stat-icon">⚔️</span>
+                  {unit.damage}
+                </span>
               </div>
             </div>
           ))}
-        </section>
+        </div>
       </main>
     </div>
   );
