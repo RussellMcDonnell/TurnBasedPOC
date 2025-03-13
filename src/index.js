@@ -5,18 +5,23 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Team from './Team';
+import TeamEditor from './TeamEditor';
 import Store from './Store';
+import { TeamProvider } from './TeamContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/team" element={<Team />} />
-        <Route path="/store" element={<Store />} />
-        <Route path="/" element={<App />} />
-      </Routes>
-    </Router>
+    <TeamProvider>
+      <Router>
+        <Routes>
+          <Route path="/team" element={<Team />} />
+          <Route path="/team-editor/:teamId" element={<TeamEditor />} />
+          <Route path="/store" element={<Store />} />
+          <Route path="/" element={<App />} />
+        </Routes>
+      </Router>
+    </TeamProvider>
   </React.StrictMode>
 );
 
