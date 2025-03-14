@@ -50,8 +50,10 @@ function BattlefieldCombat() {
 
   // Helper function to prepare units for the game state
   const prepareUnits = (units) => {
-    // First, map units to fetch player unit details
-    units = units.map(unit => getPlayerUnitById(unit));
+    if (!units.some(unit => unit.id === "e1")) {
+      // First, map units to fetch player unit details
+      units = units.map(unit => getPlayerUnitById(unit));   
+    }
 
     return units.map(unit => ({
       ...unit,
