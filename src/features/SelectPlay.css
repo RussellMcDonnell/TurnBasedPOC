@@ -1,0 +1,169 @@
+.select-play-container {
+  /* Remove max-width to allow full screen width */
+  width: 100%;
+  min-width: 100%;
+  margin: 0;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+  /* Adjust background image to fill entire viewport */
+  background-image: url('../images/select-game-mode-full-art.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: white;
+  /* Add an overlay to improve text readability */
+  box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5);
+  border-radius: 0;
+  /* Make sure content is centered and properly spaced */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+/* Content wrapper to maintain proper width for the components */
+.select-play-container > h1,
+.select-play-container > .game-mode-selection,
+.select-play-container > .team-selection-container,
+.select-play-container > .begin-button {
+  max-width: 1000px;
+  width: 100%;
+}
+
+h1 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.game-mode-selection {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.game-mode-card {
+  flex: 1;
+  background-color: rgba(245, 245, 245, 0.9);
+  border-radius: 10px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+
+.game-mode-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.game-mode-card.selected {
+  background-color: #3a7bd5;
+  color: white;
+  border: 2px solid #2a5db0;
+}
+
+.team-selection-container {
+  margin-bottom: 3rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+
+.team-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.team-card {
+  background-color: rgba(245, 245, 245, 0.9);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #333;
+}
+
+.team-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.team-card.selected {
+  background-color: #3a7bd5;
+  color: white;
+  border: 2px solid #2a5db0;
+}
+
+.team-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.no-teams-message {
+  color: #fff;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  background-color: rgba(249, 249, 249, 0.2);
+  border-radius: 8px;
+}
+
+.begin-button {
+  display: block;
+  width: 200px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  background-color: #e63946;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.begin-button:hover {
+  background-color: #c1121f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.begin-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .game-mode-selection {
+    flex-direction: column;
+  }
+  
+  .begin-button {
+    width: 100%;
+  }
+}

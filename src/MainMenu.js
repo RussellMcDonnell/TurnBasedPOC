@@ -7,7 +7,7 @@ function MainMenu() {
   const navigate = useNavigate();
 
   const handlePlayClick = () => {
-    navigate('/battlefield-combat');
+    navigate('/select-play');
   };
 
   const handleTeamClick = () => {
