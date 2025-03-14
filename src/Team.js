@@ -109,13 +109,13 @@ function Team() {
                 <h3>Units in this team:</h3>
                 <div className="team-units-grid">
                   {teamUnits.map((unit) => (
-                    <div key={unit.id} className="team-unit-card">
+                    <div key={unit.id} className="team-unit-slot filled">
+                      <div className="unit-name">{unit.name}</div>
                       <img 
                         src={unit.image} 
                         alt={unit.name} 
                         className="unit-image" 
                       />
-                      <h4 className="unit-name">{unit.name}</h4>
                       <div className="unit-role">{unit.role}</div>
                       
                       <div className="unit-stats">

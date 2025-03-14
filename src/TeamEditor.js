@@ -234,12 +234,26 @@ function TeamEditor() {
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
               >
+                <div className="unit-name">{unit.name}</div>
                 <img 
                   src={unit.image} 
                   alt={unit.name} 
                   className="unit-image"
                 />
-                <div className="unit-name">{unit.name}</div>
+                <div className="unit-role">{unit.role}</div>
+                
+                {/* Add unit stats matching the unit card layout */}
+                <div className="unit-stats">
+                  <span className="stat">
+                    <span className="stat-icon">❤️</span>
+                    {unit.maxHP}
+                  </span>
+                  <span className="stat">
+                    <span className="stat-icon">⚔️</span>
+                    {unit.damage}
+                  </span>
+                </div>
+                
                 <button 
                   className="remove-unit-btn"
                   onClick={() => handleRemoveUnit(unit.id)}
