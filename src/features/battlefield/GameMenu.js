@@ -1,22 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 function GameMenu({ 
-  onSurrender, 
-  onResetGame, 
+  onSurrender,
   onOpenSettings,
-  isGameOver,
-  selectedTeam,
-  selectedEnemyTeam,
-  availableTeams,
-  enemyTeams,
-  onTeamChange,
-  onEnemyTeamChange
+  isGameOver
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSurrenderDialog, setShowSurrenderDialog] = useState(false);
-  const [showResetDialog, setShowResetDialog] = useState(false);
-  const navigate = useNavigate();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -24,11 +14,6 @@ function GameMenu({
   
   const handleSurrenderClick = () => {
     setShowSurrenderDialog(true);
-    setIsMenuOpen(false);
-  };
-  
-  const handleResetClick = () => {
-    setShowResetDialog(true);
     setIsMenuOpen(false);
   };
   
@@ -40,11 +25,6 @@ function GameMenu({
   const confirmSurrender = () => {
     setShowSurrenderDialog(false);
     onSurrender();
-  };
-  
-  const confirmReset = () => {
-    setShowResetDialog(false);
-    onResetGame();
   };
 
   return (
@@ -61,30 +41,6 @@ function GameMenu({
             Game Menu
           </div>
           <div className="menu-options">
-            <div className="menu-section">
-              <h4>Team Selection</h4>
-              <select 
-                value={selectedTeam}
-                onChange={(e) => onTeamChange(e.target.value)}
-                className="team-select"
-              >
-                {availableTeams.map(team => (
-                  <option key={team} value={team}>{team}</option>
-                ))}
-              </select>
-              
-              <h4>Enemy Selection</h4>
-              <select 
-                value={selectedEnemyTeam}
-                onChange={(e) => onEnemyTeamChange(e.target.value)}
-                className="team-select"
-              >
-                {enemyTeams.map(team => (
-                  <option key={team} value={team}>{team}</option>
-                ))}
-              </select>
-            </div>
-            
             <div className="menu-option" onClick={handleSettingsClick}>
               <span className="menu-option-icon">⚙️</span>
               <span className="menu-option-text">Settings</span>
@@ -117,31 +73,6 @@ function GameMenu({
               <button 
                 className="surrender-button cancel-surrender" 
                 onClick={() => setShowSurrenderDialog(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {showResetDialog && (
-        <div className="reset-dialog">
-          <div className="reset-dialog-content">
-            <h2>Reset Game?</h2>
-            <p>
-              Are you sure you want to reset the game? All progress will be lost and the battle will start from the beginning.
-            </p>
-            <div className="reset-buttons">
-              <button 
-                className="reset-button confirm-reset" 
-                onClick={confirmReset}
-              >
-                Reset Game
-              </button>
-              <button 
-                className="reset-button cancel-reset" 
-                onClick={() => setShowResetDialog(false)}
               >
                 Cancel
               </button>
