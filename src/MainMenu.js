@@ -3,8 +3,12 @@ import './MainMenu.css';
 import mainMenuArt from './images/main-menu-full-art.jpg';
 import { useNavigate } from 'react-router-dom';
 
-function MainMenu({ onStartGame }) {
+function MainMenu() {
   const navigate = useNavigate();
+
+  const handlePlayClick = () => {
+    navigate('/battlefield-combat');
+  };
 
   const handleTeamClick = () => {
     navigate('/team');
@@ -19,7 +23,7 @@ function MainMenu({ onStartGame }) {
       <div className="menu-content">
         <h1>Turn-Based Combat</h1>
         <div className="menu-buttons">
-          <button className="menu-button play-button" onClick={onStartGame}>
+          <button className="menu-button play-button" onClick={handlePlayClick}>
             Play Game
           </button>
           <button className="menu-button" onClick={handleTeamClick}>

@@ -8,6 +8,7 @@ import Team from './Team';
 import TeamEditor from './TeamEditor';
 import Store from './Store';
 import { TeamProvider } from './TeamContext';
+import BattlefieldCombat from './features/BattlefieldCombat';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -18,6 +19,7 @@ root.render(
           <Route path="/team" element={<Team />} />
           <Route path="/team-editor/:teamId" element={<TeamEditor />} />
           <Route path="/store" element={<Store />} />
+          <Route path="/battlefield-combat" element={<BattlefieldCombat />} />
           <Route path="/" element={<App />} />
         </Routes>
       </Router>
