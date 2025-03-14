@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Team.css';
 import { playerUnits } from '../../data/playerUnits';
 import { useTeams } from './TeamContext';
+import UnitCard from '../../components/unit-card/UnitCard';
 
 function Team() {
   const { teams, deleteTeam } = useTeams();
@@ -109,26 +110,10 @@ function Team() {
                 <h3>Units in this team:</h3>
                 <div className="team-units-grid">
                   {teamUnits.map((unit) => (
-                    <div key={unit.id} className="team-unit-slot filled">
-                      <div className="unit-name">{unit.name}</div>
-                      <img 
-                        src={unit.image} 
-                        alt={unit.name} 
-                        className="unit-image" 
+                      <UnitCard 
+                        unit={{...unit, hp: unit.maxHP}} 
+                        className="unit-card"
                       />
-                      <div className="unit-role">{unit.role}</div>
-                      
-                      <div className="unit-stats">
-                        <span className="stat">
-                          <span className="stat-icon">❤️</span>
-                          {unit.maxHP}
-                        </span>
-                        <span className="stat">
-                          <span className="stat-icon">⚔️</span>
-                          {unit.damage}
-                        </span>
-                      </div>
-                    </div>
                   ))}
                   
                   {teamUnits.length === 0 && (

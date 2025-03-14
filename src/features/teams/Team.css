@@ -157,37 +157,66 @@
   gap: 1rem;
 }
 
-.team-unit-card {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* Container for unit cards - fix for stacking issue */
+.team-unit-slot {
+  min-width: 150px;
+  height: 300px;  /* Match unit card height */
+  border: 2px dashed #ddd;
+  border-radius: 12px;  /* Match unit card border-radius */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #95a5a6;
+  font-size: 0.9rem;
+  padding: 15px;  /* Match unit card padding */
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
 }
 
-.team-unit-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.team-unit-slot:hover {
+  border-color: #3498db;
+  background-color: rgba(52, 152, 219, 0.05);
 }
 
-.team-unit-card .unit-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 0.75rem;
+.team-unit-slot.filled {
+  border: 2px solid #666;  /* Match unit card border */
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  position: relative;
 }
 
-.team-unit-card .unit-name {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.1rem;
+.team-unit-slot.filled:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
 }
 
-.team-unit-card .unit-role {
-  color: #7f8c8d;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
+/* Fix for UnitCard component styling within team slots */
+.team-unit-slot .unit-card {
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  box-shadow: none;
+  border: none;
+}
+
+.team-unit-slot .unit-role {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #666;
+}
+
+/* Specific styling for UnitCard in slots that prevents double-styling */
+.team-unit-card {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  width: 100%;
 }
 
 /* Empty state */
@@ -219,14 +248,14 @@
 }
 
 /* Unit stats in team cards */
-.team-unit-card .unit-stats {
+.unit-card .unit-stats {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-top: 0.5rem;
 }
 
-.team-unit-card .stat {
+.unit-card .stat {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -308,6 +337,36 @@
   gap: 1rem;
   margin-top: 1rem;
   padding-bottom: 1rem;
+}
+
+/* Fix for UnitCard in the cards grid */
+.cards-grid .unit-container {
+  position: relative;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.cards-grid .unit-container:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.cards-grid .unit-container.selected {
+  background-color: rgba(46, 204, 113, 0.1);
+  box-shadow: 0 0 0 2px #2ecc71;
+}
+
+.cards-grid .unit-role {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+/* Styling for UnitCard in available cards grid */
+.available-unit-card {
+  width: 100%;
 }
 
 /* Current team panel with clear separation */
@@ -448,6 +507,7 @@
   font-size: 14px;
   padding: 0;
   line-height: 1;
+  z-index: 10; /* Ensure it stays above everything else */
 }
 
 /* Team actions styling for editor */
@@ -498,4 +558,9 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* Fix for selected unit cards in team editor */
+.selected-unit-card {
+  width: 100%;
 }

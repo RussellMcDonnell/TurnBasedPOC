@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './Team.css';
 import { playerUnits } from '../../data/playerUnits';
 import { useTeams } from './TeamContext';
+import UnitCard from '../../components/unit-card/UnitCard';
 
 function TeamEditor() {
   const navigate = useNavigate();
@@ -137,7 +138,6 @@ function TeamEditor() {
           className="back-button" 
           onClick={handleBackClick}
         >
-          <span className="button-icon">←</span>
           Back to Teams
         </button>
         <h1>{isNewTeam ? 'Create New Team' : 'Edit Team'}</h1>
@@ -163,28 +163,13 @@ function TeamEditor() {
           {filteredUnits.map((unit) => (
             <div 
               key={unit.id} 
-              className={`unit-card ${selectedUnits.some(u => u.id === unit.id) ? 'selected' : ''}`}
+              className={`unit-container ${selectedUnits.some(u => u.id === unit.id) ? 'selected' : ''}`}
               onClick={() => handleUnitClick(unit)}
             >
-              <h3 className="unit-name">{unit.name}</h3>
-              <img 
-                src={unit.image} 
-                alt={unit.name} 
-                className="unit-image" 
+              <UnitCard 
+                unit={{...unit, hp: unit.maxHP}} 
+                className="unit-card" 
               />
-              
-              <div className="unit-role">{unit.role}</div>
-              
-              <div className="unit-stats">
-                <span className="stat">
-                  <span className="stat-icon">❤️</span>
-                  {unit.maxHP}
-                </span>
-                <span className="stat">
-                  <span className="stat-icon">⚔️</span>
-                  {unit.damage}
-                </span>
-              </div>
             </div>
           ))}
         </div>
@@ -226,41 +211,10 @@ function TeamEditor() {
           <div className="current-team-units">
             {/* Display selected units */}
             {selectedUnits.map((unit, index) => (
-              <div
-                key={unit.id}
-                className="team-unit-slot filled"
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-              >
-                <div className="unit-name">{unit.name}</div>
-                <img 
-                  src={unit.image} 
-                  alt={unit.name} 
-                  className="unit-image"
+                <UnitCard 
+                  unit={{...unit, hp: unit.maxHP}} 
+                  className="unit-card"
                 />
-                <div className="unit-role">{unit.role}</div>
-                
-                {/* Add unit stats matching the unit card layout */}
-                <div className="unit-stats">
-                  <span className="stat">
-                    <span className="stat-icon">❤️</span>
-                    {unit.maxHP}
-                  </span>
-                  <span className="stat">
-                    <span className="stat-icon">⚔️</span>
-                    {unit.damage}
-                  </span>
-                </div>
-                
-                <button 
-                  className="remove-unit-btn"
-                  onClick={() => handleRemoveUnit(unit.id)}
-                >
-                  ×
-                </button>
-              </div>
             ))}
             
             {/* Empty slots */}
