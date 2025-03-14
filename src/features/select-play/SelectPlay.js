@@ -7,7 +7,7 @@ import './SelectPlay.css'; // We'll create this file next
 const SelectPlay = () => {
   const [gameMode, setGameMode] = useState('campaign'); // Default to campaign
   const [selectedTeamId, setSelectedTeamId] = useState(null);
-  const { teams } = useTeams();
+  const { teams, setActiveCampaignTeam } = useTeams();
   const navigate = useNavigate();
 
   // Set the first team as selected by default if teams are available
@@ -24,6 +24,14 @@ const SelectPlay = () => {
     }
 
     if (gameMode === 'campaign') {
+      // Save the selected team as the active campaign team using context function
+      const activeCampaignTeam = setActiveCampaignTeam(selectedTeamId);
+      
+      if (!activeCampaignTeam) {
+        alert('Failed to set active campaign team. Please try again.');
+        return;
+      }
+      
       navigate('/campaign', { 
         state: { 
           teamId: selectedTeamId 
