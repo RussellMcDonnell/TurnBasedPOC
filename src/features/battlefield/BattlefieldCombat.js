@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTeams } from "../../features/teams/TeamContext";
 import "../../App.css";
 import Sidebar from "../../Sidebar";
 import UnitCard from "../../components/unit-card/UnitCard";
@@ -8,10 +9,11 @@ import Settings from "./Settings";
 import { availableTeams, enemyTeams } from "../../data/units";
 
 function BattlefieldCombat() {
-const [isInGame, setIsInGame] = useState(false);
+  // Add team context hook
+  const { getActiveCampaignTeam } = useTeams();
+  const [isInGame, setIsInGame] = useState(false);
 
-  // Add team selection state
-  const [selectedTeam, setSelectedTeam] = useState("Classic Team");
+  // Remove selectedTeam state and use campaign team
   const [selectedEnemyTeam, setSelectedEnemyTeam] = useState("Basic Enemies");
   
   // Add game settings state
@@ -60,10 +62,11 @@ const [isInGame, setIsInGame] = useState(false);
     }));
   };
 
-// Initialize player and enemy units from selected teams
-const [playerUnits, setPlayerUnits] = useState(() => 
-    prepareUnits(availableTeams[selectedTeam])
-  );
+// Initialize player units from campaign team
+const [playerUnits, setPlayerUnits] = useState(() => {
+    const campaignTeam = getActiveCampaignTeam();
+    return prepareUnits(campaignTeam ? campaignTeam.units : []);
+  });
   
   const [enemyUnits, setEnemyUnits] = useState(() =>
     prepareUnits(enemyTeams[selectedEnemyTeam])
@@ -91,26 +94,21 @@ const [playerUnits, setPlayerUnits] = useState(() =>
     firstTurnUsed: false,
     gameOver: false,
     winner: null,
-    selectedTeam,
     selectedEnemyTeam
   });
 
-  // Effect to update player units when team changes
+  // Effect to update player units when campaign team changes
   useEffect(() => {
-    setPlayerUnits(prepareUnits(availableTeams[selectedTeam]));
-  }, [selectedTeam]);
+    const campaignTeam = getActiveCampaignTeam();
+    if (campaignTeam) {
+      setPlayerUnits(prepareUnits(campaignTeam.units));
+    }
+  }, [getActiveCampaignTeam]);
 
   // Effect to update enemy units when enemy team changes
   useEffect(() => {
     setEnemyUnits(prepareUnits(enemyTeams[selectedEnemyTeam]));
   }, [selectedEnemyTeam]);
-
-  // Function to change teams
-  const handleTeamChange = (teamName) => {
-    if (availableTeams[teamName]) {
-      setSelectedTeam(teamName);
-    }
-  };
 
   // Function to change enemy teams
   const handleEnemyTeamChange = (teamName) => {
@@ -157,16 +155,14 @@ const [playerUnits, setPlayerUnits] = useState(() =>
       firstTurnUsed,
       gameOver,
       winner,
-      selectedTeam,
       selectedEnemyTeam
     });
-  }, [playerUnits, enemyUnits, activeTeam, firstTurnUsed, gameOver, winner, selectedTeam, selectedEnemyTeam]);
+  }, [playerUnits, enemyUnits, activeTeam, firstTurnUsed, gameOver, winner, selectedEnemyTeam]);
 
   // Handle imported game state
   const handleImportGameState = (importedState) => {
     try {
       // Set team selections if present
-      if (importedState.selectedTeam) setSelectedTeam(importedState.selectedTeam);
       if (importedState.selectedEnemyTeam) setSelectedEnemyTeam(importedState.selectedEnemyTeam);
       
       // Set all the game state from imported data
@@ -1026,11 +1022,8 @@ const [playerUnits, setPlayerUnits] = useState(() =>
     <div className="BattlefieldCombat">
         <>
           <GameMenu 
-            selectedTeam={selectedTeam}
             selectedEnemyTeam={selectedEnemyTeam}
-            availableTeams={Object.keys(availableTeams)}
             enemyTeams={Object.keys(enemyTeams)}
-            onTeamChange={handleTeamChange}
             onEnemyTeamChange={handleEnemyTeamChange}
             onOpenSettings={() => setIsSettingsOpen(true)}
             isGameOver={gameOver}
