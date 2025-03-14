@@ -1,12 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Initial default teams data - used only if localStorage is empty
-const defaultTeams = [
-  { id: 1, name: 'The Arcane Wardens', units: ['varen', 'emberhowl', 'silkfang', 'ashbringer', 'lyn'] },
-  { id: 2, name: 'Blades of the Fallen', units: ['silkfangAlpha', 'silkfangHunter', 'varen', 'emberhowl', 'silkfang'] },
-  { id: 3, name: 'Shadow Stalkers', units: ['silkfangTwin', 'silkfangScout', 'ashbringer', 'lyn', 'varen'] },
-];
-
 // Create the context
 export const TeamContext = createContext();
 
@@ -24,7 +17,7 @@ export const TeamProvider = ({ children }) => {
   // Initialize state from localStorage or fallback to default teams
   const [teams, setTeams] = useState(() => {
     const storedTeams = localStorage.getItem('teams');
-    return storedTeams ? JSON.parse(storedTeams) : defaultTeams;
+    return storedTeams ? JSON.parse(storedTeams) : [];
   });
 
   // Initialize nextId by finding the highest existing ID + 1
