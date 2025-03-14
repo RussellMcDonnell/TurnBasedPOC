@@ -193,12 +193,6 @@ function TeamEditor() {
             
             <div className="team-actions-buttons">
               <button 
-                className="back-button" 
-                onClick={handleBackClick}
-              >
-                Cancel
-              </button>
-              <button 
                 className="edit-team-button" 
                 onClick={handleSaveTeam}
                 disabled={!teamName.trim() || selectedUnits.length === 0}
