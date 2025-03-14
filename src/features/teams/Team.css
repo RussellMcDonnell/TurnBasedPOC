@@ -564,3 +564,102 @@
 .selected-unit-card {
   width: 100%;
 }
+
+/* Add to the end of the CSS file */
+
+/* Styling for the selected unit wrapper */
+.selected-unit-wrapper {
+  position: relative;
+  margin: 0 10px 10px 0;
+  cursor: grab;
+}
+
+.selected-unit-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Remove button styling */
+.remove-unit-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #e74c3c;
+  color: white;
+  border: 2px solid white;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.selected-unit-wrapper:hover .remove-unit-button {
+  opacity: 1;
+}
+
+.remove-unit-button:hover {
+  background-color: #c0392b;
+}
+
+.remove-unit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.5);
+}
+
+/* Add these styles after the remove button styling */
+
+/* Move unit buttons styling */
+.move-unit-button {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: 2px solid white;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.move-left {
+  top: 50%;
+  left: -8px;
+  transform: translateY(-50%);
+}
+
+.move-right {
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+}
+
+.selected-unit-wrapper:hover .move-unit-button {
+  opacity: 1;
+}
+
+.move-unit-button:hover {
+  background-color: #2980b9;
+}
+
+.move-unit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+}

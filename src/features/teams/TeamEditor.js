@@ -130,6 +130,20 @@ function TeamEditor() {
     setSelectedUnits(newUnits);
   };
   
+  const handleMoveUnit = (direction, index) => {
+    const newUnits = [...selectedUnits];
+    
+    if (direction === 'left' && index > 0) {
+      // Move unit left (swap with the unit to the left)
+      [newUnits[index], newUnits[index - 1]] = [newUnits[index - 1], newUnits[index]];
+      setSelectedUnits(newUnits);
+    } else if (direction === 'right' && index < selectedUnits.length - 1) {
+      // Move unit right (swap with the unit to the right)
+      [newUnits[index], newUnits[index + 1]] = [newUnits[index + 1], newUnits[index]];
+      setSelectedUnits(newUnits);
+    }
+  };
+  
   return (
     <div className="team-builder-container">
       {/* Header */}
@@ -205,10 +219,56 @@ function TeamEditor() {
           <div className="current-team-units">
             {/* Display selected units */}
             {selectedUnits.map((unit, index) => (
+              <div 
+                key={`selected-${unit.id}`}
+                className="selected-unit-wrapper"
+                draggable={true}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+              >
+                {index > 0 && (
+                  <button 
+                    className="move-unit-button move-left"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMoveUnit('left', index);
+                    }}
+                    aria-label={`Move ${unit.name} left`}
+                  >
+                    &#8592;
+                  </button>
+                )}
+                
                 <UnitCard 
                   unit={{...unit, hp: unit.maxHP}} 
                   className="unit-card"
                 />
+                
+                {index < selectedUnits.length - 1 && (
+                  <button 
+                    className="move-unit-button move-right"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMoveUnit('right', index);
+                    }}
+                    aria-label={`Move ${unit.name} right`}
+                  >
+                    &#8594;
+                  </button>
+                )}
+                
+                <button 
+                  className="remove-unit-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveUnit(unit.id);
+                  }}
+                  aria-label={`Remove ${unit.name} from team`}
+                >
+                  ×
+                </button>
+              </div>
             ))}
             
             {/* Empty slots */}
