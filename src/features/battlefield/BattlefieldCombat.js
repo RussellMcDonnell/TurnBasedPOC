@@ -109,7 +109,6 @@ const [playerUnits, setPlayerUnits] = useState(() =>
   const handleTeamChange = (teamName) => {
     if (availableTeams[teamName]) {
       setSelectedTeam(teamName);
-      handleResetGame(teamName, selectedEnemyTeam);
     }
   };
 
@@ -117,7 +116,6 @@ const [playerUnits, setPlayerUnits] = useState(() =>
   const handleEnemyTeamChange = (teamName) => {
     if (enemyTeams[teamName]) {
       setSelectedEnemyTeam(teamName);
-      handleResetGame(selectedTeam, teamName);
     }
   };
 
@@ -211,43 +209,7 @@ const [playerUnits, setPlayerUnits] = useState(() =>
     });
   };
 
-  // Modified handleResetGame to support team selection
-  const handleResetGame = (newTeam = selectedTeam, newEnemyTeam = selectedEnemyTeam) => {
-    // Reset player units with potentially new team
-    setPlayerUnits(prepareUnits(availableTeams[newTeam]));
-    
-    // Reset enemy units with potentially new team
-    setEnemyUnits(prepareUnits(enemyTeams[newEnemyTeam]));
-    
-    // Reset game state
-    setActiveTeam("player");
-    setFirstTurnUsed(false);
-    setGameOver(false);
-    setWinner(null);
-    
-    // Reset UI states
-    setSelectedPlayerUnit(null);
-    setSelectedEnemyUnit(null);
-    setAttackingUnit(null);
-    setUsingAbility(false);
-    
-    // Log the reset
-    addToActionLog({
-      text: `Game reset with ${newTeam} vs ${newEnemyTeam}`,
-      type: "normal"
-    });
-    
-    // Add new battle start log
-    addToActionLog("--- Player turn begins ---");
-  };
-  
-  // Handle starting the game from main menu
-  const handleStartGame = () => {
-    setIsInGame(true);
-    handleResetGame(); // Reset the game state when starting
-  };
-
-  // Modified handleResetGame to support returning to main menu
+  // Support returning to main menu
   const handleSurrender = () => {
     setGameOver(true);
     setWinner("enemy");
