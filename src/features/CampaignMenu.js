@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './CampainMenu.css';
+import './CampaignMenu.css';
 
 const campaignNodes = [
   {
@@ -73,7 +73,7 @@ const campaignNodes = [
   }
 ];
 
-const CampainMenu = () => {
+const CampaignMenu = () => {
   const [selectedNode, setSelectedNode] = useState(campaignNodes[0]);
   const navigate = useNavigate();
 
@@ -157,4 +157,4 @@ const CampainMenu = () => {
   );
 };
 
-export default CampainMenu;
+export default CampaignMenu;

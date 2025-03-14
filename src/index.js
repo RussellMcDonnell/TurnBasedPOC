@@ -10,7 +10,7 @@ import Store from './Store';
 import { TeamProvider } from './TeamContext';
 import BattlefieldCombat from './features/BattlefieldCombat';
 import SelectPlay from './features/SelectPlay';
-import CampainMenu from './features/CampainMenu';
+import CampaignMenu from './features/CampaignMenu';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -23,7 +23,7 @@ root.render(
           <Route path="/store" element={<Store />} />
           <Route path="/select-play" element={<SelectPlay />} />
           <Route path="/battlefield" element={<BattlefieldCombat />} />
-          <Route path="/campaign" element={<CampainMenu />} />
+          <Route path="/campaign" element={<CampaignMenu />} />
           <Route path="/" element={<App />} />
         </Routes>
       </Router>
