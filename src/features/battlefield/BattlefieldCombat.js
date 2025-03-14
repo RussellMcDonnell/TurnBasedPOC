@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../App.css";
-import Sidebar from "../Sidebar";
-import UnitCard from "../UnitCard";
-import DeveloperPanel from "../DeveloperPanel";
-import GameMenu from "../GameMenu";
-import Settings from "../Settings";
-import { availableTeams, enemyTeams } from "../data/units";
+import "../../App.css";
+import Sidebar from "../../Sidebar";
+import UnitCard from "../../components/unit-card/UnitCard";
+import DeveloperPanel from "./DeveloperPanel";
+import GameMenu from "./GameMenu";
+import Settings from "./Settings";
+import { availableTeams, enemyTeams } from "../../data/units";
 
 function BattlefieldCombat() {
 const [isInGame, setIsInGame] = useState(false);

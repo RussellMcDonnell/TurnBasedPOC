@@ -6,7 +6,7 @@
   padding: 2rem;
   font-family: 'Arial', sans-serif;
   /* Adjust background image to fill entire viewport */
-  background-image: url('../images/select-game-mode-full-art.jpg');
+  background-image: url('../../assets/images/select-game-mode-full-art.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

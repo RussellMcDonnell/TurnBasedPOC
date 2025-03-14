@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Team.css';
-import { playerUnits } from './data/playerUnits';
+import { playerUnits } from '../../data/playerUnits';
 import { useTeams } from './TeamContext';
 
 function Team() {

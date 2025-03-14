@@ -4,13 +4,13 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Team from './Team';
-import TeamEditor from './TeamEditor';
-import Store from './Store';
-import { TeamProvider } from './TeamContext';
-import BattlefieldCombat from './features/BattlefieldCombat';
-import SelectPlay from './features/SelectPlay';
-import CampaignMenu from './features/CampaignMenu';
+import Team from './features/teams/Team';
+import TeamEditor from './features/teams/TeamEditor';
+import Store from './features/store/Store';
+import { TeamProvider } from './features/teams/TeamContext';
+import BattlefieldCombat from './features/battlefield/BattlefieldCombat';
+import SelectPlay from './features/select-play/SelectPlay';
+import CampaignMenu from './features/campaign/CampaignMenu';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

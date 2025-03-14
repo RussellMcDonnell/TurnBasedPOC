@@ -1,6 +1,6 @@
 import React from 'react';
 import './MainMenu.css';
-import mainMenuArt from './images/main-menu-full-art.jpg';
+import mainMenuArt from '../../assets/images/main-menu-full-art.jpg';
 import { useNavigate } from 'react-router-dom';
 
 function MainMenu() {

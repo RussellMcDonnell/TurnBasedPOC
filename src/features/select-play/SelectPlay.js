@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useTeams } from '../TeamContext';
+import { useTeams } from '../teams/TeamContext';
 import { useNavigate } from 'react-router-dom';
-import '../assets/styles/globals.css';
+import '../../assets/styles/globals.css';
 import './SelectPlay.css'; // We'll create this file next
 
 const SelectPlay = () => {

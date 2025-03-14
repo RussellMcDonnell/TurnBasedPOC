@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
-import MainMenu from "./MainMenu";
+import MainMenu from "./features/main-menu/MainMenu";
 
 function App() {
 
