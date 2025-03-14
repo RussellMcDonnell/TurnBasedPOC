@@ -7,6 +7,7 @@ import DeveloperPanel from "./DeveloperPanel";
 import GameMenu from "./GameMenu";
 import Settings from "./Settings";
 import { availableTeams, enemyTeams } from "../../data/units";
+import {getPlayerUnitById} from "../../data/playerUnits";
 
 function BattlefieldCombat() {
   // Add team context hook
@@ -49,6 +50,9 @@ function BattlefieldCombat() {
 
   // Helper function to prepare units for the game state
   const prepareUnits = (units) => {
+    // First, map units to fetch player unit details
+    units = units.map(unit => getPlayerUnitById(unit));
+
     return units.map(unit => ({
       ...unit,
       acted: false,
