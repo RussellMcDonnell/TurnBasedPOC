@@ -27,6 +27,33 @@
   overflow-y: auto;
 }
 
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 2px solid white;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.back-button:before {
+  content: "←";
+  font-size: 1.2rem;
+}
+
 /* Content wrapper to maintain proper width for the components */
 .select-play-container > h1,
 .select-play-container > .game-mode-selection,

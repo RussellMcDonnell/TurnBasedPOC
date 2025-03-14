@@ -86,6 +86,10 @@ const CampainMenu = () => {
     });
   };
 
+  const handleBackClick = () => {
+    navigate('/select-play');
+  };
+
   const renderConnections = () => {
     return campaignNodes.map(node => {
       return node.connections.map(targetId => {
@@ -109,6 +113,10 @@ const CampainMenu = () => {
 
   return (
     <div className="campaign-container">
+      <button className="back-button" onClick={handleBackClick}>
+        Back to Game Selection
+      </button>
+      
       <div className="campaign-map">
         <svg className="connections-layer">
           {renderConnections()}

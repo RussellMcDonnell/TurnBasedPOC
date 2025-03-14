@@ -37,8 +37,15 @@ const SelectPlay = () => {
     console.log(`Starting ${gameMode} mode with team ID: ${selectedTeamId}`);
   };
 
+  const handleBackClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="select-play-container">
+      <button className="back-button" onClick={handleBackClick}>
+        Back to Main Menu
+      </button>
       <h1>Select Game Mode</h1>
       
       <div className="game-mode-selection">
