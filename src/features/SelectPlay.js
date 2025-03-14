@@ -62,11 +62,12 @@ const SelectPlay = () => {
         </div>
         
         <div 
-          className={`game-mode-card ${gameMode === 'adventure' ? 'selected' : ''}`}
-          onClick={() => setGameMode('adventure')}
+          className={`game-mode-card locked ${gameMode === 'adventure' ? 'selected' : ''}`}
+          onClick={() => alert('Complete the Campaign mode to unlock Adventure mode!')}
         >
-          <h2>Adventure</h2>
+          <h2>Adventure 🔒</h2>
           <p>Explore random encounters and challenges across the realm.</p>
+          <div className="locked-overlay">Complete Campaign to Unlock</div>
         </div>
       </div>
       
