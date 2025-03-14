@@ -329,12 +329,23 @@
   margin-bottom: 1rem;
 }
 
+.team-name-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .team-name-input {
   font-size: 1.2rem;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   width: 300px;
+}
+
+.team-size-indicator {
+  font-size: 0.85rem;
+  color: #7f8c8d;
 }
 
 .current-team-units {
@@ -385,28 +396,52 @@
   line-height: 1;
 }
 
+/* Team actions styling for editor */
 .team-actions {
   display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  gap: 1rem;
 }
 
-.save-team-btn {
-  background-color: #2ecc71;
+/* TeamEditor - updated button styles */
+.current-team-header .back-button {
+  background: #e74c3c;
   color: white;
   border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
-.save-team-btn:hover {
-  background-color: #27ae60;
+.current-team-header .back-button:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.cancel-btn {
-  background-color: #e74c3c;
+.current-team-header .edit-team-button {
+  background: #2ecc71;
   color: white;
   border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
-.cancel-btn:hover {
-  background-color: #c0392b;
+.current-team-header .edit-team-button:hover {
+  background: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.current-team-header .edit-team-button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

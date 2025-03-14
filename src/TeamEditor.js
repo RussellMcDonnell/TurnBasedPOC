@@ -137,6 +137,7 @@ function TeamEditor() {
           className="back-button" 
           onClick={handleBackClick}
         >
+          <span className="button-icon">←</span>
           Back to Teams
         </button>
         <h1>{isNewTeam ? 'Create New Team' : 'Edit Team'}</h1>
@@ -191,17 +192,35 @@ function TeamEditor() {
         {/* Current Team Panel */}
         <div className="current-team-panel">
           <div className="current-team-header">
-            <input
-              type="text"
-              className="team-name-input"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              placeholder="Enter team name..."
-              maxLength={30}
-            />
-            <span className="team-size-indicator">
-              {selectedUnits.length}/5 units
-            </span>
+            <div className="team-name-section">
+              <input
+                type="text"
+                className="team-name-input"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                placeholder="Enter team name..."
+                maxLength={30}
+              />
+              <span className="team-size-indicator">
+                {selectedUnits.length}/5 units
+              </span>
+            </div>
+            
+            <div className="team-actions-buttons">
+              <button 
+                className="back-button" 
+                onClick={handleBackClick}
+              >
+                Cancel
+              </button>
+              <button 
+                className="edit-team-button" 
+                onClick={handleSaveTeam}
+                disabled={!teamName.trim() || selectedUnits.length === 0}
+              >
+                Save Team
+              </button>
+            </div>
           </div>
           
           <div className="current-team-units">
@@ -241,22 +260,6 @@ function TeamEditor() {
                 Drop a unit here
               </div>
             ))}
-          </div>
-          
-          <div className="team-actions">
-            <button 
-              className="cancel-btn" 
-              onClick={handleBackClick}
-            >
-              Cancel
-            </button>
-            <button 
-              className="save-team-btn" 
-              onClick={handleSaveTeam}
-              disabled={!teamName.trim() || selectedUnits.length === 0}
-            >
-              Save Team
-            </button>
           </div>
         </div>
       </div>
