@@ -1,4 +1,4 @@
-# Turn-Based Combat Game POC
+# project232 Turn-Based Combat Game POC
 
 A proof-of-concept project demonstrating core gameplay mechanics, user interface, and overall user experience for a turn-based combat game built with React.
 

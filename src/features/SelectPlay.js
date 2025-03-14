@@ -22,15 +22,17 @@ const SelectPlay = () => {
       alert('Please select a team to continue');
       return;
     }
-    
-    // Here you would navigate to the appropriate battle page with the selected team and game mode
-    // For now, we'll just navigate to a placeholder route
-    navigate('/battlefield', { 
-      state: { 
-        gameMode: gameMode, 
-        teamId: selectedTeamId 
-      } 
-    });
+
+    if (gameMode === 'campaign') {
+      navigate('/campaign');
+    } else {
+      navigate('/battlefield', { 
+        state: { 
+          gameMode: gameMode, 
+          teamId: selectedTeamId 
+        } 
+      });
+    }
     
     console.log(`Starting ${gameMode} mode with team ID: ${selectedTeamId}`);
   };

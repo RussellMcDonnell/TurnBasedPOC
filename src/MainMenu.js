@@ -21,7 +21,7 @@ function MainMenu() {
   return (
     <div className="main-menu" style={{ backgroundImage: `url(${mainMenuArt})` }}>
       <div className="menu-content">
-        <h1>Turn-Based Combat</h1>
+        <h1>Project232</h1>
         <div className="menu-buttons">
           <button className="menu-button play-button" onClick={handlePlayClick}>
             Play Game

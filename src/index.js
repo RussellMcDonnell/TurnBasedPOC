@@ -10,6 +10,7 @@ import Store from './Store';
 import { TeamProvider } from './TeamContext';
 import BattlefieldCombat from './features/BattlefieldCombat';
 import SelectPlay from './features/SelectPlay';
+import CampainMenu from './features/CampainMenu';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -22,6 +23,7 @@ root.render(
           <Route path="/store" element={<Store />} />
           <Route path="/select-play" element={<SelectPlay />} />
           <Route path="/battlefield" element={<BattlefieldCombat />} />
+          <Route path="/campaign" element={<CampainMenu />} />
           <Route path="/" element={<App />} />
         </Routes>
       </Router>
@@ -29,7 +31,4 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
