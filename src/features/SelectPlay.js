@@ -10,21 +10,25 @@ const SelectPlay = () => {
   const { teams } = useTeams();
   const navigate = useNavigate();
 
-  // Set the first team as selected by default if teams are available and not in campaign mode
+  // Set the first team as selected by default if teams are available
   React.useEffect(() => {
-    if (teams.length > 0 && !selectedTeamId && gameMode !== 'campaign') {
+    if (teams.length > 0 && !selectedTeamId) {
       setSelectedTeamId(teams[0].id);
     }
-  }, [teams, selectedTeamId, gameMode]);
+  }, [teams, selectedTeamId]);
 
   const handleBeginGame = () => {
-    if (gameMode !== 'campaign' && !selectedTeamId) {
+    if (!selectedTeamId) {
       alert('Please select a team to continue');
       return;
     }
 
     if (gameMode === 'campaign') {
-      navigate('/campaign');
+      navigate('/campaign', { 
+        state: { 
+          teamId: selectedTeamId 
+        } 
+      });
     } else {
       navigate('/battlefield', { 
         state: { 
@@ -51,10 +55,7 @@ const SelectPlay = () => {
       <div className="game-mode-selection">
         <div 
           className={`game-mode-card ${gameMode === 'campaign' ? 'selected' : ''}`}
-          onClick={() => {
-            setGameMode('campaign');
-            setSelectedTeamId(null);
-          }}
+          onClick={() => setGameMode('campaign')}
         >
           <h2>Campaign</h2>
           <p>Follow the story and defeat enemies to progress through the campaign.</p>
@@ -69,35 +70,33 @@ const SelectPlay = () => {
         </div>
       </div>
       
-      {gameMode !== 'campaign' && (
-        <div className="team-selection-container">
-          <h2>Select Your Team</h2>
-          
-          {teams.length === 0 ? (
-            <p className="no-teams-message">
-              You haven't created any teams yet. Visit the Team Editor to create one.
-            </p>
-          ) : (
-            <div className="team-list">
-              {teams.map(team => (
-                <div 
-                  key={team.id} 
-                  className={`team-card ${selectedTeamId === team.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedTeamId(team.id)}
-                >
-                  <h3>{team.name}</h3>
-                  <p>{team.units.length} Units</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <div className="team-selection-container">
+        <h2>Select Your Team</h2>
+        
+        {teams.length === 0 ? (
+          <p className="no-teams-message">
+            You haven't created any teams yet. Visit the Team Editor to create one.
+          </p>
+        ) : (
+          <div className="team-list">
+            {teams.map(team => (
+              <div 
+                key={team.id} 
+                className={`team-card ${selectedTeamId === team.id ? 'selected' : ''}`}
+                onClick={() => setSelectedTeamId(team.id)}
+              >
+                <h3>{team.name}</h3>
+                <p>{team.units.length} Units</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       
       <button 
         className="begin-button" 
         onClick={handleBeginGame}
-        disabled={gameMode !== 'campaign' && !selectedTeamId}
+        disabled={!selectedTeamId}
       >
         Begin
       </button>
