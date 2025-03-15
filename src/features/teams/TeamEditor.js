@@ -4,6 +4,7 @@ import './Team.css';
 import { getPlayerUnits } from '../../data/units';
 import { useTeams } from './TeamContext';
 import UnitCard from '../../components/unit-card/UnitCard';
+import teamEditorBackground from '../../assets/images/team-editor-full-art.jpg';
 
 function TeamEditor() {
   const navigate = useNavigate();
@@ -158,7 +159,13 @@ function TeamEditor() {
   };
   
   return (
-    <div className="team-builder-container">
+    <div className="team-builder-container" style={{
+      backgroundImage: `url(${teamEditorBackground})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.5)', /* Add dark overlay for better readability */
+    }}>
       {/* Header - now sticky with search */}
       <header className="team-header" style={{
         position: 'sticky',
@@ -167,7 +174,9 @@ function TeamEditor() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0.75rem 1.5rem'
+        padding: '0.75rem 1.5rem',
+        backgroundColor: 'rgba(44, 62, 80, 0.85)', /* Semi-transparent background for the header */
+        backdropFilter: 'blur(5px)',
       }}>
         <button 
           className="back-button" 
@@ -209,7 +218,8 @@ function TeamEditor() {
         flex: '1', 
         overflowY: 'auto',
         paddingTop: '1rem',
-        paddingBottom: `${teamPanelHeight + 20}px` 
+        paddingBottom: `${teamPanelHeight + 20}px`,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)', /* Semi-transparent background for the content */
       }}>
         {/* Units Grid */}
         <div className="cards-grid">
@@ -240,7 +250,10 @@ function TeamEditor() {
           zIndex: '100',
           boxShadow: '0 -4px 10px rgba(0, 0, 0, 0.15)',
           maxHeight: '50vh',
-          overflowY: 'auto'
+          overflowY: 'auto',
+          backgroundColor: 'rgba(44, 62, 80, 0.9)', /* Semi-transparent background for the bottom panel */
+          backdropFilter: 'blur(5px)',
+          color: 'white',
         }}
       >
         <div className="current-team-header">
@@ -252,6 +265,11 @@ function TeamEditor() {
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Enter team name..."
               maxLength={30}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+              }}
             />
             <span className="team-size-indicator">
               {selectedUnits.length}/5 units
@@ -331,6 +349,10 @@ function TeamEditor() {
               className="team-unit-slot"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, selectedUnits.length + index)}
+              style={{
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                color: 'rgba(255, 255, 255, 0.7)',
+              }}
             >
               Drop a unit here
             </div>
