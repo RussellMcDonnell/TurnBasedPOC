@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Team.css';
-import { units } from '../../data/units';
+import { getPlayerUnits } from '../../data/units';
 import { useTeams } from './TeamContext';
 import UnitCard from '../../components/unit-card/UnitCard';
 
@@ -19,12 +19,10 @@ function Team() {
   };
 
   const handleEditTeam = (teamId) => {
-    // Navigate to the team editor with the selected team ID
     navigate(`/team-editor/${teamId}`);
   };
 
   const handleCreateTeam = () => {
-    // Navigate to team editor with "new" to create a new team
     navigate('/team-editor/new');
   };
 
@@ -37,11 +35,13 @@ function Team() {
     }
   };
 
-  const selectedTeam = teams.find(team => team.id === selectedTeamId);
-  
   // Get the actual unit objects for the selected team's units
+  const selectedTeam = teams.find(team => team.id === selectedTeamId);
+  const playerUnits = getPlayerUnits();
   const teamUnits = selectedTeam 
-    ? selectedTeam.units.map(unitId => units[unitId]).filter(Boolean) 
+    ? selectedTeam.units
+        .map(unitId => playerUnits.find(unit => unit.id === unitId))
+        .filter(Boolean)
     : [];
 
   return (

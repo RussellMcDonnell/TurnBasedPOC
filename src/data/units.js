@@ -26,7 +26,8 @@ export const units = {
       maxCooldown: 2,
     },
     description: "A powerful frost mage with area-of-effect damage potential.",
-    role: "Mage"
+    role: "Mage",
+    type: "player"
   },
   
   "emberhowl": {
@@ -44,7 +45,8 @@ export const units = {
       maxCooldown: 1,
     },
     description: "A fierce fire elemental with high single-target damage.",
-    role: "Damage Dealer"
+    role: "Damage Dealer",
+    type: "player"
   },
   
   "silkfang": {
@@ -62,7 +64,8 @@ export const units = {
       maxCooldown: 3,
     },
     description: "A swift hunter that excels at dealing damage over time.",
-    role: "Assassin"
+    role: "Assassin",
+    type: "player"
   },
   
   "silkfangTwin": {
@@ -80,7 +83,8 @@ export const units = {
       maxCooldown: 2,
     },
     description: "The tactical twin that specializes in crowd control.",
-    role: "Controller"
+    role: "Controller",
+    type: "player"
   },
   
   "silkfangAlpha": {
@@ -98,7 +102,8 @@ export const units = {
       maxCooldown: 3,
     },
     description: "The pack leader who empowers allies with greater strength.",
-    role: "Support"
+    role: "Support",
+    type: "player"
   },
   
   "silkfangHunter": {
@@ -116,7 +121,8 @@ export const units = {
       maxCooldown: 2,
     },
     description: "A nimble hunter capable of striking with unprecedented speed.",
-    role: "Damage Dealer"
+    role: "Damage Dealer",
+    type: "player"
   },
 
   "silkfangScout": {
@@ -134,7 +140,8 @@ export const units = {
       maxCooldown: 2,
     },
     description: "A stealthy scout that can identify enemy weaknesses.",
-    role: "Support"
+    role: "Support",
+    type: "player"
   },
   "ashbringer":{
     id: "ashbringer",
@@ -143,7 +150,8 @@ export const units = {
     hp: 50,
     damage: 8,
     image: ashbringerPortrait,
-    fullArt: ashbringerPortrait
+    fullArt: ashbringerPortrait,
+    type: "enemy"
   },
   "lyn": {
     id: "lyn",
@@ -152,13 +160,19 @@ export const units = {
     hp: 20,
     damage: 4,
     image: lynValkenPortrait,
-    fullArt: lynValkenPortrait
+    fullArt: lynValkenPortrait,
+    type: "enemy"
   }
 };
 
 // Helper function to get a unit by ID
 export const getUnitById = (id) => {
   return units[id] ? { ...units[id], hp: units[id].maxHP, currentCooldown: 0 } : null;
+};
+
+// Helper function to get all player units
+export const getPlayerUnits = () => {
+  return Object.values(units).filter(unit => unit.type === "player");
 };
 
 // Enemy configurations
