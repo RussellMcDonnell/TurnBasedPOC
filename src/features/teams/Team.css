@@ -575,13 +575,6 @@
   box-shadow: none;
 }
 
-/* Fix for selected unit cards in team editor */
-.selected-unit-card {
-  width: 100%;
-}
-
-/* Add to the end of the CSS file */
-
 /* Styling for the selected unit wrapper */
 .selected-unit-wrapper {
   position: relative;
@@ -677,4 +670,74 @@
 .move-unit-button:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+}
+
+/* Selected unit card container - specific styling for the bottom panel */
+.selected-unit-card-container {
+  width: 180px;
+  height: 280px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Make sure unit card elements are visible within the container */
+.selected-unit-card-container .unit-card {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure unit name is visible */
+.selected-unit-card-container .unit-name {
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Style for unit image */
+.selected-unit-card-container .unit-image {
+  width: 100%;
+  height: auto;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Style for unit stats */
+.selected-unit-card-container .unit-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: auto;
+  padding: 8px;
+  color: white;
+}
+
+.selected-unit-card-container .stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+/* Style for unit ability if present */
+.selected-unit-card-container .unit-ability {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 8px auto;
+  max-width: 90%;
+  color: white;
 }

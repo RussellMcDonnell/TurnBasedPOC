@@ -231,7 +231,6 @@ function TeamEditor() {
           overflowY: 'auto',
           backgroundColor: 'rgba(44, 62, 80, 0.9)', /* Semi-transparent background for the bottom panel */
           backdropFilter: 'blur(5px)',
-          color: 'white',
         }}
       >
         <div className="current-team-header">
@@ -284,11 +283,10 @@ function TeamEditor() {
                   &#8592;
                 </button>
               )}
-              
-              <UnitCard 
-                unit={{...unit, hp: unit.maxHP}} 
-                className="unit-card"
-              />
+                <UnitCard 
+                  unit={{...unit, hp: unit.maxHP}} 
+                  className="selected-unit-card"
+                />
               
               {index < selectedUnits.length - 1 && (
                 <button 
