@@ -107,7 +107,6 @@ function Team() {
               </div>
               
               <div className="team-preview">
-                <h3>Units in this team:</h3>
                 <div className="team-units-grid">
                   {teamUnits.map((unit) => (
                       <UnitCard 
