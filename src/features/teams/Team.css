@@ -599,8 +599,6 @@
   min-width: 180px;
   max-width: 180px;
   height: 300px;
-  border: 2px dashed #ddd;
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -747,9 +745,6 @@
   position: relative;
   margin: 0;
   cursor: grab;
-  border: 2px solid #666;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .selected-unit-wrapper:active {
