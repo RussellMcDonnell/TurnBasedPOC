@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Team.css';
-import { playerUnits } from '../../data/playerUnits';
+import { units } from '../../data/units';
 import { useTeams } from './TeamContext';
 import UnitCard from '../../components/unit-card/UnitCard';
 
@@ -41,7 +41,7 @@ function Team() {
   
   // Get the actual unit objects for the selected team's units
   const teamUnits = selectedTeam 
-    ? selectedTeam.units.map(unitId => playerUnits[unitId]).filter(Boolean) 
+    ? selectedTeam.units.map(unitId => units[unitId]).filter(Boolean) 
     : [];
 
   return (

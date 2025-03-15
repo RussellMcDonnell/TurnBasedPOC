@@ -6,8 +6,7 @@ import UnitCard from "../../components/unit-card/UnitCard";
 import DeveloperPanel from "./DeveloperPanel";
 import GameMenu from "./GameMenu";
 import Settings from "./Settings";
-import { availableTeams, enemyTeams } from "../../data/units";
-import {getPlayerUnitById} from "../../data/playerUnits";
+import { getUnitById, enemyTeams } from "../../data/units";
 
 function BattlefieldCombat() {
   // Add team context hook
@@ -16,15 +15,15 @@ function BattlefieldCombat() {
 
   // Remove selectedTeam state and use campaign team
   const [selectedEnemyTeam, setSelectedEnemyTeam] = useState("Basic Enemies");
-  
+
   // Add game settings state
   const [gameSettings, setGameSettings] = useState({
     enableRetaliation: false,
   });
-  
+
   // Add settings dialog state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+
   // Add new state for animation
   const [animatingUnitId, setAnimatingUnitId] = useState(null);
   const [damagedUnitId, setDamagedUnitId] = useState(null);
@@ -50,10 +49,8 @@ function BattlefieldCombat() {
 
   // Helper function to prepare units for the game state
   const prepareUnits = (units) => {
-    if (!units.some(unit => unit.id === "e1")) {
-      // First, map units to fetch player unit details
-      units = units.map(unit => getPlayerUnitById(unit));   
-    }
+    // First, map units to fetch player unit details
+    units = units.map(unit => getUnitById(unit));
 
     return units.map(unit => ({
       ...unit,
@@ -68,12 +65,12 @@ function BattlefieldCombat() {
     }));
   };
 
-// Initialize player units from campaign team
-const [playerUnits, setPlayerUnits] = useState(() => {
+  // Initialize player units from campaign team
+  const [playerUnits, setPlayerUnits] = useState(() => {
     const campaignTeam = getActiveCampaignTeam();
     return prepareUnits(campaignTeam ? campaignTeam.units : []);
   });
-  
+
   const [enemyUnits, setEnemyUnits] = useState(() =>
     prepareUnits(enemyTeams[selectedEnemyTeam])
   );
@@ -126,15 +123,15 @@ const [playerUnits, setPlayerUnits] = useState(() => {
   // Modified function to add an entry to the action log with structured format
   const addToActionLog = (entry) => {
     const timestamp = new Date().toLocaleTimeString();
-    
+
     // Add timestamp to all log entries
     if (typeof entry === 'string') {
       // Simple turn markers or text-only logs
-      setActionLog(prev => [...prev, { 
-        text: entry, 
+      setActionLog(prev => [...prev, {
+        text: entry,
         time: timestamp,
-        type: entry.includes("turn ends") ? "turn-end" : 
-              entry.includes("turn begins") ? "turn-start" : "normal"
+        type: entry.includes("turn ends") ? "turn-end" :
+          entry.includes("turn begins") ? "turn-start" : "normal"
       }]);
     } else {
       // Entry is already an object with appropriate format
@@ -143,7 +140,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
         time: timestamp
       }]);
     }
-    
+
     // Scroll to bottom of log when new entries are added
     setTimeout(() => {
       if (logScrollRef.current) {
@@ -170,7 +167,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
     try {
       // Set team selections if present
       if (importedState.selectedEnemyTeam) setSelectedEnemyTeam(importedState.selectedEnemyTeam);
-      
+
       // Set all the game state from imported data
       if (importedState.playerUnits) setPlayerUnits(importedState.playerUnits);
       if (importedState.enemyUnits) setEnemyUnits(importedState.enemyUnits);
@@ -178,13 +175,13 @@ const [playerUnits, setPlayerUnits] = useState(() => {
       if (importedState.firstTurnUsed !== undefined) setFirstTurnUsed(importedState.firstTurnUsed);
       if (importedState.gameOver !== undefined) setGameOver(importedState.gameOver);
       if (importedState.winner !== undefined) setWinner(importedState.winner);
-      
+
       // Reset UI states
       setSelectedPlayerUnit(null);
       setSelectedEnemyUnit(null);
       setAttackingUnit(null);
       setUsingAbility(false);
-      
+
       addToActionLog({
         text: `Game state imported successfully`,
         type: "normal"
@@ -197,14 +194,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
       console.error("Error importing game state:", error);
     }
   };
-  
+
   // Handle game setting changes
   const handleSettingsChange = (setting, value) => {
     setGameSettings(prev => ({
       ...prev,
       [setting]: value
     }));
-    
+
     addToActionLog({
       text: `Game setting changed: ${setting} = ${value}`,
       type: "normal"
@@ -256,7 +253,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
   // Function to apply retaliation damage
   function applyRetaliationDamage(attacker, target, attackerTeam) {
     if (!gameSettings.enableRetaliation || target.isDead) return;
-    
+
     // Add retaliation to action log
     addToActionLog({
       unit: target.name,
@@ -266,7 +263,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
         Damage: target.damage.toString()
       }]
     });
-    
+
     // Apply retaliation damage after a delay
     setTimeout(() => {
       if (attackerTeam === "player") {
@@ -275,14 +272,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
           prev.map(unit => {
             if (unit.id === attacker.id) {
               const newHP = unit.hp - target.damage;
-              
+
               if (newHP <= 0) {
                 addToActionLog({
                   text: `${unit.name} is defeated by retaliation!`,
                   type: "defeat"
                 });
               }
-              
+
               return {
                 ...unit,
                 hp: Math.max(0, newHP),
@@ -298,14 +295,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
           prev.map(unit => {
             if (unit.id === attacker.id) {
               const newHP = unit.hp - target.damage;
-              
+
               if (newHP <= 0) {
                 addToActionLog({
                   text: `${unit.name} is defeated by retaliation!`,
                   type: "defeat"
                 });
               }
-              
+
               return {
                 ...unit,
                 hp: Math.max(0, newHP),
@@ -371,14 +368,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
           prev.map((unit) => {
             if (unit.id === targetId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
-              
+
               if (newHP <= 0) {
                 addToActionLog({
                   text: `${unit.name} is defeated!`,
                   type: "defeat"
                 });
               }
-              
+
               return {
                 ...unit,
                 hp: newHP,
@@ -441,14 +438,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
           prev.map((unit) => {
             if (unit.id === targetId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
-              
+
               if (newHP <= 0) {
                 addToActionLog({
                   text: `${unit.name} is defeated!`,
                   type: "defeat"
                 });
               }
-              
+
               return {
                 ...unit,
                 hp: newHP,
@@ -481,7 +478,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
   // Function to create ice particles for blizzard animation
   const generateIceParticles = () => {
     const particles = [];
-    
+
     // Create 30 ice particles
     for (let i = 0; i < 30; i++) {
       const isRegularIce = Math.random() > 0.3; // 70% regular ice particles, 30% ice shards
@@ -494,7 +491,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
         type: isRegularIce ? 'ice-particle' : 'ice-shard',
       });
     }
-    
+
     return particles;
   };
 
@@ -502,7 +499,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
   const activateBlizzard = () => {
     setBlizzardActive(true);
     setIceParticles(generateIceParticles());
-    
+
     // End the effect after animation completes
     setTimeout(() => {
       setBlizzardActive(false);
@@ -521,7 +518,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
     setAnimatingAbility(true);
 
     // Handle specific abilities
-    switch(unit.name) {
+    switch (unit.name) {
       case "Varen Stormrune":
         // Create a log entry object for the ability
         const abilityLogEntry = {
@@ -530,14 +527,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
           abilityName: unit.ability.name,
           targets: []
         };
-        
+
         // Activate blizzard animation effect
         activateBlizzard();
-        
+
         // Blizzard ability - damages all enemies with chance to stun
         setTimeout(() => {
           const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead);
-          
+
           // Apply damage to all enemies
           setEnemyUnits(prev =>
             prev.map(enemy => {
@@ -545,14 +542,14 @@ const [playerUnits, setPlayerUnits] = useState(() => {
 
               const newHP = enemy.hp - unit.damage;
               const isStunned = Math.random() < 0.25; // 25% chance to stun
-              
+
               // Add target to the ability log entry
               abilityLogEntry.targets.push({
                 unit: enemy.name,
                 Damage: unit.damage.toString(),
                 Status: isStunned ? "Frozen" : "None"
               });
-              
+
               const newStatusEffects = [...enemy.statusEffects];
 
               if (isStunned) {
@@ -659,17 +656,17 @@ const [playerUnits, setPlayerUnits] = useState(() => {
     if (team === "player") {
       const unit = playerUnits.find(u => u.id === unitId);
       if (!unit) return;
-      
+
       addToActionLog({
         unit: unit.name,
         type: "skip",
         targets: []
       });
-      
+
       setPlayerUnits((prev) =>
         prev.map((u) => (u.id === unitId ? { ...u, acted: true } : u))
       );
-      
+
       if (!firstTurnUsed) {
         setFirstTurnUsed(true);
         endPlayerTurn();
@@ -677,13 +674,13 @@ const [playerUnits, setPlayerUnits] = useState(() => {
     } else {
       const unit = enemyUnits.find(u => u.id === unitId);
       if (!unit) return;
-      
+
       addToActionLog({
         unit: unit.name,
         type: "skip",
         targets: []
       });
-      
+
       setEnemyUnits((prev) =>
         prev.map((u) => (u.id === unitId ? { ...u, acted: true } : u))
       );
@@ -696,7 +693,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
     setActiveTeam("enemy");
     resetActedStatus("player");
     setCurrentlyAttacking(null); // Reset currentlyAttacking state
-    
+
     // Clear any selected units and attack state when ending turn
     setSelectedPlayerUnit(null);
     setSelectedEnemyUnit(null);
@@ -735,7 +732,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
             });
           });
         }
-        
+
         return {
           ...unit,
           statusEffects: unit.statusEffects
@@ -744,7 +741,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
         };
       })
     );
-    
+
     addToActionLog("--- Enemy turn begins ---");
   }
 
@@ -766,7 +763,7 @@ const [playerUnits, setPlayerUnits] = useState(() => {
             });
           });
         }
-        
+
         return {
           ...unit,
           statusEffects: unit.statusEffects
@@ -802,17 +799,17 @@ const [playerUnits, setPlayerUnits] = useState(() => {
       // Check for stunned enemies first
       const activeEnemies = enemyUnits.filter(
         enemy => !enemy.isDead &&
-                !enemy.acted &&
-                !enemy.statusEffects.some(effect => effect.type === "frozen")
+          !enemy.acted &&
+          !enemy.statusEffects.some(effect => effect.type === "frozen")
       );
 
       // Log frozen enemies
       const frozenEnemies = enemyUnits.filter(
-        enemy => !enemy.isDead && 
-                !enemy.acted && 
-                enemy.statusEffects.some(effect => effect.type === "frozen")
+        enemy => !enemy.isDead &&
+          !enemy.acted &&
+          enemy.statusEffects.some(effect => effect.type === "frozen")
       );
-      
+
       if (frozenEnemies.length > 0) {
         frozenEnemies.forEach(enemy => {
           addToActionLog({
@@ -1026,142 +1023,142 @@ const [playerUnits, setPlayerUnits] = useState(() => {
 
   return (
     <div className="BattlefieldCombat">
-        <>
-          <GameMenu 
-            selectedEnemyTeam={selectedEnemyTeam}
-            enemyTeams={Object.keys(enemyTeams)}
-            onEnemyTeamChange={handleEnemyTeamChange}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            isGameOver={gameOver}
-            onSurrender={handleSurrender}
-          />
-          
-          <Settings 
-            isOpen={isSettingsOpen}
-            onClose={() => setIsSettingsOpen(false)}
-            gameSettings={gameSettings}
-            onSettingsChange={handleSettingsChange}
-          />
-          
-          <div className="game-container">
-            <div className={`turn-indicator ${activeTeam}-turn`}>
-              <span className="turn-icon">⚔️</span>
-              <span>
-                {activeTeam === "player"
-                  ? "Your Turn"
-                  : currentlyAttacking
-                    ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
-                    : "Enemy Turn"
-                }
-              </span>
-            </div>
-            {selectedPlayerUnit ? (
-              <Sidebar
-                unit={selectedPlayerUnit}
-                onClose={() => {
-                  setSelectedPlayerUnit(null);
-                  setAttackingUnit(null);
-                  setUsingAbility(false);
-                }}
-                onAction={handleAction}
-                onViewFullArt={handleViewFullArt}
-                position="left"
-                isAttacking={!!attackingUnit}
-                hasTarget={!!selectedEnemyUnit}
-                isUsingAbility={usingAbility}
-              />
-            ) : (
-              <div className="sidebar-placeholder" />
-            )}
-            <div className="battlefield" data-attacking={!!attackingUnit}>
-              {attackingUnit && selectedEnemyUnit && (
-                <div
-                  className="attack-line"
-                  style={{
-                    "--start-x": `${attackingUnit.cardPosition?.x || 0}px`,
-                    "--start-y": `${attackingUnit.cardPosition?.y || 0}px`,
-                    "--end-x": `${selectedEnemyUnit.cardPosition?.x || 0}px`,
-                    "--end-y": `${selectedEnemyUnit.cardPosition?.y || 0}px`,
-                  }}
-                />
-              )}
-              <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
-                {blizzardActive && (
-                  <>
-                    <div className="blizzard-overlay" />
-                    {iceParticles.map((particle) => (
-                      <div
-                        key={particle.id}
-                        className={particle.type}
-                        style={{
-                          left: particle.left,
-                          top: particle.top,
-                          animationDuration: particle.animationDuration,
-                          animationDelay: particle.animationDelay
-                        }}
-                      />
-                    ))}
-                  </>
-                )}
-                {renderUnitList(enemyUnits, "enemy")}
-              </div>
-              <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
-            </div>
-            {selectedEnemyUnit ? (
-              <Sidebar
-                unit={selectedEnemyUnit}
-                onClose={() => setSelectedEnemyUnit(null)}
-                onViewFullArt={handleViewFullArt}
-                position="right"
-              />
-            ) : (
-              <div className="sidebar-placeholder" />
-            )}
+      <>
+        <GameMenu
+          selectedEnemyTeam={selectedEnemyTeam}
+          enemyTeams={Object.keys(enemyTeams)}
+          onEnemyTeamChange={handleEnemyTeamChange}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          isGameOver={gameOver}
+          onSurrender={handleSurrender}
+        />
+
+        <Settings
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          gameSettings={gameSettings}
+          onSettingsChange={handleSettingsChange}
+        />
+
+        <div className="game-container">
+          <div className={`turn-indicator ${activeTeam}-turn`}>
+            <span className="turn-icon">⚔️</span>
+            <span>
+              {activeTeam === "player"
+                ? "Your Turn"
+                : currentlyAttacking
+                  ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
+                  : "Enemy Turn"
+              }
+            </span>
           </div>
-
-          {gameOver && (
-            <div className="game-over">
-              <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
-              <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
-              <button className="return-to-menu" onClick={() => setIsInGame(false)}>
-                Return to Main Menu
-              </button>
+          {selectedPlayerUnit ? (
+            <Sidebar
+              unit={selectedPlayerUnit}
+              onClose={() => {
+                setSelectedPlayerUnit(null);
+                setAttackingUnit(null);
+                setUsingAbility(false);
+              }}
+              onAction={handleAction}
+              onViewFullArt={handleViewFullArt}
+              position="left"
+              isAttacking={!!attackingUnit}
+              hasTarget={!!selectedEnemyUnit}
+              isUsingAbility={usingAbility}
+            />
+          ) : (
+            <div className="sidebar-placeholder" />
+          )}
+          <div className="battlefield" data-attacking={!!attackingUnit}>
+            {attackingUnit && selectedEnemyUnit && (
+              <div
+                className="attack-line"
+                style={{
+                  "--start-x": `${attackingUnit.cardPosition?.x || 0}px`,
+                  "--start-y": `${attackingUnit.cardPosition?.y || 0}px`,
+                  "--end-x": `${selectedEnemyUnit.cardPosition?.x || 0}px`,
+                  "--end-y": `${selectedEnemyUnit.cardPosition?.y || 0}px`,
+                }}
+              />
+            )}
+            <div className={`side enemy-side ${blizzardActive ? 'blizzard-active' : ''}`}>
+              {blizzardActive && (
+                <>
+                  <div className="blizzard-overlay" />
+                  {iceParticles.map((particle) => (
+                    <div
+                      key={particle.id}
+                      className={particle.type}
+                      style={{
+                        left: particle.left,
+                        top: particle.top,
+                        animationDuration: particle.animationDuration,
+                        animationDelay: particle.animationDelay
+                      }}
+                    />
+                  ))}
+                </>
+              )}
+              {renderUnitList(enemyUnits, "enemy")}
             </div>
+            <div className="side player-side">{renderUnitList(playerUnits, "player")}</div>
+          </div>
+          {selectedEnemyUnit ? (
+            <Sidebar
+              unit={selectedEnemyUnit}
+              onClose={() => setSelectedEnemyUnit(null)}
+              onViewFullArt={handleViewFullArt}
+              position="right"
+            />
+          ) : (
+            <div className="sidebar-placeholder" />
           )}
+        </div>
 
-          {/* Show status effects on units */}
-          {playerUnits.concat(enemyUnits).map(unit =>
-            unit.statusEffects && unit.statusEffects.length > 0 && (
-              <div key={`status-${unit.id}`} className="status-effects">
-                {unit.statusEffects.map((effect, idx) => (
-                  <div key={`${unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
-                    {effect.icon}
-                  </div>
-                ))}
-              </div>
-            )
-          )}
+        {gameOver && (
+          <div className="game-over">
+            <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
+            <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
+            <button className="return-to-menu" onClick={() => setIsInGame(false)}>
+              Return to Main Menu
+            </button>
+          </div>
+        )}
 
-          {/* Display full art if applicable */}
-          {viewingFullArt && (
-            <div className="full-art-overlay" onClick={closeFullArt}>
-              <div className="full-art-container">
-                <button className="close-full-art" onClick={closeFullArt}>×</button>
-                <img src={viewingFullArt.fullArt} alt={viewingFullArt.name} />
-                <h3 className="full-art-title">{viewingFullArt.name}</h3>
-              </div>
+        {/* Show status effects on units */}
+        {playerUnits.concat(enemyUnits).map(unit =>
+          unit.statusEffects && unit.statusEffects.length > 0 && (
+            <div key={`status-${unit.id}`} className="status-effects">
+              {unit.statusEffects.map((effect, idx) => (
+                <div key={`${unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
+                  {effect.icon}
+                </div>
+              ))}
             </div>
-          )}
+          )
+        )}
 
-          {/* Updated Developer Panel with new props */}
-          <DeveloperPanel 
-            actionLog={actionLog}
-            gameState={gameState}
-            onImportGameState={handleImportGameState}
-            gameSettings={gameSettings}
-            onSettingsChange={handleSettingsChange}
-          />
-        </>
+        {/* Display full art if applicable */}
+        {viewingFullArt && (
+          <div className="full-art-overlay" onClick={closeFullArt}>
+            <div className="full-art-container">
+              <button className="close-full-art" onClick={closeFullArt}>×</button>
+              <img src={viewingFullArt.fullArt} alt={viewingFullArt.name} />
+              <h3 className="full-art-title">{viewingFullArt.name}</h3>
+            </div>
+          </div>
+        )}
+
+        {/* Updated Developer Panel with new props */}
+        <DeveloperPanel
+          actionLog={actionLog}
+          gameState={gameState}
+          onImportGameState={handleImportGameState}
+          gameSettings={gameSettings}
+          onSettingsChange={handleSettingsChange}
+        />
+      </>
     </div>
   );
 }

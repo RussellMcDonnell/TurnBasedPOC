@@ -6,174 +6,165 @@ import emberhowlPortrait from "../assets/images/units/emberhowl-portrait-picture
 import silkfangPortrait from "../assets/images/units/silkfang-portrait-picture.png";
 import varenFullArt from "../assets/images/units/varen-stormrune-full-art.png";
 
-// Team configurations
-export const availableTeams = {
-  "Classic Team": [
-    {
-      id: "p1",
-      name: "Varen Stormrune",
-      maxHP: 30,
-      hp: 30,
-      damage: 5,
-      image: varenPortrait,
-      fullArt: varenFullArt,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Blizzard",
-        icon: "❄️",
-        description: "Deals damage to all enemy units equal to ATK. Each enemy has a 25% chance to be Stunned for 1 turn (cannot act).",
-        currentCooldown: 0,
-        maxCooldown: 2,
-      }
+/**
+ * Collection of all player units available in the game
+ * Each unit contains complete information about stats, abilities, and image assets
+ */
+export const units = {
+  "varen": {
+    id: "varen",
+    name: "Varen Stormrune",
+    maxHP: 30,
+    damage: 5,
+    image: varenPortrait,
+    fullArt: varenFullArt,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Blizzard",
+      icon: "❄️",
+      description: "Deals damage to all enemy units equal to ATK. Each enemy has a 25% chance to be Stunned for 1 turn (cannot act).",
+      maxCooldown: 2,
     },
-    {
-      id: "p2",
-      name: "Emberhowl",
-      maxHP: 20,
-      hp: 20,
-      damage: 4,
-      image: emberhowlPortrait,
-      fullArt: emberhowlPortrait,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Flame Burst",
-        icon: "🔥",
-        description: "Deals 150% ATK damage to one enemy.",
-        currentCooldown: 0,
-        maxCooldown: 1,
-      }
-    },
-    {
-      id: "p3",
-      name: "Silkfang",
-      maxHP: 15,
-      hp: 15,
-      damage: 3,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Venomous Bite",
-        icon: "🦂",
-        description: "Applies poison to an enemy, dealing 2 damage per turn for 2 turns.",
-        currentCooldown: 0,
-        maxCooldown: 3,
-      }
-    },
-    {
-      id: "p4",
-      name: "Silkfang Twin",
-      maxHP: 15,
-      hp: 15,
-      damage: 3,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Web Trap",
-        icon: "🕸️",
-        description: "Immobilizes an enemy for 1 turn, reducing their damage by 50%.",
-        currentCooldown: 0,
-        maxCooldown: 2,
-      }
-    }
-  ],
+    description: "A powerful frost mage with area-of-effect damage potential.",
+    role: "Mage"
+  },
   
-  "Fast Team": [
-    {
-      id: "p1",
-      name: "Silkfang Alpha",
-      maxHP: 18,
-      hp: 18,
-      damage: 4,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Pack Leadership",
-        icon: "🐺",
-        description: "Increases all allies' damage by 2 for 2 turns.",
-        currentCooldown: 0,
-        maxCooldown: 3,
-      }
+  "emberhowl": {
+    id: "emberhowl",
+    name: "Emberhowl",
+    maxHP: 20,
+    damage: 4,
+    image: emberhowlPortrait,
+    fullArt: emberhowlPortrait,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Flame Burst",
+      icon: "🔥",
+      description: "Deals 150% ATK damage to one enemy.",
+      maxCooldown: 1,
     },
-    {
-      id: "p2",
-      name: "Silkfang Hunter",
-      maxHP: 15,
-      hp: 15,
-      damage: 5,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Quick Strike",
-        icon: "⚡",
-        description: "Attack twice in one turn.",
-        currentCooldown: 0,
-        maxCooldown: 2,
-      }
+    description: "A fierce fire elemental with high single-target damage.",
+    role: "Damage Dealer"
+  },
+  
+  "silkfang": {
+    id: "silkfang",
+    name: "Silkfang",
+    maxHP: 15,
+    damage: 3,
+    image: silkfangPortrait,
+    fullArt: silkfangPortrait,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Venomous Bite",
+      icon: "🦂",
+      description: "Applies poison to an enemy, dealing 2 damage per turn for 2 turns.",
+      maxCooldown: 3,
     },
-    {
-      id: "p3",
-      name: "Silkfang Scout",
-      maxHP: 12,
-      hp: 12,
-      damage: 3,
-      image: silkfangPortrait,
-      fullArt: silkfangPortrait,
-      actions: ["Attack", "Skip"],
-      ability: {
-        name: "Mark Prey",
-        icon: "🎯",
-        description: "Mark an enemy, increasing all damage they take by 50% for 2 turns.",
-        currentCooldown: 0,
-        maxCooldown: 2,
-      }
-    }
-  ]
+    description: "A swift hunter that excels at dealing damage over time.",
+    role: "Assassin"
+  },
+  
+  "silkfangTwin": {
+    id: "silkfangTwin",
+    name: "Silkfang Twin",
+    maxHP: 15,
+    damage: 3,
+    image: silkfangPortrait,
+    fullArt: silkfangPortrait,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Web Trap",
+      icon: "🕸️",
+      description: "Immobilizes an enemy for 1 turn, reducing their damage by 50%.",
+      maxCooldown: 2,
+    },
+    description: "The tactical twin that specializes in crowd control.",
+    role: "Controller"
+  },
+  
+  "silkfangAlpha": {
+    id: "silkfangAlpha",
+    name: "Silkfang Alpha",
+    maxHP: 18,
+    damage: 4,
+    image: silkfangPortrait,
+    fullArt: silkfangPortrait,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Pack Leadership",
+      icon: "🐺",
+      description: "Increases all allies' damage by 2 for 2 turns.",
+      maxCooldown: 3,
+    },
+    description: "The pack leader who empowers allies with greater strength.",
+    role: "Support"
+  },
+  
+  "silkfangHunter": {
+    id: "silkfangHunter",
+    name: "Silkfang Hunter",
+    maxHP: 15,
+    damage: 5,
+    image: silkfangPortrait,
+    fullArt: silkfangPortrait,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Quick Strike",
+      icon: "⚡",
+      description: "Attack twice in one turn.",
+      maxCooldown: 2,
+    },
+    description: "A nimble hunter capable of striking with unprecedented speed.",
+    role: "Damage Dealer"
+  },
+
+  "silkfangScout": {
+    id: "silkfangScout",
+    name: "Silkfang Scout",
+    maxHP: 12,
+    damage: 3,
+    image: silkfangPortrait,
+    fullArt: silkfangPortrait,
+    actions: ["Attack", "Skip"],
+    ability: {
+      name: "Mark Prey",
+      icon: "🎯",
+      description: "Mark an enemy, increasing all damage they take by 50% for 2 turns.",
+      maxCooldown: 2,
+    },
+    description: "A stealthy scout that can identify enemy weaknesses.",
+    role: "Support"
+  },
+  "ashbringer":{
+    id: "ashbringer",
+    name: "Ashbringer",
+    maxHP: 50,
+    hp: 50,
+    damage: 8,
+    image: ashbringerPortrait,
+    fullArt: ashbringerPortrait
+  },
+  "lyn": {
+    id: "lyn",
+    name: "Lyn Valken",
+    maxHP: 20,
+    hp: 20,
+    damage: 4,
+    image: lynValkenPortrait,
+    fullArt: lynValkenPortrait
+  }
+};
+
+// Helper function to get a unit by ID
+export const getUnitById = (id) => {
+  return units[id] ? { ...units[id], hp: units[id].maxHP, currentCooldown: 0 } : null;
 };
 
 // Enemy configurations
 export const enemyTeams = {
   "Basic Enemies": [
-    {
-      id: "e1",
-      name: "Ashbringer",
-      maxHP: 50,
-      hp: 50,
-      damage: 8,
-      image: ashbringerPortrait,
-      fullArt: ashbringerPortrait
-    },
-    {
-      id: "e2",
-      name: "Lyn Valken",
-      maxHP: 20,
-      hp: 20,
-      damage: 4,
-      image: lynValkenPortrait,
-      fullArt: lynValkenPortrait
-    }
-  ],
-  "Hard Enemies": [
-    {
-      id: "e1",
-      name: "Elite Ashbringer",
-      maxHP: 70,
-      hp: 70,
-      damage: 10,
-      image: ashbringerPortrait,
-      fullArt: ashbringerPortrait
-    },
-    {
-      id: "e2",
-      name: "Elite Lyn Valken",
-      maxHP: 30,
-      hp: 30,
-      damage: 6,
-      image: lynValkenPortrait,
-      fullArt: lynValkenPortrait
-    }
+      "ashbringer",
+      "lyn"
   ]
 };

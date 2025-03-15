@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './Team.css';
-import { playerUnits } from '../../data/playerUnits';
+import { units } from '../../data/units';
 import { useTeams } from './TeamContext';
 import UnitCard from '../../components/unit-card/UnitCard';
 
@@ -11,7 +11,7 @@ function TeamEditor() {
   const { teams, addTeam, updateTeam } = useTeams();
   
   // Convert playerUnits object to an array for easier rendering
-  const availableUnits = Object.values(playerUnits);
+  const availableUnits = Object.values(units);
   
   // State for the current team being edited
   const [teamName, setTeamName] = useState('');
@@ -32,7 +32,7 @@ function TeamEditor() {
       if (team) {
         setTeamName(team.name);
         // Convert unit IDs to actual unit objects
-        const units = team.units.map(unitId => playerUnits[unitId]).filter(Boolean);
+        const units = team.units.map(unitId => units[unitId]).filter(Boolean);
         setSelectedUnits(units);
       } else {
         // Handle case where team is not found
