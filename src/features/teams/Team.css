@@ -17,6 +17,7 @@
   background-color: #2c3e50;
   color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
 .team-header h1 {
@@ -26,90 +27,255 @@
   text-align: center;
 }
 
-/* Content area with sidebar and details panel */
-.team-content {
-  display: flex;
-  flex: 1;
-}
-
-/* Teams sidebar */
-.teams-sidebar {
-  width: 250px;
-  background-color: rgba(50, 50, 50, 0.7); /* Changed to transparent gray background */
-  border-right: 1px solid #e0e0e0;
-  padding: 1rem;
+/* Teams list container styling */
+.teams-list-container {
+  width: 100%;
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
-  color: white; /* Added for better text visibility on dark background */
 }
 
-.sidebar-title {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
-  color: #ffffff; /* Changed to white for better visibility on dark background */
-}
-
-.sidebar-description {
-  color: #e0e0e0; /* Changed for better visibility on dark background */
+.teams-title {
   margin-top: 0;
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 }
 
-/* Team item in sidebar */
-.team-item {
-  margin-bottom: 1rem;
+/* Teams all view styling */
+.teams-all-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Team block styling - improved for full screen */
+.team-block {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
   padding: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  /* Added to ensure proper display on full screen */
+  display: flex;
+  flex-direction: column;
+}
+
+.team-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
   border-radius: 8px;
-  background-color: rgba(248, 249, 250, 0.2); /* Made semi-transparent */
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.team-item:hover {
-  background-color: rgba(237, 242, 247, 0.3); /* Made semi-transparent */
-  transform: translateX(3px);
+.team-block-name {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 }
 
-.team-item.selected {
-  background-color: rgba(233, 247, 254, 0.3); /* Made semi-transparent */
-  border-left-color: #3498db;
-}
-
-.team-item-name {
-  margin: 0 0 0.5rem 0;
+/* Create team button - centered with responsive width */
+.create-team-button {
+  margin: 2rem auto;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
   font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: bold;
+  width: 250px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.create-team-button:hover {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Team actions buttons */
+.team-actions-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.team-actions-buttons button {
+  min-width: 120px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-team-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-team-button:hover {
+  background-color: #2980b9;
+}
+
+/* Added specific styling for delete button */
+.cancel-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Team units grid - MODIFIED TO FLEX LAYOUT INSTEAD OF GRID */
+.team-units-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  min-height: 320px;
+  max-width: 100%;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+/* MODIFIED: Force units to all be the same width for even spacing - better responsiveness */
+.team-units-grid .unit-card {
+  flex: 0 0 160px;
+  min-width: 160px;
+  max-width: 160px;
+  margin: 0;
+}
+
+/* For smaller screens, scale down units slightly */
+@media (max-width: 1000px) {
+  .team-units-grid .unit-card {
+    flex: 0 0 140px;
+    min-width: 140px;
+    max-width: 140px;
+  }
+}
+
+/* For very small screens, scale down units further */
+@media (max-width: 768px) {
+  .team-units-grid .unit-card {
+    flex: 0 0 120px;
+    min-width: 120px;
+    max-width: 120px;
+  }
+}
+
+/* Empty team message */
+.empty-team-message {
+  color: #ecf0f1;
+  text-align: center;
+  font-size: 1.1rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px dashed #95a5a6;
+  width: 100%;
+}
+
+/* Teams grid styling */
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Team card styling */
+.team-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.team-card.selected {
+  border: 3px solid #3498db;
+  background-color: rgba(255, 255, 255, 1);
+  transform: scale(1.03);
+}
+
+.team-card-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: #2c3e50;
 }
 
 .team-unit-count {
   margin: 0;
   font-size: 0.9rem;
-  color: #e0e0e0; /* Changed for better visibility on dark background */
+  color: #7f8c8d;
 }
 
-/* Create team button */
-.create-team-button {
-  margin-top: auto;
-  background-color: #2ecc71;
+/* Create team card styling */
+.create-team-card {
+  background-color: rgba(46, 204, 113, 0.7);
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.create-team-card:hover {
+  background-color: rgba(46, 204, 113, 0.9);
+}
+
+.create-team-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.plus-icon {
+  font-size: 2.5rem;
   color: white;
-  border: none;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.create-team-text {
+  color: white;
+  margin: 0;
+  font-size: 1.25rem;
   font-weight: bold;
 }
 
-.create-team-button:hover {
-  background-color: #27ae60;
-}
-
-/* Team details section */
-.team-details {
-  flex: 1;
-  padding: 1.5rem;
+/* Team details panel styling */
+.team-details-panel {
+  margin-top: 2rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .team-details-header {
@@ -163,13 +329,6 @@
 
 .cancel-btn:hover {
   background-color: #c0392b; /* Darker red on hover */
-}
-
-/* Team units grid */
-.team-units-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
 }
 
 /* Container for unit cards - fix for stacking issue */
@@ -422,28 +581,36 @@
   color: #7f8c8d;
 }
 
+/* MODIFIED: Set the current team units to a flex row with fixed width slots */
 .current-team-units {
   display: flex;
-  overflow-x: auto;
   gap: 1rem;
   padding: 1rem 0;
-  min-height: 320px;  /* Increased to accommodate taller unit cards */
+  min-height: 320px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
-.team-unit-slot {
-  min-width: 150px;
-  height: 300px;  /* Match unit card height */
+/* MODIFIED: Set fixed widths for team unit slots */
+.team-unit-slot, 
+.selected-unit-wrapper {
+  flex: 0 0 180px;
+  min-width: 180px;
+  max-width: 180px;
+  height: 300px;
   border: 2px dashed #ddd;
-  border-radius: 12px;  /* Match unit card border-radius */
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #95a5a6;
   font-size: 0.9rem;
-  padding: 15px;  /* Match unit card padding */
+  padding: 15px;
   text-align: center;
   transition: all 0.2s ease;
+  margin: 0;
 }
 
 .team-unit-slot:hover {
@@ -578,8 +745,11 @@
 /* Styling for the selected unit wrapper */
 .selected-unit-wrapper {
   position: relative;
-  margin: 0 10px 10px 0;
+  margin: 0;
   cursor: grab;
+  border: 2px solid #666;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .selected-unit-wrapper:active {
@@ -670,4 +840,11 @@
 .move-unit-button:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+}
+
+/* Team preview */
+.team-preview {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
