@@ -4,6 +4,7 @@ import './Team.css';
 import { getPlayerUnits } from '../../data/units';
 import { useTeams } from './TeamContext';
 import UnitCard from '../../components/unit-card/UnitCard';
+import teamEditorBackground from '../../assets/images/team-editor-full-art.jpg';
 
 function Team() {
   const { teams, deleteTeam } = useTeams();
@@ -85,7 +86,11 @@ function Team() {
         </aside>
 
         {/* Main Content - Team Details */}
-        <main className="team-details">
+        <main className="team-details"
+          style={{backgroundImage: `url(${teamEditorBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',}}
+        >
           {selectedTeam ? (
             <>
               <div className="team-details-header">

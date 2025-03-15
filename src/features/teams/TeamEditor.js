@@ -122,28 +122,6 @@ function TeamEditor() {
     navigate('/team');
   };
   
-  const handleDragStart = (e, unitIndex) => {
-    e.dataTransfer.setData('unitIndex', unitIndex.toString());
-  };
-  
-  const handleDragOver = (e) => {
-    e.preventDefault(); // Allow drop
-  };
-  
-  const handleDrop = (e, targetIndex) => {
-    e.preventDefault();
-    const sourceIndex = parseInt(e.dataTransfer.getData('unitIndex'), 10);
-    
-    if (sourceIndex === targetIndex) return;
-    
-    // Reorder the units
-    const newUnits = [...selectedUnits];
-    const [movedUnit] = newUnits.splice(sourceIndex, 1);
-    newUnits.splice(targetIndex, 0, movedUnit);
-    
-    setSelectedUnits(newUnits);
-  };
-  
   const handleMoveUnit = (direction, index) => {
     const newUnits = [...selectedUnits];
     
@@ -293,10 +271,6 @@ function TeamEditor() {
             <div 
               key={`selected-${unit.id}`}
               className="selected-unit-wrapper"
-              draggable={true}
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
             >
               {index > 0 && (
                 <button 
@@ -347,14 +321,12 @@ function TeamEditor() {
             <div 
               key={`empty-${index}`}
               className="team-unit-slot"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, selectedUnits.length + index)}
               style={{
                 borderColor: 'rgba(255, 255, 255, 0.3)',
                 color: 'rgba(255, 255, 255, 0.7)',
               }}
             >
-              Drop a unit here
+              Empty Slot
             </div>
           ))}
         </div>
