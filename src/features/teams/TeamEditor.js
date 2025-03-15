@@ -33,7 +33,7 @@ function TeamEditor() {
   useEffect(() => {
     if (teamId === 'new') {
       setIsNewTeam(true);
-      setTeamName('New Team');
+      setTeamName('New Team Name');
       setSelectedUnits([]);
     } else {
       const teamIdNum = parseInt(teamId, 10);
@@ -159,42 +159,58 @@ function TeamEditor() {
   
   return (
     <div className="team-builder-container">
-      {/* Header */}
-      <header className="team-header">
+      {/* Header - now sticky with search */}
+      <header className="team-header" style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 200,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0.75rem 1.5rem'
+      }}>
         <button 
           className="back-button" 
           onClick={handleBackClick}
         >
           Back to Teams
         </button>
-        <h1>{isNewTeam ? 'Create New Team' : 'Edit Team'}</h1>
+        <h1 style={{ margin: '0 1rem' }}>{isNewTeam ? 'Create New Team' : 'Edit Team'}</h1>
+        <div className="search-box" style={{
+          display: 'flex',
+          alignItems: 'center',
+          background: 'rgba(255, 255, 255, 0.15)',
+          borderRadius: '20px',
+          padding: '0.3rem 1rem',
+          maxWidth: '250px',
+          width: '100%'
+        }}>
+          <input
+            type="text"
+            placeholder="Search units..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              width: '100%',
+              outline: 'none',
+              padding: '0.3rem 0',
+              fontSize: '0.9rem'
+            }}
+          />
+          <span style={{ color: 'white', opacity: 0.7 }}>🔍</span>
+        </div>
       </header>
       
-      {/* Scrollable unit selection area */}
+      {/* Scrollable unit selection area - removed the header bar */}
       <div className="unit-selection-area" style={{ 
         flex: '1', 
         overflowY: 'auto',
+        paddingTop: '1rem',
         paddingBottom: `${teamPanelHeight + 20}px` 
       }}>
-        {/* Search and filter */}
-        <div className="header-bar" style={{ 
-          position: 'sticky', 
-          top: '0',
-          zIndex: '10',
-          backgroundColor: '#f7f9fc' 
-        }}>
-          <h2>Select Units</h2>
-          
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search units by name or role..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </div>
-        </div>
-        
         {/* Units Grid */}
         <div className="cards-grid">
           {filteredUnits.map((unit) => (
