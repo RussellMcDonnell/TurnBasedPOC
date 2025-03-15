@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CampaignMenu.css';
+import villageDefense from '../../assets/images/campaign/village-defense.jpg';
+import shop from '../../assets/images/campaign/shop.jpg';
+import mountainAmbush from '../../assets/images/campaign/mountain-ambush.jpg';
+import darkForest from '../../assets/images/campaign/dark-forest.jpg';
+import ancientRuins from '../../assets/images/campaign/ancient-ruins.jpg';
+import dragonsLair from '../../assets/images/campaign/dragons-lair.png';
 
 const campaignNodes = [
   {
@@ -11,7 +17,7 @@ const campaignNodes = [
     connections: [2],
     type: "combat",
     difficulty: "Easy",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: villageDefense
   },
   {
     id: 2,
@@ -20,7 +26,7 @@ const campaignNodes = [
     position: { x: 550, y: 200 },
     connections: [3],
     type: "shop",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: shop
   },
   {
     id: 3,
@@ -30,7 +36,7 @@ const campaignNodes = [
     connections: [4],
     type: "combat",
     difficulty: "Medium",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: mountainAmbush
   },
   {
     id: 4,
@@ -40,7 +46,7 @@ const campaignNodes = [
     connections: [5],
     type: "combat",
     difficulty: "Medium",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: darkForest
   },
   {
     id: 5,
@@ -49,7 +55,7 @@ const campaignNodes = [
     position: { x: 250, y: 500 },
     connections: [6],
     type: "shop",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: shop
   },
   {
     id: 6,
@@ -59,7 +65,7 @@ const campaignNodes = [
     connections: [7],
     type: "combat",
     difficulty: "Hard",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: ancientRuins
   },
   {
     id: 7,
@@ -69,7 +75,7 @@ const campaignNodes = [
     connections: [],
     type: "combat",
     difficulty: "Very Hard",
-    preview: "/images/battlegrounds/infernos-reckoning.png"
+    preview: dragonsLair
   }
 ];
 
