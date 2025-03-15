@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './Team.css';
 import { getPlayerUnits } from '../../data/units';
@@ -9,6 +9,8 @@ function TeamEditor() {
   const navigate = useNavigate();
   const { teamId } = useParams();
   const { teams, addTeam, updateTeam } = useTeams();
+  const teamPanelRef = useRef(null);
+  const [teamPanelHeight, setTeamPanelHeight] = useState(0);
   
   // Convert playerUnits object to an array for easier rendering
   const availableUnits = Object.values(getPlayerUnits());
@@ -18,6 +20,14 @@ function TeamEditor() {
   const [selectedUnits, setSelectedUnits] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isNewTeam, setIsNewTeam] = useState(false);
+  
+  // Measure the height of the team panel for proper padding
+  useEffect(() => {
+    if (teamPanelRef.current) {
+      const height = teamPanelRef.current.clientHeight;
+      setTeamPanelHeight(height);
+    }
+  }, [selectedUnits]);
   
   // Initialize team data based on teamId param
   useEffect(() => {
@@ -160,9 +170,19 @@ function TeamEditor() {
         <h1>{isNewTeam ? 'Create New Team' : 'Edit Team'}</h1>
       </header>
       
-      <div className="unit-selection-area">
+      {/* Scrollable unit selection area */}
+      <div className="unit-selection-area" style={{ 
+        flex: '1', 
+        overflowY: 'auto',
+        paddingBottom: `${teamPanelHeight + 20}px` 
+      }}>
         {/* Search and filter */}
-        <div className="header-bar">
+        <div className="header-bar" style={{ 
+          position: 'sticky', 
+          top: '0',
+          zIndex: '10',
+          backgroundColor: '#f7f9fc' 
+        }}>
           <h2>Select Units</h2>
           
           <div className="search-box">
@@ -190,102 +210,115 @@ function TeamEditor() {
             </div>
           ))}
         </div>
-        
-        {/* Current Team Panel */}
-        <div className="current-team-panel">
-          <div className="current-team-header">
-            <div className="team-name-section">
-              <input
-                type="text"
-                className="team-name-input"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                placeholder="Enter team name..."
-                maxLength={30}
-              />
-              <span className="team-size-indicator">
-                {selectedUnits.length}/5 units
-              </span>
-            </div>
-            
-            <div className="team-actions-buttons">
-              <button 
-                className="edit-team-button" 
-                onClick={handleSaveTeam}
-                disabled={!teamName.trim() || selectedUnits.length === 0}
-              >
-                Save Team
-              </button>
-            </div>
+      </div>
+      
+      {/* Fixed team panel at bottom */}
+      <div 
+        ref={teamPanelRef}
+        className="current-team-panel" 
+        style={{ 
+          position: 'fixed', 
+          bottom: '0', 
+          left: '0', 
+          right: '0',
+          zIndex: '100',
+          boxShadow: '0 -4px 10px rgba(0, 0, 0, 0.15)',
+          maxHeight: '50vh',
+          overflowY: 'auto'
+        }}
+      >
+        <div className="current-team-header">
+          <div className="team-name-section">
+            <input
+              type="text"
+              className="team-name-input"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="Enter team name..."
+              maxLength={30}
+            />
+            <span className="team-size-indicator">
+              {selectedUnits.length}/5 units
+            </span>
           </div>
           
-          <div className="current-team-units">
-            {/* Display selected units */}
-            {selectedUnits.map((unit, index) => (
-              <div 
-                key={`selected-${unit.id}`}
-                className="selected-unit-wrapper"
-                draggable={true}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-              >
-                {index > 0 && (
-                  <button 
-                    className="move-unit-button move-left"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleMoveUnit('left', index);
-                    }}
-                    aria-label={`Move ${unit.name} left`}
-                  >
-                    &#8592;
-                  </button>
-                )}
-                
-                <UnitCard 
-                  unit={{...unit, hp: unit.maxHP}} 
-                  className="unit-card"
-                />
-                
-                {index < selectedUnits.length - 1 && (
-                  <button 
-                    className="move-unit-button move-right"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleMoveUnit('right', index);
-                    }}
-                    aria-label={`Move ${unit.name} right`}
-                  >
-                    &#8594;
-                  </button>
-                )}
-                
+          <div className="team-actions-buttons">
+            <button 
+              className="edit-team-button" 
+              onClick={handleSaveTeam}
+              disabled={!teamName.trim() || selectedUnits.length === 0}
+            >
+              Save Team
+            </button>
+          </div>
+        </div>
+        
+        <div className="current-team-units">
+          {/* Display selected units */}
+          {selectedUnits.map((unit, index) => (
+            <div 
+              key={`selected-${unit.id}`}
+              className="selected-unit-wrapper"
+              draggable={true}
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, index)}
+            >
+              {index > 0 && (
                 <button 
-                  className="remove-unit-button"
+                  className="move-unit-button move-left"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemoveUnit(unit.id);
+                    handleMoveUnit('left', index);
                   }}
-                  aria-label={`Remove ${unit.name} from team`}
+                  aria-label={`Move ${unit.name} left`}
                 >
-                  ×
+                  &#8592;
                 </button>
-              </div>
-            ))}
-            
-            {/* Empty slots */}
-            {Array(Math.max(0, 5 - selectedUnits.length)).fill().map((_, index) => (
-              <div 
-                key={`empty-${index}`}
-                className="team-unit-slot"
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, selectedUnits.length + index)}
+              )}
+              
+              <UnitCard 
+                unit={{...unit, hp: unit.maxHP}} 
+                className="unit-card"
+              />
+              
+              {index < selectedUnits.length - 1 && (
+                <button 
+                  className="move-unit-button move-right"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMoveUnit('right', index);
+                  }}
+                  aria-label={`Move ${unit.name} right`}
+                >
+                  &#8594;
+                </button>
+              )}
+              
+              <button 
+                className="remove-unit-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveUnit(unit.id);
+                }}
+                aria-label={`Remove ${unit.name} from team`}
               >
-                Drop a unit here
-              </div>
-            ))}
-          </div>
+                ×
+              </button>
+            </div>
+          ))}
+          
+          {/* Empty slots */}
+          {Array(Math.max(0, 5 - selectedUnits.length)).fill().map((_, index) => (
+            <div 
+              key={`empty-${index}`}
+              className="team-unit-slot"
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, selectedUnits.length + index)}
+            >
+              Drop a unit here
+            </div>
+          ))}
         </div>
       </div>
     </div>
