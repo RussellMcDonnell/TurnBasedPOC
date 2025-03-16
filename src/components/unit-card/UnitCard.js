@@ -1,5 +1,7 @@
 import React from "react";
-function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick }) {
+import "./UnitCard.css";
+
+function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick, onViewArt }) {
   // Ensure className is trimmed and properly formatted
   const trimmedClassName = className.replace(/\s+/g, ' ').trim();
   
@@ -19,6 +21,21 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
     <div className={classes} onClick={onClick}>
       <h3 className="unit-name">{unit.name}</h3>
       <img src={unit.image} alt={unit.name} className="unit-image" />
+      
+      {/* Status Effect Indicators */}
+      {unit.statusEffects && unit.statusEffects.length > 0 && (
+        <div className="status-indicators">
+          {unit.statusEffects.map((effect, idx) => (
+            <div 
+              key={`status-${idx}`} 
+              className={`status-icon ${effect.type}`} 
+              title={effect.name}
+            >
+              {effect.icon}
+            </div>
+          ))}
+        </div>
+      )}
       
       {unit.ability && (
         <div className="unit-ability">
@@ -44,6 +61,18 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
           {unit.damage}
         </span>
       </div>
+      
+      {onViewArt && (
+        <button 
+          className="view-art-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewArt(unit);
+          }}
+        >
+          View Art
+        </button>
+      )}
     </div>
   );
 }

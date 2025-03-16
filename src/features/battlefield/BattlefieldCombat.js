@@ -553,7 +553,7 @@ function BattlefieldCombat() {
               const newStatusEffects = [...enemy.statusEffects];
 
               if (isStunned) {
-                // Add stunned status effect
+                // Add stunned status effect with consistent typing
                 newStatusEffects.push({
                   type: "frozen",
                   name: "Frozen",
@@ -606,36 +606,98 @@ function BattlefieldCombat() {
         }, 500);
         break;
 
-      case "Emberhowl":
-        // Log ability use
-        addToActionLog({
+      case "Brom the Bastion":
+        // Create a log entry object for the ability
+        const ironWallLogEntry = {
           unit: unit.name,
           type: "ability",
           abilityName: unit.ability.name,
           targets: []
-        });
-        // For now, we'll handle other abilities generically
-        setUsingAbility(true);
-        break;
+        };
 
-      case "Silkfang":
-        addToActionLog({
-          unit: unit.name,
-          type: "ability",
-          abilityName: unit.ability.name,
-          targets: []
-        });
-        setUsingAbility(true);
-        break;
+        // Select the first non-dead enemy as the target
+        // In a more complete implementation, this would allow player target selection
+        const targetEnemy = enemyUnits.find(enemy => !enemy.isDead);
+        
+        if (targetEnemy) {
+          // Apply stun effect to target
+          setTimeout(() => {
+            // Add target to the ability log entry with stun status
+            ironWallLogEntry.targets.push({
+              unit: targetEnemy.name,
+              Damage: unit.damage.toString(),
+              Status: "Stunned"
+            });
 
-      case "Silkfang Twin":
-        addToActionLog({
-          unit: unit.name,
-          type: "ability",
-          abilityName: unit.ability.name,
-          targets: []
-        });
-        setUsingAbility(true);
+            // Update the enemy units with the stun effect
+            setEnemyUnits(prev =>
+              prev.map(enemy => {
+                if (enemy.id === targetEnemy.id) {
+                  const newHP = enemy.hp - unit.damage;
+                  const newStatusEffects = [...enemy.statusEffects];
+                  
+                  // Add stunned status effect - use type "stunned" instead of "frozen"
+                  newStatusEffects.push({
+                    type: "stunned",  // Changed from "frozen" to "stunned"
+                    name: "Stunned",
+                    icon: "🛡️",
+                    duration: 1
+                  });
+
+                  if (newHP <= 0) {
+                    addToActionLog({
+                      text: `${enemy.name} is defeated!`,
+                      type: "defeat"
+                    });
+                  }
+
+                  return {
+                    ...enemy,
+                    hp: newHP,
+                    isDead: newHP <= 0,
+                    statusEffects: newStatusEffects
+                  };
+                }
+                return enemy;
+              })
+            );
+
+            // Add the complete ability log after processing all effects
+            addToActionLog(ironWallLogEntry);
+
+            // Set ability on cooldown
+            setPlayerUnits(prev =>
+              prev.map(u => {
+                if (u.id === unitId) {
+                  return {
+                    ...u,
+                    acted: true,
+                    ability: {
+                      ...u.ability,
+                      currentCooldown: u.ability.maxCooldown
+                    }
+                  };
+                }
+                return u;
+              })
+            );
+
+            // Clear animations
+            setTimeout(() => {
+              setAnimatingUnitId(null);
+              setAnimatingAbility(false);
+            }, 800);
+          }, 500);
+        } else {
+          // No valid target
+          addToActionLog({
+            text: `${unit.name} has no valid target for ${unit.ability.name}`,
+            type: "normal"
+          });
+          
+          setAnimatingUnitId(null);
+          setAnimatingAbility(false);
+        }
         break;
 
       default:
@@ -720,24 +782,68 @@ function BattlefieldCombat() {
       })
     );
 
-    // Process status effects at turn end
+    // Process damage-over-time effects (burn, poison) at turn end for enemies
     setEnemyUnits(prev =>
       prev.map(unit => {
-        const expiredEffects = unit.statusEffects.filter(effect => effect.duration === 1);
-        if (expiredEffects.length > 0) {
-          expiredEffects.forEach(effect => {
+        if (unit.isDead) return unit;
+        
+        let unitHP = unit.hp;
+        const updatedStatusEffects = [...unit.statusEffects];
+        const dotEffects = updatedStatusEffects.filter(effect => 
+          effect.type === "burn" || effect.type === "poison");
+        const ccEffects = updatedStatusEffects.filter(effect => 
+          effect.type === "frozen" || effect.type === "stunned");
+        
+        // Process DoT effects
+        dotEffects.forEach(effect => {
+          // Apply damage for DoT effects
+          if (effect.type === "burn") {
+            const burnDamage = 2; // Set burn damage value
+            unitHP -= burnDamage;
+            
             addToActionLog({
-              text: `${effect.name} on ${unit.name} has expired`,
+              text: `${unit.name} takes ${burnDamage} burn damage`,
+              type: "damage"
+            });
+          } else if (effect.type === "poison") {
+            const poisonDamage = 1; // Set poison damage value
+            unitHP -= poisonDamage;
+            
+            addToActionLog({
+              text: `${unit.name} takes ${poisonDamage} poison damage`,
+              type: "damage"
+            });
+          }
+          
+          // Reduce duration for DoT effects
+          effect.duration -= 1;
+          
+          // Log expired effects
+          if (effect.duration === 0) {
+            addToActionLog({
+              text: `${effect.name} on ${unit.name} has worn off`,
               type: "status"
             });
+          }
+        });
+        
+        // Check if unit died from DoT
+        const isDead = unitHP <= 0;
+        if (isDead && !unit.isDead) {
+          addToActionLog({
+            text: `${unit.name} is defeated!`,
+            type: "defeat"
           });
         }
-
+        
         return {
           ...unit,
-          statusEffects: unit.statusEffects
-            .map(effect => ({ ...effect, duration: effect.duration - 1 }))
-            .filter(effect => effect.duration > 0)
+          hp: Math.max(0, unitHP),
+          isDead: isDead,
+          statusEffects: [
+            ...ccEffects, // Keep CC effects unchanged
+            ...dotEffects.filter(effect => effect.duration > 0) // Only keep active DoT effects
+          ]
         };
       })
     );
@@ -751,24 +857,68 @@ function BattlefieldCombat() {
     setActiveTeam("player");
     resetActedStatus("enemy");
 
-    // Process status effects at turn end
+    // Process damage-over-time effects (burn, poison) at turn end for players
     setPlayerUnits(prev =>
       prev.map(unit => {
-        const expiredEffects = unit.statusEffects.filter(effect => effect.duration === 1);
-        if (expiredEffects.length > 0) {
-          expiredEffects.forEach(effect => {
+        if (unit.isDead) return unit;
+        
+        let unitHP = unit.hp;
+        const updatedStatusEffects = [...unit.statusEffects];
+        const dotEffects = updatedStatusEffects.filter(effect => 
+          effect.type === "burn" || effect.type === "poison");
+        const ccEffects = updatedStatusEffects.filter(effect => 
+          effect.type === "frozen" || effect.type === "stunned");
+        
+        // Process DoT effects
+        dotEffects.forEach(effect => {
+          // Apply damage for DoT effects
+          if (effect.type === "burn") {
+            const burnDamage = 2; // Set burn damage value
+            unitHP -= burnDamage;
+            
             addToActionLog({
-              text: `${effect.name} on ${unit.name} has expired`,
+              text: `${unit.name} takes ${burnDamage} burn damage`,
+              type: "damage"
+            });
+          } else if (effect.type === "poison") {
+            const poisonDamage = 1; // Set poison damage value
+            unitHP -= poisonDamage;
+            
+            addToActionLog({
+              text: `${unit.name} takes ${poisonDamage} poison damage`,
+              type: "damage"
+            });
+          }
+          
+          // Reduce duration for DoT effects
+          effect.duration -= 1;
+          
+          // Log expired effects
+          if (effect.duration === 0) {
+            addToActionLog({
+              text: `${effect.name} on ${unit.name} has worn off`,
               type: "status"
             });
+          }
+        });
+        
+        // Check if unit died from DoT
+        const isDead = unitHP <= 0;
+        if (isDead && !unit.isDead) {
+          addToActionLog({
+            text: `${unit.name} is defeated!`,
+            type: "defeat"
           });
         }
-
+        
         return {
           ...unit,
-          statusEffects: unit.statusEffects
-            .map(effect => ({ ...effect, duration: effect.duration - 1 }))
-            .filter(effect => effect.duration > 0)
+          hp: Math.max(0, unitHP),
+          isDead: isDead,
+          statusEffects: [
+            ...ccEffects, // Keep CC effects unchanged
+            ...dotEffects.filter(effect => effect.duration > 0) // Only keep active DoT effects
+          ]
         };
       })
     );
@@ -796,38 +946,80 @@ function BattlefieldCombat() {
   // Modified enemy turn logic for sequential attacks
   useEffect(() => {
     if (activeTeam === "enemy" && !gameOver) {
-      // Check for stunned enemies first
-      const activeEnemies = enemyUnits.filter(
-        enemy => !enemy.isDead &&
-          !enemy.acted &&
-          !enemy.statusEffects.some(effect => effect.type === "frozen")
+      // Check for enemies that should skip their turns (stunned or frozen)
+      const skippingEnemies = enemyUnits.filter(
+        enemy => !enemy.isDead && 
+          !enemy.acted && 
+          enemy.statusEffects.some(effect => effect.type === "stunned" || effect.type === "frozen")
       );
 
-      // Log frozen enemies
-      const frozenEnemies = enemyUnits.filter(
-        enemy => !enemy.isDead &&
-          !enemy.acted &&
-          enemy.statusEffects.some(effect => effect.type === "frozen")
-      );
-
-      if (frozenEnemies.length > 0) {
-        frozenEnemies.forEach(enemy => {
+      // Automatically skip turns for stunned or frozen enemies and reduce CC duration
+      if (skippingEnemies.length > 0) {
+        // Process each stunned/frozen enemy
+        skippingEnemies.forEach(enemy => {
+          // Find the CC effect (stunned/frozen)
+          const ccEffect = enemy.statusEffects.find(e => 
+            e.type === "stunned" || e.type === "frozen");
+          
+          // Log the skip action
           addToActionLog({
-            text: `${enemy.name} is Frozen and cannot act!`,
+            text: `${enemy.name} is ${ccEffect.name} and skips their turn!`,
             type: "status"
           });
+
+          // Process the CC effect - reduce duration
+          setEnemyUnits(prev => 
+            prev.map(unit => {
+              if (unit.id === enemy.id) {
+                const updatedStatusEffects = unit.statusEffects.map(effect => {
+                  // Only reduce duration for the CC effect that caused the skip
+                  if (effect.type === ccEffect.type) {
+                    const newDuration = effect.duration - 1;
+                    
+                    // Log if the effect expires
+                    if (newDuration === 0) {
+                      addToActionLog({
+                        text: `${effect.name} on ${unit.name} has expired`,
+                        type: "status"
+                      });
+                    }
+                    
+                    return {
+                      ...effect,
+                      duration: newDuration
+                    };
+                  }
+                  return effect;
+                }).filter(effect => effect.duration > 0);
+                
+                return {
+                  ...unit,
+                  statusEffects: updatedStatusEffects,
+                  acted: true // Mark as having acted
+                };
+              }
+              return unit;
+            })
+          );
         });
       }
 
+      // Check for active enemies who can still act
+      const activeEnemies = enemyUnits.filter(
+        enemy => !enemy.isDead &&
+          !enemy.acted &&
+          !enemy.statusEffects.some(effect => effect.type === "stunned" || effect.type === "frozen")
+      );
+
       if (activeEnemies.length === 0) {
-        // All enemies are either dead or stunned, end turn
+        // All enemies are either dead, stunned, or have acted, end turn
         setTimeout(() => {
           endEnemyTurn();
         }, 500);
         return;
       }
 
-      // Let each enemy unit do a basic attack on the first alive player unit, then end turn.
+      // Let each active enemy unit do a basic attack on the first alive player unit, then end turn
       const alivePlayerUnits = playerUnits.filter((u) => !u.isDead);
       const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].id : null;
 
@@ -894,6 +1086,63 @@ function BattlefieldCombat() {
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
     if (gameOver) return;
+
+    // For player units, check if they're CC'd before allowing selection
+    if (team === "player" && activeTeam === "player") {
+      // Check if unit has stun/freeze effect
+      const hasCCEffect = unit.statusEffects?.some(effect => 
+        effect.type === "stunned" || effect.type === "frozen");
+        
+      if (hasCCEffect && !unit.acted) {
+        // Find the CC effect
+        const ccEffect = unit.statusEffects.find(e => 
+          e.type === "stunned" || e.type === "frozen");
+        
+        // Log and process the skip
+        addToActionLog({
+          text: `${unit.name} is ${ccEffect.name} and skips their turn!`,
+          type: "status"
+        });
+        
+        // Process the CC effect - reduce duration
+        setPlayerUnits(prev => 
+          prev.map(u => {
+            if (u.id === unit.id) {
+              const updatedStatusEffects = u.statusEffects.map(effect => {
+                // Only reduce duration for the CC effect that caused the skip
+                if (effect.type === ccEffect.type) {
+                  const newDuration = effect.duration - 1;
+                  
+                  // Log if the effect expires
+                  if (newDuration === 0) {
+                    addToActionLog({
+                      text: `${effect.name} on ${unit.name} has expired`,
+                      type: "status"
+                    });
+                  }
+                  
+                  return {
+                    ...effect,
+                    duration: newDuration
+                  };
+                }
+                return effect;
+              }).filter(effect => effect.duration > 0);
+              
+              return {
+                ...u,
+                statusEffects: updatedStatusEffects,
+                acted: true // Mark as having acted
+              };
+            }
+            return u;
+          })
+        );
+        
+        // Don't allow selection of CC'd unit
+        return;
+      }
+    }
 
     if (usingAbility) {
       if (team === "enemy" && !unit.isDead) {

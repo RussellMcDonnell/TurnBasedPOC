@@ -1,0 +1,39 @@
+/* Status effect styling for unit cards */
+.unit-card {
+  position: relative;
+}
+
+.status-indicators {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 10;
+}
+
+.status-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+/* Specific status effect styling */
+.status-icon.frozen {
+  background: rgba(0, 128, 255, 0.7);
+  animation: pulse 1.5s infinite;
+}
+
+/* Pulsing animation for status effects */
+@keyframes pulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0.6; transform: scale(1); }
+}

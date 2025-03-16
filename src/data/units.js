@@ -3,7 +3,6 @@ import varenPortrait from "../assets/images/units/varen-stormrune-portrait-pictu
 import ashbringerPortrait from "../assets/images/units/ashbringer-portrait-picture.png";
 import lynValkenPortrait from "../assets/images/units/lyn-valken-portrait-picture.png";
 import emberhowlPortrait from "../assets/images/units/emberhowl-portrait-picture.png";
-import silkfangPortrait from "../assets/images/units/silkfang-portrait-picture.png";
 import varenFullArt from "../assets/images/units/varen-stormrune-full-art.png";
 
 // Import player unit art
@@ -291,7 +290,7 @@ export const units = {
     ability: {
       name: "Iron Wall Assault",
       icon: "🛡️",
-      description: "A powerful defensive maneuver that deals damage while increasing defense.",
+      description: "Brom charges forward with both shields, ramming the enemy, stunning them for 1 turn.",
       maxCooldown: 3,
     },
     passive: {
@@ -314,7 +313,7 @@ export const units = {
     ability: {
       name: "Titanic Slam",
       icon: "💥",
-      description: "A devastating slam that stuns enemies and draws their attention.",
+      description: "Slam the ground, dealing damage and stunning the targets across from the Juggernaut.",
       maxCooldown: 3,
     },
     passive: {
@@ -336,7 +335,7 @@ export const units = {
     ability: {
       name: "Triage Tactics",
       icon: "💉",
-      description: "Heals allies for more when they are at lower health.",
+      description: "Remove all negative status effects from an ally, and heal them 8.",
       maxCooldown: 2,
     },
     passive: {
@@ -359,7 +358,7 @@ export const units = {
     ability: {
       name: "Temporal Reset",
       icon: "⌛",
-      description: "Resets cooldowns for an ally and grants them an extra action.",
+      description: "Reverse time on a target ally, undoing the last status effect or damage taken.",
       maxCooldown: 4,
     },
     passive: {
@@ -382,7 +381,7 @@ export const units = {
     ability: {
       name: "Shooting Star",
       icon: "⭐",
-      description: "Calls down a star that deals heavy damage to a single target.",
+      description: "Call down a blazing meteor that strikes a target and their adjacent allies, dealing ATK damage and inflicting Burned",
       maxCooldown: 3,
     },
     passive: {
@@ -405,7 +404,7 @@ export const units = {
     ability: {
       name: "Sanguine Pact",
       icon: "🩸",
-      description: "Sacrifices health to deal increased damage and heal from the damage dealt.",
+      description: "Blood Mage sacrifices 2 hit points to grant an ally 6 damage this round",
       maxCooldown: 3,
     },
     passive: {
@@ -428,7 +427,7 @@ export const units = {
     ability: {
       name: "Cleave",
       icon: "⚔️",
-      description: "A powerful attack that hits multiple enemies.",
+      description: "Strike from left side to right side, or vice versa, 3 adjacent enemy units",
       maxCooldown: 3,
     },
     passive: {
@@ -451,7 +450,7 @@ export const units = {
     ability: {
       name: "Phantom Strike",
       icon: "👻",
-      description: "Phases through enemies to strike their backline, ignoring tanks.",
+      description: "Umbral Reaper slashes an enemy for 2xATK. If the enemy dies, Umbral Reaper does not use an action and this cooldown resets.",
       maxCooldown: 3,
     },
     passive: {
@@ -474,7 +473,7 @@ export const units = {
     ability: {
       name: "Crossfire",
       icon: "🎯",
-      description: "Fires multiple shots in quick succession at multiple targets.",
+      description: "Aerin may select two targets instead of one, striking each once.",
       maxCooldown: 3,
     },
     passive: {
@@ -497,7 +496,7 @@ export const units = {
     ability: {
       name: "Arcane Shot",
       icon: "🏹",
-      description: "Fires an enchanted arrow that deals magical damage and applies a random effect.",
+      description: "Hitting an opponent with a status effect of bleeding, burning, frozen or poisoned deals 3x damage",
       maxCooldown: 3,
     },
     passive: {
@@ -512,7 +511,21 @@ export const units = {
 
 // Helper function to get a unit by ID
 export const getUnitById = (id) => {
-  return units[id] ? { ...units[id], hp: units[id].maxHP, currentCooldown: 0 } : null;
+  return units[id] ? { 
+    ...units[id], 
+    hp: units[id].maxHP, 
+    currentCooldown: 0,
+    statusEffects: [],
+    getActions() {
+      // If unit is stunned or frozen, they can only skip their turn
+      if (this.statusEffects.some(effect => 
+        effect.type === 'stunned' || effect.type === 'frozen')) {
+        return ["Skip"];
+      }
+      // Otherwise return normal actions
+      return this.actions;
+    }
+  } : null;
 };
 
 // Helper function to get all player units
