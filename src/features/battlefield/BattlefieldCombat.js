@@ -615,79 +615,172 @@ function BattlefieldCombat() {
           targets: []
         };
 
-        // Select the first non-dead enemy as the target
-        // In a more complete implementation, this would allow player target selection
-        const targetEnemy = enemyUnits.find(enemy => !enemy.isDead);
+        // Set ability mode to allow player to select an enemy target
+        setUsingAbility(true);
         
-        if (targetEnemy) {
-          // Apply stun effect to target
-          setTimeout(() => {
-            // Add target to the ability log entry with stun status
-            ironWallLogEntry.targets.push({
-              unit: targetEnemy.name,
-              Damage: unit.damage.toString(),
-              Status: "Stunned"
-            });
+        // Add a message to the action log to guide the player
+        addToActionLog({
+          text: `Select an enemy to stun with ${unit.ability.name}`,
+          type: "normal"
+        });
+        
+        // The ability execution will happen when the player clicks an enemy
+        break;
 
-            // Update the enemy units with the stun effect
-            setEnemyUnits(prev =>
-              prev.map(enemy => {
-                if (enemy.id === targetEnemy.id) {
-                  const newHP = enemy.hp - unit.damage;
-                  const newStatusEffects = [...enemy.statusEffects];
-                  
-                  // Add stunned status effect - use type "stunned" instead of "frozen"
-                  newStatusEffects.push({
-                    type: "stunned",  // Changed from "frozen" to "stunned"
-                    name: "Stunned",
-                    icon: "🛡️",
-                    duration: 1
-                  });
+      case "Lyra Ashwyn":
+        // Create a log entry for Triage Tactics ability
+        const triageLogEntry = {
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        };
 
-                  if (newHP <= 0) {
-                    addToActionLog({
-                      text: `${enemy.name} is defeated!`,
-                      type: "defeat"
-                    });
-                  }
+        // Set ability mode to allow player to select an ally target
+        setUsingAbility(true);
+        
+        // Add a message to the action log to guide the player
+        addToActionLog({
+          text: `Select an ally to heal and remove negative status effects`,
+          type: "normal"
+        });
+        
+        // The ability execution will happen when the player clicks an ally
+        break;
 
-                  return {
-                    ...enemy,
-                    hp: newHP,
-                    isDead: newHP <= 0,
-                    statusEffects: newStatusEffects
-                  };
-                }
-                return enemy;
-              })
-            );
-
-            // Add the complete ability log after processing all effects
-            addToActionLog(ironWallLogEntry);
-
-            // Set ability on cooldown
-            setPlayerUnits(prev =>
-              prev.map(u => {
-                if (u.id === unitId) {
-                  return {
-                    ...u,
-                    acted: true,
-                    ability: {
-                      ...u.ability,
-                      currentCooldown: u.ability.maxCooldown
-                    }
-                  };
-                }
-                return u;
-              })
-            );
-
-            // Clear animations
+      case "Sylara Starborn":
+        // Create a log entry for Shooting Star ability
+        const shootingStarLogEntry = {
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        };
+        
+        // For simplicity, choose the first non-dead enemy as the primary target
+        // In a complete implementation, this would allow player to choose the target
+        const primaryTarget = enemyUnits.find(enemy => !enemy.isDead);
+        
+        if (primaryTarget) {
+          // Find index of primary target to determine adjacent enemies
+          const primaryTargetIndex = enemyUnits.findIndex(enemy => enemy.id === primaryTarget.id);
+          
+          // Get adjacent enemies (ones to the left and right of the primary target)
+          // Only include non-dead adjacent enemies
+          const adjacentEnemies = [];
+          
+          // Check enemy to the left
+          if (primaryTargetIndex > 0 && !enemyUnits[primaryTargetIndex - 1].isDead) {
+            adjacentEnemies.push(enemyUnits[primaryTargetIndex - 1]);
+          }
+          
+          // Check enemy to the right
+          if (primaryTargetIndex < enemyUnits.length - 1 && !enemyUnits[primaryTargetIndex + 1].isDead) {
+            adjacentEnemies.push(enemyUnits[primaryTargetIndex + 1]);
+          }
+          
+          // All targets (primary + adjacent)
+          const allTargets = [primaryTarget, ...adjacentEnemies];
+          
+          // Visual effect: Create a meteor animation
+          const meteorAnimation = () => {
+            // This would be more elaborate in a full implementation
+            // For now, we'll just set a timeout to simulate the animation
             setTimeout(() => {
-              setAnimatingUnitId(null);
-              setAnimatingAbility(false);
-            }, 800);
-          }, 500);
+              // Update enemy units to apply damage and burn effect
+              setEnemyUnits(prev => 
+                prev.map(enemy => {
+                  // Check if this enemy is one of our targets
+                  const isTarget = allTargets.some(target => target.id === enemy.id);
+                  
+                  if (isTarget && !enemy.isDead) {
+                    // Apply damage equal to the caster's attack
+                    const newHP = enemy.hp - unit.damage;
+                    
+                    // Create a new status effects array
+                    const newStatusEffects = [...enemy.statusEffects];
+                    
+                    // Add burn effect (avoiding duplicates)
+                    const hasBurn = newStatusEffects.some(effect => effect.type === "burn");
+                    
+                    if (!hasBurn) {
+                      newStatusEffects.push({
+                        type: "burn",
+                        name: "Burned",
+                        icon: "🔥",
+                        duration: 2 // Burn lasts for 2 turns
+                      });
+                      
+                      // Log status effect application
+                      addToActionLog({
+                        text: `${enemy.name} is now Burned!`,
+                        type: "status"
+                      });
+                    }
+                    
+                    // Add to ability log
+                    shootingStarLogEntry.targets.push({
+                      unit: enemy.name,
+                      Damage: unit.damage.toString(),
+                      Status: "Burned"
+                    });
+                    
+                    // Check if enemy is defeated
+                    if (newHP <= 0) {
+                      addToActionLog({
+                        text: `${enemy.name} is defeated!`,
+                        type: "defeat"
+                      });
+                    }
+                    
+                    return {
+                      ...enemy,
+                      hp: Math.max(0, newHP),
+                      isDead: newHP <= 0,
+                      statusEffects: newStatusEffects
+                    };
+                  }
+                  return enemy;
+                })
+              );
+              
+              // Add the complete ability log
+              addToActionLog(shootingStarLogEntry);
+              
+              // Set ability on cooldown
+              setPlayerUnits(prev =>
+                prev.map(u => {
+                  if (u.id === unitId) {
+                    return {
+                      ...u,
+                      acted: true,
+                      ability: {
+                        ...u.ability,
+                        currentCooldown: u.ability.maxCooldown
+                      }
+                    };
+                  }
+                  return u;
+                })
+              );
+              
+              // Clear animations
+              setTimeout(() => {
+                setAnimatingUnitId(null);
+                setAnimatingAbility(false);
+              }, 800);
+            }, 600);
+          };
+          
+          // Start the meteor animation
+          addToActionLog({
+            text: `${unit.name} calls down a blazing meteor!`,
+            type: "ability"
+          });
+          
+          // Execute animation after a delay
+          setTimeout(meteorAnimation, 300);
+          
         } else {
           // No valid target
           addToActionLog({
@@ -698,6 +791,27 @@ function BattlefieldCombat() {
           setAnimatingUnitId(null);
           setAnimatingAbility(false);
         }
+        break;
+
+      case "Blood Mage":
+        // Create a log entry for Sanguine Pact ability
+        const sanguinePactLogEntry = {
+          unit: unit.name,
+          type: "ability",
+          abilityName: unit.ability.name,
+          targets: []
+        };
+        
+        // Set ability mode to allow player to select an ally target
+        setUsingAbility(true);
+        
+        // Add a message to the action log to guide the player
+        addToActionLog({
+          text: `Select an ally to empower with blood magic`,
+          type: "normal"
+        });
+        
+        // The ability execution will happen when the player clicks an ally
         break;
 
       default:
@@ -1145,10 +1259,317 @@ function BattlefieldCombat() {
     }
 
     if (usingAbility) {
-      if (team === "enemy" && !unit.isDead) {
-        // Implement target selection for abilities that need targets
-        // For now, cancel ability mode when clicking an enemy during ability use
-        setUsingAbility(false);
+      // When using an ability, allow clicking on allies for player targeting abilities
+      if (team === "player" && !unit.isDead) {
+        // Get the caster (selected player unit)
+        const caster = selectedPlayerUnit;
+        if (!caster) return;
+        
+        // Handle different abilities based on the caster's name
+        switch (caster.name) {
+          case "Lyra Ashwyn":
+            // Execute Triage Tactics ability - heal and cleanse target
+            setTimeout(() => {
+              // Create ability log entry
+              const triageLogEntry = {
+                unit: caster.name,
+                type: "ability",
+                abilityName: caster.ability.name,
+                targets: [{
+                  unit: unit.name,
+                  Damage: "-8", // Negative damage indicates healing
+                  Status: "Cleansed"
+                }]
+              };
+              
+              // Update the player units to heal and cleanse status effects
+              setPlayerUnits(prev =>
+                prev.map(ally => {
+                  if (ally.id === unit.id) {
+                    // Calculate new HP with healing
+                    const newHP = Math.min(ally.hp + 8, ally.maxHP);
+                    
+                    // Remove all negative status effects (keeping only positive ones if any)
+                    const positiveEffects = ally.statusEffects.filter(effect => 
+                      effect.type !== "burn" && 
+                      effect.type !== "poison" && 
+                      effect.type !== "stunned" && 
+                      effect.type !== "frozen"
+                    );
+                    
+                    // Log removed effects
+                    const removedEffects = ally.statusEffects.filter(effect => 
+                      effect.type === "burn" || 
+                      effect.type === "poison" || 
+                      effect.type === "stunned" || 
+                      effect.type === "frozen"
+                    );
+                    
+                    if (removedEffects.length > 0) {
+                      addToActionLog({
+                        text: `${removedEffects.length} negative effects removed from ${ally.name}`,
+                        type: "status"
+                      });
+                    }
+                    
+                    // Log healing
+                    addToActionLog({
+                      text: `${ally.name} is healed for 8 HP`,
+                      type: "heal"
+                    });
+                    
+                    return {
+                      ...ally,
+                      hp: newHP,
+                      statusEffects: positiveEffects
+                    };
+                  }
+                  return ally;
+                })
+              );
+              
+              // Add the complete ability log
+              addToActionLog(triageLogEntry);
+              
+              // Set ability on cooldown and mark caster as acted
+              setPlayerUnits(prev =>
+                prev.map(u => {
+                  if (u.id === caster.id) {
+                    return {
+                      ...u,
+                      acted: true,
+                      ability: {
+                        ...u.ability,
+                        currentCooldown: u.ability.maxCooldown
+                      }
+                    };
+                  }
+                  return u;
+                })
+              );
+              
+              // Clear animations and ability mode
+              setTimeout(() => {
+                setAnimatingUnitId(null);
+                setAnimatingAbility(false);
+                setUsingAbility(false);
+                setSelectedPlayerUnit(null);
+              }, 800);
+            }, 500);
+            break;
+            
+          case "Blood Mage":
+            // Don't allow targeting self with Sanguine Pact
+            if (unit.id === caster.id) {
+              addToActionLog({
+                text: `${caster.name} cannot target themselves with ${caster.ability.name}`,
+                type: "normal"
+              });
+              return;
+            }
+            
+            // Execute Sanguine Pact - sacrifice HP to grant damage boost
+            setTimeout(() => {
+              // Create ability log entry
+              const sanguinePactLogEntry = {
+                unit: caster.name,
+                type: "ability",
+                abilityName: caster.ability.name,
+                targets: []
+              };
+              
+              // First, blood mage sacrifices 2 HP
+              setPlayerUnits(prev => 
+                prev.map(u => {
+                  if (u.id === caster.id) {
+                    // Calculate new HP after sacrifice (minimum 1)
+                    const newHP = Math.max(1, u.hp - 2);
+                    
+                    // Log the blood sacrifice
+                    addToActionLog({
+                      text: `${u.name} sacrifices 2 HP in a blood ritual!`,
+                      type: "ability"
+                    });
+                    
+                    return {
+                      ...u,
+                      hp: newHP,
+                      acted: true,
+                      ability: {
+                        ...u.ability,
+                        currentCooldown: u.ability.maxCooldown
+                      }
+                    };
+                  }
+                  return u;
+                })
+              );
+              
+              // Then, grant the ally a temporary damage buff
+              setPlayerUnits(prev => 
+                prev.map(ally => {
+                  if (ally.id === unit.id) {
+                    // Add buff to log entry
+                    sanguinePactLogEntry.targets.push({
+                      unit: ally.name,
+                      Damage: "+6", // Indicates a buff rather than damage
+                      Status: "Damage Boost"
+                    });
+                    
+                    // Log the damage boost
+                    addToActionLog({
+                      text: `${ally.name} gains +6 attack power this round!`,
+                      type: "status"
+                    });
+                    
+                    // Add a temporary damage boost status effect
+                    const newStatusEffects = [...ally.statusEffects];
+                    
+                    // Add damage boost effect (removing any existing ones first)
+                    const filteredEffects = newStatusEffects.filter(effect => 
+                      effect.type !== "damage-boost"
+                    );
+                    
+                    filteredEffects.push({
+                      type: "damage-boost",
+                      name: "Blood Empowered",
+                      icon: "🩸",
+                      duration: 1, // Lasts until the end of the round
+                      amount: 6    // +6 damage
+                    });
+                    
+                    return {
+                      ...ally,
+                      statusEffects: filteredEffects,
+                      // Also directly increase the damage for the current round
+                      damage: ally.damage + 6
+                    };
+                  }
+                  return ally;
+                })
+              );
+              
+              // Add the complete ability log
+              addToActionLog(sanguinePactLogEntry);
+              
+              // Clear animations and ability mode
+              setTimeout(() => {
+                setAnimatingUnitId(null);
+                setAnimatingAbility(false);
+                setUsingAbility(false);
+                setSelectedPlayerUnit(null);
+              }, 800);
+            }, 500);
+            break;
+            
+          default:
+            // For other abilities, cancel ability mode when clicking an ally
+            addToActionLog({
+              text: `This ability cannot target allies`,
+              type: "normal"
+            });
+            setUsingAbility(false);
+        }
+      } else if (team === "enemy" && !unit.isDead) {
+        // Get the caster (selected player unit)
+        const caster = selectedPlayerUnit;
+        if (!caster) return;
+        
+        // Handle different abilities based on the caster's name
+        switch (caster.name) {
+          case "Brom the Bastion":
+            // Execute Iron Wall Assault ability - damage and stun target
+            setTimeout(() => {
+              // Create ability log entry
+              const ironWallLogEntry = {
+                unit: caster.name,
+                type: "ability",
+                abilityName: caster.ability.name,
+                targets: [{
+                  unit: unit.name,
+                  Damage: caster.damage.toString(),
+                  Status: "Stunned"
+                }]
+              };
+              
+              // Apply damage and stun effect to the target
+              setEnemyUnits(prev =>
+                prev.map(enemy => {
+                  if (enemy.id === unit.id) {
+                    const newHP = enemy.hp - caster.damage;
+                    const newStatusEffects = [...enemy.statusEffects];
+                    
+                    // Add stunned status effect
+                    newStatusEffects.push({
+                      type: "stunned",
+                      name: "Stunned",
+                      icon: "🛡️",
+                      duration: 1
+                    });
+                    
+                    // Log stun effect
+                    addToActionLog({
+                      text: `${enemy.name} is stunned by ${caster.name}'s ${caster.ability.name}!`,
+                      type: "status"
+                    });
+                    
+                    // Check if enemy is defeated
+                    if (newHP <= 0) {
+                      addToActionLog({
+                        text: `${enemy.name} is defeated!`,
+                        type: "defeat"
+                      });
+                    }
+                    
+                    return {
+                      ...enemy,
+                      hp: Math.max(0, newHP),
+                      isDead: newHP <= 0,
+                      statusEffects: newStatusEffects
+                    };
+                  }
+                  return enemy;
+                })
+              );
+              
+              // Add the complete ability log
+              addToActionLog(ironWallLogEntry);
+              
+              // Set ability on cooldown and mark caster as acted
+              setPlayerUnits(prev =>
+                prev.map(u => {
+                  if (u.id === caster.id) {
+                    return {
+                      ...u,
+                      acted: true,
+                      ability: {
+                        ...u.ability,
+                        currentCooldown: u.ability.maxCooldown
+                      }
+                    };
+                  }
+                  return u;
+                })
+              );
+              
+              // Clear animations and ability mode
+              setTimeout(() => {
+                setAnimatingUnitId(null);
+                setAnimatingAbility(false);
+                setUsingAbility(false);
+                setSelectedPlayerUnit(null);
+              }, 800);
+            }, 500);
+            break;
+            
+          default:
+            // For other abilities, cancel ability mode when clicking an enemy
+            addToActionLog({
+              text: `This ability cannot target enemies`,
+              type: "normal"
+            });
+            setUsingAbility(false);
+        }
       }
       return;
     }
