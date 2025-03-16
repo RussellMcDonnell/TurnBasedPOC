@@ -4,7 +4,7 @@
   padding: 20px 20px 20px 0;  /* Remove left padding */
   background: #f0f0f0;
   min-height: 100vh;
-  background: url('./assets/images/battlegrounds/infernos-reckoning.png') center/cover no-repeat;
+  /* Removed hardcoded background image */
 }
 .game-container {
   display: grid;

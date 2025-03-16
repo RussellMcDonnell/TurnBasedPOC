@@ -9,6 +9,11 @@ import darkForestCave from '../../assets/images/campaign/dark-forest-cave-entren
 import mountainAmbush from '../../assets/images/campaign/mountain-ambush.jpg';
 import ancientRuins from '../../assets/images/campaign/ancient-ruins.jpg';
 import dragonsLair from '../../assets/images/campaign/dragons-lair.png';
+import dragonsLairBattleground from '../../assets/images/battlegrounds/dragons-lair.png';
+import darkForestBattleground from '../../assets/images/battlegrounds/dark-forest-camp.jpg';
+import mountainAmbushBattleground from '../../assets/images/battlegrounds/ice-mountain-clifs.jpg';
+import darkForestWithRiverBattleground from '../../assets/images/battlegrounds/dark-forest-with-river.jpg';
+import darkForestWithCaveBattleground from '../../assets/images/battlegrounds/dark-forest-cave.jpg';
 
 const campaignNodes = [
   {
@@ -20,6 +25,7 @@ const campaignNodes = [
     type: "combat",
     difficulty: "Easy",
     preview: darkForest,
+    battlegroundBackground: darkForestBattleground,
     enemyTeam: "Enchanted Grove"  // Will-o'-wisps, pixies, and wood sprites
   },
   {
@@ -40,6 +46,7 @@ const campaignNodes = [
     type: "combat",
     difficulty: "Medium",
     preview: darkForestRiver,
+    battlegroundBackground: darkForestWithRiverBattleground,
     enemyTeam: "Forest Guardians"  // Treant Guardian, Wood Sprite, Pixie Trickster
   },
   {
@@ -51,6 +58,7 @@ const campaignNodes = [
     type: "combat",
     difficulty: "Medium",
     preview: darkForestCave,
+    battlegroundBackground: darkForestWithCaveBattleground,
     enemyTeam: "Nature's Defenders"  // Grass Golem, Sunflower Sentinel, Wood Sprite
   },
   {
@@ -71,6 +79,7 @@ const campaignNodes = [
     type: "combat",
     difficulty: "Medium",
     preview: mountainAmbush,
+    battlegroundBackground: mountainAmbushBattleground,
     enemyTeam: "Wolf Pack"  // Three Dire Wolves
   },
   {
@@ -82,6 +91,7 @@ const campaignNodes = [
     type: "combat",
     difficulty: "Very Hard",
     preview: dragonsLair,
+    battlegroundBackground: dragonsLairBattleground,
     enemyTeam: "Dragon Lair"  // Ashbringer and Lyn Valken
   }
 ];

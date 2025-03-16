@@ -9,11 +9,19 @@ import GameMenu from "./GameMenu";
 import Settings from "./Settings";
 import { getUnitById, enemyTeams } from "../../data/units";
 
+// Import default background image for non-campaign modes
+import dragonsLairBg from "../../assets/images/battlegrounds/dragons-lair.png";
+
 function BattlefieldCombat() {
   // Get location and campaign level data if coming from campaign
   const location = useLocation();
-  const campaignData = location.state;
-  const isCampaignMode = campaignData?.gameMode === 'campaign';
+  const levelData = location.state;
+  const isCampaignMode = levelData?.gameMode === 'campaign';
+  
+  // Get background image from campaign data or use default
+  const backgroundImage = levelData.level?.battlegroundBackground 
+    ? levelData.level.battlegroundBackground 
+    : dragonsLairBg;
   
   // Add team context hook
   const { getActiveCampaignTeam } = useTeams();
@@ -21,8 +29,8 @@ function BattlefieldCombat() {
   
   // Initialize enemy team based on campaign data or default
   const [selectedEnemyTeam, setSelectedEnemyTeam] = useState(() => {
-    if (isCampaignMode && campaignData.level && campaignData.level.enemyTeam) {
-      return campaignData.level.enemyTeam;
+    if (isCampaignMode && levelData.level && levelData.level.enemyTeam) {
+      return levelData.level.enemyTeam;
     }
     return "Basic Enemies";
   });
@@ -121,8 +129,8 @@ function BattlefieldCombat() {
 
   // Add campaign info to action log when starting a battle
   useEffect(() => {
-    if (isCampaignMode && campaignData.level) {
-      const level = campaignData.level;
+    if (isCampaignMode && levelData.level) {
+      const level = levelData.level;
       addToActionLog({
         text: `Beginning ${level.title} - ${level.difficulty} Difficulty`,
         type: "campaign"
@@ -1742,7 +1750,7 @@ function BattlefieldCombat() {
   };
 
   return (
-    <div className="BattlefieldCombat">
+    <div className="BattlefieldCombat" style={{ background: `url(${backgroundImage}) center/cover no-repeat` }}>
       <>
         <GameMenu
           selectedEnemyTeam={selectedEnemyTeam}
@@ -1752,7 +1760,7 @@ function BattlefieldCombat() {
           isGameOver={gameOver}
           onSurrender={handleSurrender}
           isCampaignMode={isCampaignMode}
-          campaignLevel={campaignData?.level?.title}
+          campaignLevel={levelData?.level?.title}
         />
 
         <Settings
