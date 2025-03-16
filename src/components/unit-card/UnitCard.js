@@ -61,18 +61,6 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
           {unit.damage}
         </span>
       </div>
-      
-      {onViewArt && (
-        <button 
-          className="view-art-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewArt(unit);
-          }}
-        >
-          View Art
-        </button>
-      )}
     </div>
   );
 }
