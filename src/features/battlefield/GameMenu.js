@@ -36,14 +36,6 @@ function GameMenu({
         Menu
       </button>
       
-      {/* Display campaign level if in campaign mode */}
-      {isCampaignMode && campaignLevel && (
-        <div className="campaign-level-indicator">
-          <span className="campaign-level-icon">🗺️</span>
-          {campaignLevel}
-        </div>
-      )}
-      
       {isMenuOpen && (
         <div className="game-menu-panel">
           <div className="game-menu-header">

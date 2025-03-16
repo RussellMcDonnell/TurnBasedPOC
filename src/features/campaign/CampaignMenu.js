@@ -10,7 +10,7 @@ import mountainAmbush from '../../assets/images/campaign/mountain-ambush.jpg';
 import ancientRuins from '../../assets/images/campaign/ancient-ruins.jpg';
 import dragonsLair from '../../assets/images/campaign/dragons-lair.png';
 import dragonsLairBattleground from '../../assets/images/battlegrounds/dragons-lair.png';
-import darkForestBattleground from '../../assets/images/battlegrounds/dark-forest-camp.jpg';
+import darkForestBattleground from '../../assets/images/battlegrounds/dark-forest.jpg';
 import mountainAmbushBattleground from '../../assets/images/battlegrounds/ice-mountain-clifs.jpg';
 import darkForestWithRiverBattleground from '../../assets/images/battlegrounds/dark-forest-with-river.jpg';
 import darkForestWithCaveBattleground from '../../assets/images/battlegrounds/dark-forest-cave.jpg';
