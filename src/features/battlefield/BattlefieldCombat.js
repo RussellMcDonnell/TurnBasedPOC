@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTeams } from "../../features/teams/TeamContext";
+import { useLocation } from "react-router-dom";
 import "../../App.css";
 import Sidebar from "../../Sidebar";
 import UnitCard from "../../components/unit-card/UnitCard";
@@ -9,12 +10,22 @@ import Settings from "./Settings";
 import { getUnitById, enemyTeams } from "../../data/units";
 
 function BattlefieldCombat() {
+  // Get location and campaign level data if coming from campaign
+  const location = useLocation();
+  const campaignData = location.state;
+  const isCampaignMode = campaignData?.gameMode === 'campaign';
+  
   // Add team context hook
   const { getActiveCampaignTeam } = useTeams();
   const [isInGame, setIsInGame] = useState(false);
-
-  // Remove selectedTeam state and use campaign team
-  const [selectedEnemyTeam, setSelectedEnemyTeam] = useState("Basic Enemies");
+  
+  // Initialize enemy team based on campaign data or default
+  const [selectedEnemyTeam, setSelectedEnemyTeam] = useState(() => {
+    if (isCampaignMode && campaignData.level && campaignData.level.enemyTeam) {
+      return campaignData.level.enemyTeam;
+    }
+    return "Basic Enemies";
+  });
 
   // Add game settings state
   const [gameSettings, setGameSettings] = useState({
@@ -71,9 +82,17 @@ function BattlefieldCombat() {
     return prepareUnits(campaignTeam ? campaignTeam.units : []);
   });
 
-  const [enemyUnits, setEnemyUnits] = useState(() =>
-    prepareUnits(enemyTeams[selectedEnemyTeam])
-  );
+  // Initialize enemy units based on selectedEnemyTeam
+  const [enemyUnits, setEnemyUnits] = useState(() => {
+    // Check if the enemy team exists in enemyTeams
+    if (enemyTeams[selectedEnemyTeam]) {
+      return prepareUnits(enemyTeams[selectedEnemyTeam]);
+    } else {
+      // Fallback to a default enemy team
+      console.warn(`Enemy team "${selectedEnemyTeam}" not found, using a default team`);
+      return prepareUnits(enemyTeams["Forest Guardians"]);
+    }
+  });
 
   // Track whose turn it is: "player" or "enemy"
   const [activeTeam, setActiveTeam] = useState("player");
@@ -100,6 +119,22 @@ function BattlefieldCombat() {
     selectedEnemyTeam
   });
 
+  // Add campaign info to action log when starting a battle
+  useEffect(() => {
+    if (isCampaignMode && campaignData.level) {
+      const level = campaignData.level;
+      addToActionLog({
+        text: `Beginning ${level.title} - ${level.difficulty} Difficulty`,
+        type: "campaign"
+      });
+      
+      addToActionLog({
+        text: `Enemy Team: ${level.enemyTeam}`,
+        type: "normal"
+      });
+    }
+  }, []);
+
   // Effect to update player units when campaign team changes
   useEffect(() => {
     const campaignTeam = getActiveCampaignTeam();
@@ -110,7 +145,9 @@ function BattlefieldCombat() {
 
   // Effect to update enemy units when enemy team changes
   useEffect(() => {
-    setEnemyUnits(prepareUnits(enemyTeams[selectedEnemyTeam]));
+    if (enemyTeams[selectedEnemyTeam]) {
+      setEnemyUnits(prepareUnits(enemyTeams[selectedEnemyTeam]));
+    }
   }, [selectedEnemyTeam]);
 
   // Function to change enemy teams
@@ -517,6 +554,9 @@ function BattlefieldCombat() {
     setAnimatingUnitId(unitId);
     setAnimatingAbility(true);
 
+    // Track if this ability requires targeting
+    let requiresTargetSelection = false;
+
     // Handle specific abilities
     switch (unit.name) {
       case "Varen Stormrune":
@@ -616,6 +656,7 @@ function BattlefieldCombat() {
         };
 
         // Set ability mode to allow player to select an enemy target
+        requiresTargetSelection = true;
         setUsingAbility(true);
         
         // Add a message to the action log to guide the player
@@ -637,6 +678,7 @@ function BattlefieldCombat() {
         };
 
         // Set ability mode to allow player to select an ally target
+        requiresTargetSelection = true;
         setUsingAbility(true);
         
         // Add a message to the action log to guide the player
@@ -803,6 +845,7 @@ function BattlefieldCombat() {
         };
         
         // Set ability mode to allow player to select an ally target
+        requiresTargetSelection = true;
         setUsingAbility(true);
         
         // Add a message to the action log to guide the player
@@ -816,12 +859,19 @@ function BattlefieldCombat() {
 
       default:
         // Generic ability handling
+        requiresTargetSelection = true;
         setUsingAbility(true);
     }
 
+    // Set first turn as used if it's the first turn
     if (!firstTurnUsed) {
       setFirstTurnUsed(true);
-      setTimeout(() => endPlayerTurn(), 1500);
+      
+      // Only automatically end turn for abilities that don't require target selection
+      if (!requiresTargetSelection) {
+        setTimeout(() => endPlayerTurn(), 1500);
+      }
+      // For abilities that need targeting, the turn will end after the target is selected and ability is executed
     }
   }
 
@@ -1697,10 +1747,12 @@ function BattlefieldCombat() {
         <GameMenu
           selectedEnemyTeam={selectedEnemyTeam}
           enemyTeams={Object.keys(enemyTeams)}
-          onEnemyTeamChange={handleEnemyTeamChange}
+          onEnemyTeamChange={isCampaignMode ? null : handleEnemyTeamChange}
           onOpenSettings={() => setIsSettingsOpen(true)}
           isGameOver={gameOver}
           onSurrender={handleSurrender}
+          isCampaignMode={isCampaignMode}
+          campaignLevel={campaignData?.level?.title}
         />
 
         <Settings

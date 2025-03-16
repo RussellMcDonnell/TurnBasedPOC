@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 
-function GameMenu({ 
+function GameMenu({
   onSurrender,
   onOpenSettings,
-  isGameOver
+  isGameOver,
+  isCampaignMode = false,
+  campaignLevel = null
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSurrenderDialog, setShowSurrenderDialog] = useState(false);
@@ -34,11 +36,25 @@ function GameMenu({
         Menu
       </button>
       
+      {/* Display campaign level if in campaign mode */}
+      {isCampaignMode && campaignLevel && (
+        <div className="campaign-level-indicator">
+          <span className="campaign-level-icon">🗺️</span>
+          {campaignLevel}
+        </div>
+      )}
+      
       {isMenuOpen && (
         <div className="game-menu-panel">
           <div className="game-menu-header">
             <span className="menu-option-icon">🎮</span>
             Game Menu
+            {isCampaignMode && campaignLevel && (
+              <div className="game-menu-campaign">
+                <span className="menu-option-icon">🗺️</span>
+                {campaignLevel}
+              </div>
+            )}
           </div>
           <div className="menu-options">
             <div className="menu-option" onClick={handleSettingsClick}>

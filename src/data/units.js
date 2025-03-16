@@ -336,7 +336,7 @@ export const units = {
       name: "Triage Tactics",
       icon: "💉",
       description: "Remove all negative status effects from an ally, and heal them 8.",
-      maxCooldown: 2,
+      maxCooldown: 4,
     },
     passive: {
       name: "Combat Medic",
@@ -535,7 +535,7 @@ export const getPlayerUnits = () => {
 
 // Enemy configurations
 export const enemyTeams = {
-  "Basic Enemies": [
+  "Dragon Lair": [
       "ashbringer",
       "lyn"
   ],

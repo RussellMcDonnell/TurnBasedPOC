@@ -3,21 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import './CampaignMenu.css';
 import villageDefense from '../../assets/images/campaign/village-defense.jpg';
 import shop from '../../assets/images/campaign/shop.jpg';
-import mountainAmbush from '../../assets/images/campaign/mountain-ambush.jpg';
 import darkForest from '../../assets/images/campaign/dark-forest.jpg';
+import darkForestRiver from '../../assets/images/campaign/dark-forest-with-river.jpg';
+import darkForestCave from '../../assets/images/campaign/dark-forest-cave-entrence.jpg';
+import mountainAmbush from '../../assets/images/campaign/mountain-ambush.jpg';
 import ancientRuins from '../../assets/images/campaign/ancient-ruins.jpg';
 import dragonsLair from '../../assets/images/campaign/dragons-lair.png';
 
 const campaignNodes = [
   {
     id: 1,
-    title: "Village Defense",
-    description: "Your journey begins here. Face off against a small band of mercenaries threatening the local village.",
+    title: "Shrouded Woods",
+    description: "You step into the eerie darkness of the forest, where twisted trees whisper secrets and unseen creatures stalk the shadows.",
     position: { x: 250, y: 100 },
     connections: [2],
     type: "combat",
     difficulty: "Easy",
-    preview: villageDefense
+    preview: darkForest,
+    enemyTeam: "Enchanted Grove"  // Will-o'-wisps, pixies, and wood sprites
   },
   {
     id: 2,
@@ -30,23 +33,25 @@ const campaignNodes = [
   },
   {
     id: 3,
-    title: "Mountain Ambush",
-    description: "Navigate through treacherous mountain paths while dealing with hostile forces lying in wait.",
+    title: "River of Shadows",
+    description: "A treacherous river cuts through the forest, its dark waters hiding more than just fish. Beware the lurking dangers beneath the surface.",
     position: { x: 250, y: 300 },
     connections: [4],
     type: "combat",
     difficulty: "Medium",
-    preview: mountainAmbush
+    preview: darkForestRiver,
+    enemyTeam: "Forest Guardians"  // Treant Guardian, Wood Sprite, Pixie Trickster
   },
   {
     id: 4,
-    title: "Dark Forest",
-    description: "Battle through the mysterious dark forest where ancient enemies lurk in the shadows.",
+    title: "The Hollow Cavern",
+    description: "A cave entrance yawns before you, the air thick with the scent of decay. Something ancient and restless stirs in the darkness within.",
     position: { x: 550, y: 400 },
     connections: [5],
     type: "combat",
     difficulty: "Medium",
-    preview: darkForest
+    preview: darkForestCave,
+    enemyTeam: "Nature's Defenders"  // Grass Golem, Sunflower Sentinel, Wood Sprite
   },
   {
     id: 5,
@@ -59,13 +64,14 @@ const campaignNodes = [
   },
   {
     id: 6,
-    title: "Ancient Ruins",
-    description: "Explore dangerous ruins filled with powerful guardians protecting ancient treasures.",
+    title: "Wolf Pack Ambush",
+    description: "A chilling howl echoes through the forest. Before you can react, glowing eyes emerge from the darkness—you're surrounded.",
     position: { x: 550, y: 600 },
     connections: [7],
     type: "combat",
-    difficulty: "Hard",
-    preview: ancientRuins
+    difficulty: "Medium",
+    preview: mountainAmbush,
+    enemyTeam: "Wolf Pack"  // Three Dire Wolves
   },
   {
     id: 7,
@@ -75,7 +81,8 @@ const campaignNodes = [
     connections: [],
     type: "combat",
     difficulty: "Very Hard",
-    preview: dragonsLair
+    preview: dragonsLair,
+    enemyTeam: "Dragon Lair"  // Ashbringer and Lyn Valken
   }
 ];
 
