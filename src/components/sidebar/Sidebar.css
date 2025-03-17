@@ -1,0 +1,173 @@
+.sidebar {
+  width: 300px;
+  background: #fff;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.sidebar.left {
+  border-right: 1px solid #ccc;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.sidebar.right {
+  border-left: 1px solid #ccc;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+.close-btn:hover {
+  color: #333;
+}
+.unit-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.unit-detail-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 3px solid #666;
+}
+.unit-stats {
+  background: #f8f9fa;
+  padding: 10px 20px;
+  border-radius: 4px;
+  width: 100%;
+}
+.action-list {
+  width: 100%;
+  margin-top: 10px;
+}
+.action-button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.action-button.hover {
+  background: #0056b3;
+}
+.action-button:active {
+  background: #004085;
+}
+.action-button.confirm {
+  background: #28a745;
+}
+.action-button.confirm:hover {
+  background: #218838;
+}
+.action-button.cancel {
+  background: #dc3545;
+}
+.action-button.cancel:hover {
+  background: #c82333;
+}
+
+/* Ability styling in sidebar */
+.ability-details {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.ability-card {
+  background: rgba(0, 123, 255, 0.1);
+  border: 1px solid rgba(0, 123, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.ability-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed rgba(0, 123, 255, 0.3);
+  padding-bottom: 5px;
+}
+
+.ability-icon {
+  font-size: 1.3em;
+  color: #0066cc;
+}
+
+.ability-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #0066cc;
+}
+
+.ability-description {
+  font-size: 0.9em;
+  color: #333;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.ability-cooldown {
+  font-size: 0.85em;
+  color: #666;
+  text-align: right;
+  font-style: italic;
+}
+
+.action-button.ability {
+  background: linear-gradient(to right, #0066cc, #0099ff);
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+
+.action-button.ability:hover {
+  background: linear-gradient(to right, #005bb7, #0085e0);
+}
+
+.action-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Status effects styling */
+.status-effects-list {
+  width: 100%;
+}
+
+.status-effects-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-effect-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.status-effect-item.stunned {
+  background: rgba(255, 204, 0, 0.2);
+  border-left: 3px solid #ffcc00;
+}
+
+.status-effect-item.frozen {
+  background: rgba(0, 204, 255, 0.2);
+  border-left: 3px solid #00ccff;
+}

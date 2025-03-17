@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTeams } from "../../features/teams/TeamContext";
 import { useLocation } from "react-router-dom";
 import "../../App.css";
-import Sidebar from "../../Sidebar";
+import Sidebar from "../../components/sidebar/Sidebar";
 import UnitCard from "../../components/unit-card/UnitCard";
 import DeveloperPanel from "./DeveloperPanel";
 import GameMenu from "./GameMenu";
