@@ -873,11 +873,11 @@ function BattlefieldCombat() {
 
     // Set first turn as used if it's the first turn
     if (!firstTurnUsed) {
-      setFirstTurnUsed(true);
       
       // Only automatically end turn for abilities that don't require target selection
       if (!requiresTargetSelection) {
-        setTimeout(() => endPlayerTurn(), 1500);
+        setFirstTurnUsed(true);
+        endPlayerTurn();
       }
       // For abilities that need targeting, the turn will end after the target is selected and ability is executed
     }
@@ -1187,7 +1187,7 @@ function BattlefieldCombat() {
         // All enemies are either dead, stunned, or have acted, end turn
         setTimeout(() => {
           endEnemyTurn();
-        }, 500);
+        }, 200);
         return;
       }
 
@@ -1406,6 +1406,12 @@ function BattlefieldCombat() {
                 })
               );
               
+              // Check if this is the first turn and end it if so
+              if (!firstTurnUsed) {
+                setFirstTurnUsed(true);
+                setTimeout(() => endPlayerTurn(), 800);
+              }
+              
               // Clear animations and ability mode
               setTimeout(() => {
                 setAnimatingUnitId(null);
@@ -1509,6 +1515,12 @@ function BattlefieldCombat() {
               
               // Add the complete ability log
               addToActionLog(sanguinePactLogEntry);
+              
+              // Check if this is the first turn and end it if so
+              if (!firstTurnUsed) {
+                setFirstTurnUsed(true);
+                setTimeout(() => endPlayerTurn(), 800);
+              }
               
               // Clear animations and ability mode
               setTimeout(() => {
@@ -1629,6 +1641,13 @@ function BattlefieldCombat() {
             setUsingAbility(false);
         }
       }
+
+      // Check if this is the first turn and end it if so
+      if (!firstTurnUsed) {
+        setFirstTurnUsed(true);
+        setTimeout(() => endPlayerTurn(), 1500);
+      }
+
       return;
     }
 
