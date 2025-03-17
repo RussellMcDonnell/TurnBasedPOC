@@ -71,17 +71,32 @@ function BattlefieldCombat() {
     // First, map units to fetch player unit details
     units = units.map(unit => getUnitById(unit));
 
-    return units.map(unit => ({
-      ...unit,
-      acted: false,
-      isDead: false,
-      hp: unit.maxHP,
-      statusEffects: [],
-      ability: unit.ability ? {
-        ...unit.ability,
-        currentCooldown: 0
-      } : null
-    }));
+    // Track how many instances of each unit ID we've seen to create unique IDs
+    const unitCounts = {};
+
+    return units.map(unit => {
+      // Generate a unique ID for all units
+      if (!unitCounts[unit.id]) {
+        unitCounts[unit.id] = 0;
+      }
+      unitCounts[unit.id]++;
+
+      // Create a unique instance ID that includes the count for all units
+      const uniqueId = `${unit.id}-${unitCounts[unit.id]}`;
+
+      return {
+        ...unit,
+        instanceId: uniqueId, // Store the unique instance ID
+        acted: false,
+        isDead: false,
+        hp: unit.maxHP,
+        statusEffects: [],
+        ability: unit.ability ? {
+          ...unit.ability,
+          currentCooldown: 0
+        } : null
+      };
+    });
   };
 
   // Initialize player units from campaign team
@@ -315,7 +330,7 @@ function BattlefieldCombat() {
         // Apply damage to player unit
         setPlayerUnits(prev =>
           prev.map(unit => {
-            if (unit.id === attacker.id) {
+            if (unit.instanceId === attacker.instanceId || unit.id === attacker.id) {
               const newHP = unit.hp - target.damage;
 
               if (newHP <= 0) {
@@ -338,7 +353,7 @@ function BattlefieldCombat() {
         // Apply damage to enemy unit
         setEnemyUnits(prev =>
           prev.map(unit => {
-            if (unit.id === attacker.id) {
+            if (unit.instanceId === attacker.instanceId || unit.id === attacker.id) {
               const newHP = unit.hp - target.damage;
 
               if (newHP <= 0) {
@@ -383,10 +398,10 @@ function BattlefieldCombat() {
     if (gameOver) return;
 
     if (attackerTeam === "player") {
-      const attacker = playerUnits.find((u) => u.id === attackerId);
+      const attacker = playerUnits.find((u) => u.instanceId === attackerId || u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
-      const target = enemyUnits.find((u) => u.id === targetId);
+      const target = enemyUnits.find((u) => u.instanceId === targetId || u.id === targetId);
       if (!target) return;
 
       // Add to action log with new format
@@ -404,14 +419,14 @@ function BattlefieldCombat() {
       setDamagedUnitId(null);
 
       // Start attack animation immediately
-      setAnimatingUnitId(attackerId);
+      setAnimatingUnitId(attacker.instanceId || attacker.id);
 
       // Apply damage after animation starts
       setTimeout(() => {
-        setDamagedUnitId(targetId);
+        setDamagedUnitId(target.instanceId || target.id);
         setEnemyUnits((prev) =>
           prev.map((unit) => {
-            if (unit.id === targetId && !unit.isDead) {
+            if ((unit.instanceId === target.instanceId || unit.id === target.id) && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
 
               if (newHP <= 0) {
@@ -445,7 +460,7 @@ function BattlefieldCombat() {
       }, 250);
 
       setPlayerUnits((prev) =>
-        prev.map((u) => (u.id === attackerId ? { ...u, acted: true } : u))
+        prev.map((u) => ((u.instanceId === attacker.instanceId || u.id === attacker.id) ? { ...u, acted: true } : u))
       );
 
       if (!firstTurnUsed) {
@@ -454,10 +469,10 @@ function BattlefieldCombat() {
       }
     } else {
       // Enemy attack with similar timing
-      const attacker = enemyUnits.find((u) => u.id === attackerId);
+      const attacker = enemyUnits.find((u) => u.instanceId === attackerId || u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
-      const target = playerUnits.find((u) => u.id === targetId);
+      const target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
       if (!target) return;
 
       // Add to action log with new format
@@ -475,13 +490,13 @@ function BattlefieldCombat() {
       setDamagedUnitId(null);
 
       // Start attack animation immediately
-      setAnimatingUnitId(attackerId);
+      setAnimatingUnitId(attacker.instanceId || attacker.id);
 
       setTimeout(() => {
-        setDamagedUnitId(targetId);
+        setDamagedUnitId(target.instanceId || target.id);
         setPlayerUnits((prev) =>
           prev.map((unit) => {
-            if (unit.id === targetId && !unit.isDead) {
+            if ((unit.instanceId === target.instanceId || unit.id === target.id) && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
 
               if (newHP <= 0) {
@@ -515,7 +530,7 @@ function BattlefieldCombat() {
       }, 250);
 
       setEnemyUnits((prev) =>
-        prev.map((u) => (u.id === attackerId ? { ...u, acted: true } : u))
+        prev.map((u) => ((u.instanceId === attacker.instanceId || u.id === attacker.id) ? { ...u, acted: true } : u))
       );
     }
   }
@@ -556,10 +571,10 @@ function BattlefieldCombat() {
   function handleAbilityUse(unitId) {
     if (gameOver) return;
 
-    const unit = playerUnits.find(u => u.id === unitId);
+    const unit = playerUnits.find(u => u.instanceId === unitId || u.id === unitId);
     if (!unit || unit.acted || unit.isDead || unit.ability.currentCooldown > 0) return;
 
-    setAnimatingUnitId(unitId);
+    setAnimatingUnitId(unit.instanceId || unit.id);
     setAnimatingAbility(true);
 
     // Track if this ability requires targeting
@@ -632,7 +647,7 @@ function BattlefieldCombat() {
           // Set ability on cooldown
           setPlayerUnits(prev =>
             prev.map(u => {
-              if (u.id === unitId) {
+              if (u.instanceId === unitId || u.id === unitId) {
                 return {
                   ...u,
                   acted: true,
@@ -713,7 +728,7 @@ function BattlefieldCombat() {
         
         if (primaryTarget) {
           // Find index of primary target to determine adjacent enemies
-          const primaryTargetIndex = enemyUnits.findIndex(enemy => enemy.id === primaryTarget.id);
+          const primaryTargetIndex = enemyUnits.findIndex(enemy => enemy.instanceId === primaryTarget.instanceId || enemy.id === primaryTarget.id);
           
           // Get adjacent enemies (ones to the left and right of the primary target)
           // Only include non-dead adjacent enemies
@@ -741,7 +756,7 @@ function BattlefieldCombat() {
               setEnemyUnits(prev => 
                 prev.map(enemy => {
                   // Check if this enemy is one of our targets
-                  const isTarget = allTargets.some(target => target.id === enemy.id);
+                  const isTarget = allTargets.some(target => target.instanceId === enemy.instanceId || target.id === enemy.id);
                   
                   if (isTarget && !enemy.isDead) {
                     // Apply damage equal to the caster's attack
@@ -800,7 +815,7 @@ function BattlefieldCombat() {
               // Set ability on cooldown
               setPlayerUnits(prev =>
                 prev.map(u => {
-                  if (u.id === unitId) {
+                  if (u.instanceId === unitId || u.id === unitId) {
                     return {
                       ...u,
                       acted: true,
@@ -888,7 +903,7 @@ function BattlefieldCombat() {
     if (gameOver) return;
 
     if (team === "player") {
-      const unit = playerUnits.find(u => u.id === unitId);
+      const unit = playerUnits.find(u => u.instanceId === unitId || u.id === unitId);
       if (!unit) return;
 
       addToActionLog({
@@ -898,7 +913,7 @@ function BattlefieldCombat() {
       });
 
       setPlayerUnits((prev) =>
-        prev.map((u) => (u.id === unitId ? { ...u, acted: true } : u))
+        prev.map((u) => ((u.instanceId === unitId || u.id === unitId) ? { ...u, acted: true } : u))
       );
 
       if (!firstTurnUsed) {
@@ -906,7 +921,7 @@ function BattlefieldCombat() {
         endPlayerTurn();
       }
     } else {
-      const unit = enemyUnits.find(u => u.id === unitId);
+      const unit = enemyUnits.find(u => u.instanceId === unitId || u.id === unitId);
       if (!unit) return;
 
       addToActionLog({
@@ -916,7 +931,7 @@ function BattlefieldCombat() {
       });
 
       setEnemyUnits((prev) =>
-        prev.map((u) => (u.id === unitId ? { ...u, acted: true } : u))
+        prev.map((u) => ((u.instanceId === unitId || u.id === unitId) ? { ...u, acted: true } : u))
       );
     }
   }
@@ -1142,7 +1157,7 @@ function BattlefieldCombat() {
           // Process the CC effect - reduce duration
           setEnemyUnits(prev => 
             prev.map(unit => {
-              if (unit.id === enemy.id) {
+              if (unit.instanceId === enemy.instanceId || unit.id === enemy.id) {
                 const updatedStatusEffects = unit.statusEffects.map(effect => {
                   // Only reduce duration for the CC effect that caused the skip
                   if (effect.type === ccEffect.type) {
@@ -1193,7 +1208,7 @@ function BattlefieldCombat() {
 
       // Let each active enemy unit do a basic attack on the first alive player unit, then end turn
       const alivePlayerUnits = playerUnits.filter((u) => !u.isDead);
-      const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].id : null;
+      const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].instanceId || alivePlayerUnits[0].id : null;
 
       if (targetId && activeEnemies.length > 0) {
         const performEnemyAttack = (index) => {
@@ -1207,9 +1222,9 @@ function BattlefieldCombat() {
             return;
           }
 
-          setCurrentlyAttacking(enemy.id);
+          setCurrentlyAttacking(enemy.instanceId || enemy.id);
           setTimeout(() => {
-            handleBasicAttack("enemy", enemy.id, targetId);
+            handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
             // Move to next enemy after attack
             setTimeout(() => {
               performEnemyAttack(index + 1);
@@ -1279,7 +1294,7 @@ function BattlefieldCombat() {
         // Process the CC effect - reduce duration
         setPlayerUnits(prev => 
           prev.map(u => {
-            if (u.id === unit.id) {
+            if (u.instanceId === unit.instanceId || u.id === unit.id) {
               const updatedStatusEffects = u.statusEffects.map(effect => {
                 // Only reduce duration for the CC effect that caused the skip
                 if (effect.type === ccEffect.type) {
@@ -1343,7 +1358,7 @@ function BattlefieldCombat() {
               // Update the player units to heal and cleanse status effects
               setPlayerUnits(prev =>
                 prev.map(ally => {
-                  if (ally.id === unit.id) {
+                  if (ally.instanceId === unit.instanceId || ally.id === unit.id) {
                     // Calculate new HP with healing
                     const newHP = Math.min(ally.hp + 8, ally.maxHP);
                     
@@ -1392,7 +1407,7 @@ function BattlefieldCombat() {
               // Set ability on cooldown and mark caster as acted
               setPlayerUnits(prev =>
                 prev.map(u => {
-                  if (u.id === caster.id) {
+                  if (u.instanceId === caster.instanceId || u.id === caster.id) {
                     return {
                       ...u,
                       acted: true,
@@ -1472,7 +1487,7 @@ function BattlefieldCombat() {
               // Then, grant the ally a temporary damage buff
               setPlayerUnits(prev => 
                 prev.map(ally => {
-                  if (ally.id === unit.id) {
+                  if (ally.instanceId === unit.instanceId || ally.id === unit.id) {
                     // Add buff to log entry
                     sanguinePactLogEntry.targets.push({
                       unit: ally.name,
@@ -1565,7 +1580,7 @@ function BattlefieldCombat() {
               // Apply damage and stun effect to the target
               setEnemyUnits(prev =>
                 prev.map(enemy => {
-                  if (enemy.id === unit.id) {
+                  if (enemy.instanceId === unit.instanceId) {
                     const newHP = enemy.hp - caster.damage;
                     const newStatusEffects = [...enemy.statusEffects];
                     
@@ -1608,7 +1623,7 @@ function BattlefieldCombat() {
               // Set ability on cooldown and mark caster as acted
               setPlayerUnits(prev =>
                 prev.map(u => {
-                  if (u.id === caster.id) {
+                  if (u.instanceId === caster.instanceId || u.id === caster.id) {
                     return {
                       ...u,
                       acted: true,
@@ -1662,7 +1677,7 @@ function BattlefieldCombat() {
     }
 
     if (team === "player") {
-      if (selectedPlayerUnit?.id === unit.id) {
+      if (selectedPlayerUnit?.instanceId === unit.instanceId) {
         // Deselect if clicking the same unit
         setSelectedPlayerUnit(null);
       } else if (activeTeam === "player" && !unit.acted && !unit.isDead) {
@@ -1671,7 +1686,7 @@ function BattlefieldCombat() {
         setSelectedEnemyUnit(null);
       }
     } else if (team === "enemy") {
-      if (selectedEnemyUnit?.id === unit.id) {
+      if (selectedEnemyUnit?.instanceId === unit.instanceId) {
         // Deselect if clicking the same unit
         setSelectedEnemyUnit(null);
       } else {
@@ -1737,17 +1752,17 @@ function BattlefieldCombat() {
       <div className="unit-list">
         {units.map((unit) => (
           <UnitCard
-            key={unit.id}
+            key={unit.instanceId || unit.id}
             unit={unit}
             team={team}
             isSelected={
-              (team === "player" && selectedPlayerUnit?.id === unit.id) ||
-              (team === "enemy" && selectedEnemyUnit?.id === unit.id)
+              (team === "player" && selectedPlayerUnit?.instanceId === unit.instanceId) ||
+              (team === "enemy" && selectedEnemyUnit?.instanceId === unit.instanceId)
             }
-            isAttacking={attackingUnit?.id === unit.id}
+            isAttacking={attackingUnit?.instanceId === unit.instanceId}
             className={`
-              ${animatingUnitId === unit.id ? (animatingAbility ? 'using-ability' : 'attacking') : ''}
-              ${damagedUnitId === unit.id ? 'taking-damage' : ''}
+              ${animatingUnitId === unit.instanceId ? (animatingAbility ? 'using-ability' : 'attacking') : ''}
+              ${damagedUnitId === unit.instanceId ? 'taking-damage' : ''}
               ${selectedEnemyUnit && attackingUnit ? 'target-selected' : ''}
             `}
             onClick={() => handleUnitClick(unit, team)}
@@ -1796,7 +1811,7 @@ function BattlefieldCombat() {
               {activeTeam === "player"
                 ? "Your Turn"
                 : currentlyAttacking
-                  ? `${enemyUnits.find(u => u.id === currentlyAttacking)?.name} is attacking!`
+                  ? `${enemyUnits.find(u => u.instanceId === currentlyAttacking || u.id === currentlyAttacking)?.name} is attacking!`
                   : "Enemy Turn"
               }
             </span>
@@ -1878,9 +1893,9 @@ function BattlefieldCombat() {
         {/* Show status effects on units */}
         {playerUnits.concat(enemyUnits).map(unit =>
           unit.statusEffects && unit.statusEffects.length > 0 && (
-            <div key={`status-${unit.id}`} className="status-effects">
+            <div key={`status-${unit.instanceId || unit.id}`} className="status-effects">
               {unit.statusEffects.map((effect, idx) => (
-                <div key={`${unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
+                <div key={`${unit.instanceId || unit.id}-effect-${idx}`} className={`status-effect ${effect.type}`}>
                   {effect.icon}
                 </div>
               ))}
