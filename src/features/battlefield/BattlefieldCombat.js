@@ -426,7 +426,8 @@ function BattlefieldCombat() {
         setDamagedUnitId(target.instanceId || target.id);
         setEnemyUnits((prev) =>
           prev.map((unit) => {
-            if ((unit.instanceId === target.instanceId || unit.id === target.id) && !unit.isDead) {
+            // Important fix: only compare instanceId, not the original id
+            if (unit.instanceId === target.instanceId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
 
               if (newHP <= 0) {
@@ -460,7 +461,7 @@ function BattlefieldCombat() {
       }, 250);
 
       setPlayerUnits((prev) =>
-        prev.map((u) => ((u.instanceId === attacker.instanceId || u.id === attacker.id) ? { ...u, acted: true } : u))
+        prev.map((u) => ((u.instanceId === attacker.instanceId) ? { ...u, acted: true } : u))
       );
 
       if (!firstTurnUsed) {
@@ -496,7 +497,8 @@ function BattlefieldCombat() {
         setDamagedUnitId(target.instanceId || target.id);
         setPlayerUnits((prev) =>
           prev.map((unit) => {
-            if ((unit.instanceId === target.instanceId || unit.id === target.id) && !unit.isDead) {
+            // Important fix: only compare instanceId, not the original id
+            if (unit.instanceId === target.instanceId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
 
               if (newHP <= 0) {
@@ -530,7 +532,7 @@ function BattlefieldCombat() {
       }, 250);
 
       setEnemyUnits((prev) =>
-        prev.map((u) => ((u.instanceId === attacker.instanceId || u.id === attacker.id) ? { ...u, acted: true } : u))
+        prev.map((u) => ((u.instanceId === attacker.instanceId) ? { ...u, acted: true } : u))
       );
     }
   }
