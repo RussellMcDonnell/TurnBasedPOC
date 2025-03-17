@@ -20,7 +20,7 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
           </button>
         )}
         
-        <div className="unit-stats">
+        <div className="sidebar-unit-stats">
           <p>HP: {unit.hp}/{unit.maxHP}</p>
           <p>Damage: {unit.damage}</p>
         </div>
