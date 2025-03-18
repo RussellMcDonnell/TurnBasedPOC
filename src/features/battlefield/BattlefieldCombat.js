@@ -1159,7 +1159,8 @@ function BattlefieldCombat() {
           // Process the CC effect - reduce duration
           setEnemyUnits(prev => 
             prev.map(unit => {
-              if (unit.instanceId === enemy.instanceId || unit.id === enemy.id) {
+              // Make sure we only affect this specific enemy instance
+              if (unit.instanceId === enemy.instanceId) {
                 const updatedStatusEffects = unit.statusEffects.map(effect => {
                   // Only reduce duration for the CC effect that caused the skip
                   if (effect.type === ccEffect.type) {
