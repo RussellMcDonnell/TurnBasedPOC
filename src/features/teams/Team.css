@@ -421,20 +421,6 @@
   border-color: white;
 }
 
-/* Unit stats in team cards */
-.unit-card .unit-stats {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.unit-card .stat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
-}
 
 /* Team Builder section (for TeamEditor) */
 .team-builder-container {

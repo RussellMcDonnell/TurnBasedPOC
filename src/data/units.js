@@ -130,7 +130,7 @@ export const units = {
     damage: 0,
     image: willowispArt,
     fullArt: willowispArt,
-    keywords: ["LastStand"],
+    keywords: ["Last Stand"],
     ability: {
       name: "Alluring Glow",
       icon: "💫",
