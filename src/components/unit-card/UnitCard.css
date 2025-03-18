@@ -10,6 +10,22 @@
   justify-content: space-between;
 }
 
+/* Unit image styling - added to center images consistently */
+.unit-image {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.unit-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .status-indicators {
   position: absolute;
   bottom: 5px;
