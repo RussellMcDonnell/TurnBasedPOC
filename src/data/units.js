@@ -118,7 +118,7 @@ export const units = {
     ability: {
       name: "Trickster's Tangle",
       icon: "🌀",
-      description: "Confuses a target, making them attack a random target for 1 turn.",
+      description: "Confuses a target, making them use their next action to attack a random ally or enemy target.",
       maxCooldown: 3,
     },
     type: "enemy"

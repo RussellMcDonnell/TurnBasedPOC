@@ -1105,7 +1105,7 @@ function BattlefieldCombat() {
           hp: Math.max(0, unitHP),
           isDead: isDead,
           statusEffects: [
-            ...ccEffects, // Keep CC effects unchanged
+            ...updatedStatusEffects, // Keep CC effects unchanged
             ...dotEffects.filter(effect => effect.duration > 0) // Only keep active DoT effects
           ]
         };
@@ -1235,6 +1235,9 @@ function BattlefieldCombat() {
               } else if (enemy.name === "Wood Sprite" && enemy.ability.name === "Rejuvenating Spores") {
                 // Execute the Rejuvenating Spores ability
                 handleWoodSpriteHealing(enemy);
+              } else if (enemy.name === "Pixie Trickster" && enemy.ability.name === "Trickster's Tangle") {
+                // Execute the Trickster's Tangle ability
+                handleTrickstersTangle(enemy, targetId);
               } else {
                 // Default to basic attack for other units or abilities
                 handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
@@ -1259,6 +1262,99 @@ function BattlefieldCombat() {
       }
     }
   }, [activeTeam, gameOver]);
+
+  // Add function to handle Pixie Trickster's ability to confuse a target
+  function handleTrickstersTangle(pixie, targetId) {
+    // Find the target player unit
+    const target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
+    if (!target) return;
+
+    // Create a log entry for the Pixie ability
+    const tangleLogEntry = {
+      unit: pixie.name,
+      type: "ability",
+      abilityName: pixie.ability.name,
+      targets: [{
+        unit: target.name,
+        Damage: "0",
+        Status: "Confused"
+      }]
+    };
+
+    // Add animation
+    setAnimatingUnitId(pixie.instanceId || pixie.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${pixie.name} casts ${pixie.ability.name} on ${target.name}!`,
+      type: "ability"
+    });
+
+    // Apply the confusion status effect to the target after a short delay
+    setTimeout(() => {
+      // Apply confusion effect to target
+      setPlayerUnits(prev =>
+        prev.map(unit => {
+          if (unit.instanceId === target.instanceId || unit.id === target.id) {
+            const newStatusEffects = [...unit.statusEffects];
+            
+            // Remove any existing confusion effect first to avoid stacking
+            const existingConfusedIndex = newStatusEffects.findIndex(effect => effect.type === "confused");
+            if (existingConfusedIndex !== -1) {
+              newStatusEffects.splice(existingConfusedIndex, 1);
+            }
+            
+            // Add the confused effect
+            newStatusEffects.push({
+              type: "confused",
+              name: "Confused",
+              icon: "🌀",
+              duration: 1
+            });
+            
+            // Log the effect application
+            addToActionLog({
+              text: `${target.name} is confused by ${pixie.ability.name}!`,
+              type: "status"
+            });
+            
+            return {
+              ...unit,
+              statusEffects: newStatusEffects
+            };
+          }
+          return unit;
+        })
+      );
+
+      // Add the complete ability log
+      addToActionLog(tangleLogEntry);
+      
+      // Set ability on cooldown
+      setEnemyUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === pixie.instanceId || u.id === pixie.id) {
+            return {
+              ...u,
+              acted: true,
+              ability: u.ability ? {
+                ...u.ability,
+                currentCooldown: u.ability.maxCooldown
+              } : null
+            };
+          }
+          return u;
+        })
+      );
+
+      // Clear animations
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setAnimatingAbility(false);
+      }, 800);
+    }, 500);
+  }
 
   // Add function to handle Wood Sprite's healing ability
   function handleWoodSpriteHealing(woodSprite) {
@@ -1482,9 +1578,12 @@ function BattlefieldCombat() {
       // Check if unit has stun/freeze effect
       const hasCCEffect = unit.statusEffects?.some(effect => 
         effect.type === "stunned" || effect.type === "frozen");
+      
+      // Check if unit is confused
+      const isConfused = unit.statusEffects?.some(effect => effect.type === "confused");
         
       if (hasCCEffect && !unit.acted) {
-        // Find the CC effect
+        // Find the CC effect (stunned/frozen)
         const ccEffect = unit.statusEffects.find(e => 
           e.type === "stunned" || e.type === "frozen");
         
@@ -1531,6 +1630,137 @@ function BattlefieldCombat() {
         
         // Don't allow selection of CC'd unit
         return;
+      } else if (isConfused && !unit.acted) {
+        // Handle confused unit's selection - completely reworked this section
+        
+        // First, select and show the unit is selected
+        setSelectedPlayerUnit(unit);
+        
+        addToActionLog({
+          text: `${unit.name} is confused and will attack randomly!`,
+          type: "status"
+        });
+        
+        // Choose a random target (can be any player or enemy unit except self)
+        const allPossibleTargets = [
+          ...playerUnits.filter(u => !u.isDead && u.instanceId !== unit.instanceId), 
+          ...enemyUnits.filter(u => !u.isDead)
+        ];
+        
+        if (allPossibleTargets.length > 0) {
+          // Select a random target
+          const randomIndex = Math.floor(Math.random() * allPossibleTargets.length);
+          const randomTarget = allPossibleTargets[randomIndex];
+          
+          // Log the random attack selection
+          addToActionLog({
+            text: `Confused ${unit.name} randomly attacks ${randomTarget.name}!`,
+            type: "attack"
+          });
+          
+          // Set attacking unit for UI feedback
+          setAttackingUnit(unit);
+          
+          // Execute the attack after a delay
+          setTimeout(() => {
+            // Check if target is from player team or enemy team
+            const isTargetAlly = playerUnits.some(u => u.instanceId === randomTarget.instanceId);
+            
+            if (isTargetAlly) {
+              // Attack ally with friendly fire
+              handleFriendlyFire(unit.id, randomTarget.id);
+            } else {
+              // Attack enemy with regular attack
+              handleBasicAttack("player", unit.id, randomTarget.id);
+            }
+            
+            // Now that the action is complete, process the confusion effect's duration
+            setTimeout(() => {
+              // Only update the status effect, the unit has already been marked as acted
+              setPlayerUnits(prev => 
+                prev.map(u => {
+                  if (u.instanceId === unit.instanceId) {
+                    // Update the statusEffects array
+                    const updatedStatusEffects = u.statusEffects.map(effect => {
+                      // Only process confusion effect
+                      if (effect.type === "confused") {
+                        const newDuration = effect.duration - 1;
+                        
+                        // Log if the effect expires
+                        if (newDuration === 0) {
+                          addToActionLog({
+                            text: `${effect.name} effect on ${unit.name} has worn off`,
+                            type: "status"
+                          });
+                        }
+                        
+                        return {
+                          ...effect,
+                          duration: newDuration
+                        };
+                      }
+                      return effect;
+                    }).filter(effect => effect.duration > 0);
+                    
+                    return {
+                      ...u,
+                      statusEffects: updatedStatusEffects
+                    };
+                  }
+                  return u;
+                })
+              );
+              
+              // Clear selection and attacking status
+              setSelectedPlayerUnit(null);
+              setAttackingUnit(null);
+            }, 500);
+          }, 1000);
+        } else {
+          // No valid targets, skip turn
+          handleSkip("player", unit.id);
+          
+          // Process the confused effect duration after skipping
+          setTimeout(() => {
+            setPlayerUnits(prev => 
+              prev.map(u => {
+                if (u.instanceId === unit.instanceId) {
+                  const updatedStatusEffects = u.statusEffects
+                    .map(effect => {
+                      if (effect.type === "confused") {
+                        const newDuration = effect.duration - 1;
+                        
+                        // Log if the effect expires
+                        if (newDuration === 0) {
+                          addToActionLog({
+                            text: `${effect.name} effect on ${unit.name} has worn off`,
+                            type: "status"
+                          });
+                        }
+                        
+                        return {
+                          ...effect,
+                          duration: newDuration
+                        };
+                      }
+                      return effect;
+                    })
+                    .filter(effect => effect.duration > 0);
+                  
+                  return {
+                    ...u,
+                    statusEffects: updatedStatusEffects
+                  };
+                }
+                return u;
+              })
+            );
+            
+            setSelectedPlayerUnit(null);
+          }, 500);
+        }
+        
+        return; // Exit early to prevent normal unit selection
       }
     }
 
@@ -1898,6 +2128,76 @@ function BattlefieldCombat() {
       }
     }
   };
+
+  // Function to handle friendly fire between player units - Modified to fix confusion issues
+  function handleFriendlyFire(attackerId, targetId) {
+    const attacker = playerUnits.find(u => u.instanceId === attackerId || u.id === attackerId);
+    const target = playerUnits.find(u => u.instanceId === targetId || u.id === targetId);
+    
+    if (!attacker || !target || target.isDead) return;
+    
+    // Add to action log with new friendly fire format
+    addToActionLog({
+      unit: attacker.name,
+      type: "friendly-fire",
+      targets: [{
+        unit: target.name,
+        Damage: attacker.damage.toString()
+      }]
+    });
+
+    // Clear any existing animations
+    setAnimatingUnitId(null);
+    setDamagedUnitId(null);
+
+    // Start attack animation immediately
+    setAnimatingUnitId(attacker.instanceId || attacker.id);
+
+    // Apply damage after animation starts
+    setTimeout(() => {
+      setDamagedUnitId(target.instanceId || target.id);
+      
+      // Apply damage to player target AND mark attacker as acted in a single update
+      setPlayerUnits((prev) =>
+        prev.map((unit) => {
+          if (unit.instanceId === target.instanceId) {
+            const newHP = unit.hp - attacker.damage;
+
+            if (newHP <= 0) {
+              addToActionLog({
+                text: `${unit.name} is defeated by friendly fire!`,
+                type: "defeat"
+              });
+            }
+
+            return {
+              ...unit,
+              hp: Math.max(0, newHP),
+              isDead: newHP <= 0
+            };
+          } else if (unit.instanceId === attacker.instanceId) {
+            // Mark attacker as having acted
+            return {
+              ...unit,
+              acted: true
+            };
+          }
+          return unit;
+        })
+      );
+
+      // Clear animations after damage
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setDamagedUnitId(null);
+      }, 500);
+    }, 250);
+
+    if (!firstTurnUsed) {
+      setFirstTurnUsed(true);
+      endPlayerTurn();
+    }
+  }
 
   // Handle action selection from sidebar
   const handleAction = (action) => {
