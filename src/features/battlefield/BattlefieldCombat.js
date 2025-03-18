@@ -1227,14 +1227,20 @@ function BattlefieldCombat() {
 
           setCurrentlyAttacking(enemy.instanceId || enemy.id);
           setTimeout(() => {
-            // Check if this enemy has an ability and is a willowisp
-            if (enemy.name === "Will-o'-the-Wisps" && enemy.ability && enemy.ability.name === "Alluring Glow" && 
-                enemy.ability.currentCooldown === 0) {
-              
-              // Execute the Alluring Glow ability
-              handleEnemyAbilityUse(enemy, targetId);
+            // Check if this enemy has an ability to use
+            if (enemy.ability && enemy.ability.currentCooldown === 0) {
+              if (enemy.name === "Will-o'-the-Wisps" && enemy.ability.name === "Alluring Glow") {
+                // Execute the Alluring Glow ability
+                handleEnemyAbilityUse(enemy, targetId);
+              } else if (enemy.name === "Wood Sprite" && enemy.ability.name === "Rejuvenating Spores") {
+                // Execute the Rejuvenating Spores ability
+                handleWoodSpriteHealing(enemy);
+              } else {
+                // Default to basic attack for other units or abilities
+                handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
+              }
             } else {
-              // Perform a basic attack
+              // No ability or on cooldown, perform a basic attack
               handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
             }
             
@@ -1253,6 +1259,103 @@ function BattlefieldCombat() {
       }
     }
   }, [activeTeam, gameOver]);
+
+  // Add function to handle Wood Sprite's healing ability
+  function handleWoodSpriteHealing(woodSprite) {
+    // Create a log entry for the Wood Sprite ability
+    const sporesLogEntry = {
+      unit: woodSprite.name,
+      type: "ability",
+      abilityName: woodSprite.ability.name,
+      targets: []
+    };
+
+    // Add animation
+    setAnimatingUnitId(woodSprite.instanceId || woodSprite.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${woodSprite.name} releases ${woodSprite.ability.name}!`,
+      type: "ability"
+    });
+
+    // Apply the healing effect to all allies after a short delay
+    setTimeout(() => {
+      // Get all enemy units that are allies of the Wood Sprite (excluding itself)
+      const aliveAllies = enemyUnits.filter(unit => 
+        !unit.isDead && 
+        (unit.instanceId !== woodSprite.instanceId && unit.id !== woodSprite.id)
+      );
+      
+      if (aliveAllies.length > 0) {
+        // Apply healing to all allies
+        setEnemyUnits(prev =>
+          prev.map(ally => {
+            // Only heal units that aren't dead
+            if (!ally.isDead) {
+              // Calculate new HP with healing (capped at maxHP)
+              const healAmount = 2; // Heal for 2 HP
+              const newHP = Math.min(ally.hp + healAmount, ally.maxHP);
+              
+              // Add to the ability log if healing was applied
+              if (newHP > ally.hp) {
+                sporesLogEntry.targets.push({
+                  unit: ally.name,
+                  Damage: `-${healAmount}`, // Negative damage indicates healing
+                  Status: "Healed"
+                });
+                
+                // Log the healing
+                addToActionLog({
+                  text: `${ally.name} is healed for ${healAmount} HP by ${woodSprite.ability.name}`,
+                  type: "heal"
+                });
+              }
+              
+              return {
+                ...ally,
+                hp: newHP
+              };
+            }
+            return ally;
+          })
+        );
+        
+        // Add the complete ability log
+        addToActionLog(sporesLogEntry);
+      } else {
+        // No valid allies to heal
+        addToActionLog({
+          text: `${woodSprite.name} uses ${woodSprite.ability.name}, but there are no allies to heal!`,
+          type: "ability"
+        });
+      }
+      
+      // Set ability on cooldown
+      setEnemyUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === woodSprite.instanceId || u.id === woodSprite.id) {
+            return {
+              ...u,
+              acted: true,
+              ability: u.ability ? {
+                ...u.ability,
+                currentCooldown: u.ability.maxCooldown
+              } : null
+            };
+          }
+          return u;
+        })
+      );
+
+      // Clear animations
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setAnimatingAbility(false);
+      }, 800);
+    }, 500);
+  }
 
   // Add new function to handle enemy ability usage
   function handleEnemyAbilityUse(enemy, targetId) {

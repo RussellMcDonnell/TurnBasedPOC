@@ -114,7 +114,7 @@ export const units = {
     damage: 2,
     image: pixieTricksterArt,
     fullArt: pixieTricksterArt,
-    keywords: ["Ranged, Poisonous"],
+    keywords: ["Ranged", "Poisonous"],
     ability: {
       name: "Trickster's Tangle",
       icon: "🌀",
@@ -169,7 +169,7 @@ export const units = {
     damage: 4,
     image: direWolfArt,
     fullArt: direWolfArt,
-    keywords: ["Melee, First Strike"],
+    keywords: ["Melee", "First Strike"],
     ability: {
       name: "Pack Hunter",
       icon: "🐺",
@@ -185,6 +185,7 @@ export const units = {
     damage: 3,
     image: grassGolemArt,
     fullArt: grassGolemArt,
+    keywords: ["Melee", "Taunt", "Renew"],
     ability: {
       name: "Thorny Shield",
       icon: "🛡️",
@@ -201,6 +202,7 @@ export const units = {
     damage: 3,
     image: sunflowerSentinelArt,
     fullArt: sunflowerSentinelArt,
+    keywords: ["Ranged", "Poisonous"],
     ability: {
       name: "Petal Barrage",
       icon: "🌻",
@@ -217,6 +219,7 @@ export const units = {
     damage: 3,
     image: windfoxArt,
     fullArt: windfoxArt,
+    keywords: ["Melee", "Preemptive Strike"],
     ability: {
       name: "Windstrike",
       icon: "💨",
@@ -233,6 +236,7 @@ export const units = {
     damage: 2,
     image: plainsShamanArt,
     fullArt: plainsShamanArt,
+    keywords: ["Ranged"],
     ability: {
       name: "Healing Spring",
       icon: "💧",
@@ -249,6 +253,7 @@ export const units = {
     damage: 4,
     image: nomadRaiderArt,
     fullArt: nomadRaiderArt,
+    keywords: ["Melee"],
     ability: {
       name: "Raider's Charge",
       icon: "⚔️",
@@ -265,6 +270,7 @@ export const units = {
     damage: 6,
     image: elderTreantArt,
     fullArt: elderTreantArt,
+    keywords: ["Melee", "Armored", "Taunt", "Renew"],
     ability: {
       name: "Forest's Wrath",
       icon: "🌳",
@@ -281,6 +287,7 @@ export const units = {
     damage: 5,
     image: feyQueenArt,
     fullArt: feyQueenArt,
+    keywords: ["Ranged", "Poisonous"],
     ability: {
       name: "Nature's Aid",
       icon: "🌿",
@@ -297,6 +304,7 @@ export const units = {
     damage: 7,
     image: lordOfPrideArt,
     fullArt: lordOfPrideArt,
+    keywords: ["Melee", "Preemptive Strike", "Blood Rage"],
     ability: {
       name: "Roar of the Wild",
       icon: "🦁",
