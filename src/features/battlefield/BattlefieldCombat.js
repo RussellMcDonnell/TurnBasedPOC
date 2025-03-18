@@ -17,16 +17,16 @@ function BattlefieldCombat() {
   const location = useLocation();
   const levelData = location.state;
   const isCampaignMode = levelData?.gameMode === 'campaign';
-  
+
   // Get background image from campaign data or use default
-  const backgroundImage = levelData.level?.battlegroundBackground 
-    ? levelData.level.battlegroundBackground 
+  const backgroundImage = levelData.level?.battlegroundBackground
+    ? levelData.level.battlegroundBackground
     : dragonsLairBg;
-  
+
   // Add team context hook
   const { getActiveCampaignTeam } = useTeams();
   const [isInGame, setIsInGame] = useState(false);
-  
+
   // Initialize enemy team based on campaign data or default
   const [selectedEnemyTeam, setSelectedEnemyTeam] = useState(() => {
     if (isCampaignMode && levelData.level && levelData.level.enemyTeam) {
@@ -150,7 +150,7 @@ function BattlefieldCombat() {
         text: `Beginning ${level.title} - ${level.difficulty} Difficulty`,
         type: "campaign"
       });
-      
+
       addToActionLog({
         text: `Enemy Team: ${level.enemyTeam}`,
         type: "normal"
@@ -683,13 +683,13 @@ function BattlefieldCombat() {
         // Set ability mode to allow player to select an enemy target
         requiresTargetSelection = true;
         setUsingAbility(true);
-        
+
         // Add a message to the action log to guide the player
         addToActionLog({
           text: `Select an enemy to stun with ${unit.ability.name}`,
           type: "normal"
         });
-        
+
         // The ability execution will happen when the player clicks an enemy
         break;
 
@@ -705,13 +705,13 @@ function BattlefieldCombat() {
         // Set ability mode to allow player to select an ally target
         requiresTargetSelection = true;
         setUsingAbility(true);
-        
+
         // Add a message to the action log to guide the player
         addToActionLog({
           text: `Select an ally to heal and remove negative status effects`,
           type: "normal"
         });
-        
+
         // The ability execution will happen when the player clicks an ally
         break;
 
@@ -723,53 +723,53 @@ function BattlefieldCombat() {
           abilityName: unit.ability.name,
           targets: []
         };
-        
+
         // For simplicity, choose the first non-dead enemy as the primary target
         // In a complete implementation, this would allow player to choose the target
         const primaryTarget = enemyUnits.find(enemy => !enemy.isDead);
-        
+
         if (primaryTarget) {
           // Find index of primary target to determine adjacent enemies
           const primaryTargetIndex = enemyUnits.findIndex(enemy => enemy.instanceId === primaryTarget.instanceId || enemy.id === primaryTarget.id);
-          
+
           // Get adjacent enemies (ones to the left and right of the primary target)
           // Only include non-dead adjacent enemies
           const adjacentEnemies = [];
-          
+
           // Check enemy to the left
           if (primaryTargetIndex > 0 && !enemyUnits[primaryTargetIndex - 1].isDead) {
             adjacentEnemies.push(enemyUnits[primaryTargetIndex - 1]);
           }
-          
+
           // Check enemy to the right
           if (primaryTargetIndex < enemyUnits.length - 1 && !enemyUnits[primaryTargetIndex + 1].isDead) {
             adjacentEnemies.push(enemyUnits[primaryTargetIndex + 1]);
           }
-          
+
           // All targets (primary + adjacent)
           const allTargets = [primaryTarget, ...adjacentEnemies];
-          
+
           // Visual effect: Create a meteor animation
           const meteorAnimation = () => {
             // This would be more elaborate in a full implementation
             // For now, we'll just set a timeout to simulate the animation
             setTimeout(() => {
               // Update enemy units to apply damage and burn effect
-              setEnemyUnits(prev => 
+              setEnemyUnits(prev =>
                 prev.map(enemy => {
                   // Check if this enemy is one of our targets
                   const isTarget = allTargets.some(target => target.instanceId === enemy.instanceId || target.id === enemy.id);
-                  
+
                   if (isTarget && !enemy.isDead) {
                     // Apply damage equal to the caster's attack
                     const newHP = enemy.hp - unit.damage;
-                    
+
                     // Create a new status effects array
                     const newStatusEffects = [...enemy.statusEffects];
-                    
+
                     // Add burn effect (avoiding duplicates)
                     const hasBurn = newStatusEffects.some(effect => effect.type === "burn");
-                    
+
                     if (!hasBurn) {
                       newStatusEffects.push({
                         type: "burn",
@@ -777,21 +777,21 @@ function BattlefieldCombat() {
                         icon: "🔥",
                         duration: 2 // Burn lasts for 2 turns
                       });
-                      
+
                       // Log status effect application
                       addToActionLog({
                         text: `${enemy.name} is now Burned!`,
                         type: "status"
                       });
                     }
-                    
+
                     // Add to ability log
                     shootingStarLogEntry.targets.push({
                       unit: enemy.name,
                       Damage: unit.damage.toString(),
                       Status: "Burned"
                     });
-                    
+
                     // Check if enemy is defeated
                     if (newHP <= 0) {
                       addToActionLog({
@@ -799,7 +799,7 @@ function BattlefieldCombat() {
                         type: "defeat"
                       });
                     }
-                    
+
                     return {
                       ...enemy,
                       hp: Math.max(0, newHP),
@@ -810,10 +810,10 @@ function BattlefieldCombat() {
                   return enemy;
                 })
               );
-              
+
               // Add the complete ability log
               addToActionLog(shootingStarLogEntry);
-              
+
               // Set ability on cooldown
               setPlayerUnits(prev =>
                 prev.map(u => {
@@ -830,7 +830,7 @@ function BattlefieldCombat() {
                   return u;
                 })
               );
-              
+
               // Clear animations
               setTimeout(() => {
                 setAnimatingUnitId(null);
@@ -838,23 +838,23 @@ function BattlefieldCombat() {
               }, 800);
             }, 600);
           };
-          
+
           // Start the meteor animation
           addToActionLog({
             text: `${unit.name} calls down a blazing meteor!`,
             type: "ability"
           });
-          
+
           // Execute animation after a delay
           setTimeout(meteorAnimation, 300);
-          
+
         } else {
           // No valid target
           addToActionLog({
             text: `${unit.name} has no valid target for ${unit.ability.name}`,
             type: "normal"
           });
-          
+
           setAnimatingUnitId(null);
           setAnimatingAbility(false);
         }
@@ -868,17 +868,17 @@ function BattlefieldCombat() {
           abilityName: unit.ability.name,
           targets: []
         };
-        
+
         // Set ability mode to allow player to select an ally target
         requiresTargetSelection = true;
         setUsingAbility(true);
-        
+
         // Add a message to the action log to guide the player
         addToActionLog({
           text: `Select an ally to empower with blood magic`,
           type: "normal"
         });
-        
+
         // The ability execution will happen when the player clicks an ally
         break;
 
@@ -890,7 +890,7 @@ function BattlefieldCombat() {
 
     // Set first turn as used if it's the first turn
     if (!firstTurnUsed) {
-      
+
       // Only automatically end turn for abilities that don't require target selection
       if (!requiresTargetSelection) {
         setFirstTurnUsed(true);
@@ -975,21 +975,21 @@ function BattlefieldCombat() {
     setEnemyUnits(prev =>
       prev.map(unit => {
         if (unit.isDead) return unit;
-        
+
         let unitHP = unit.hp;
         const updatedStatusEffects = [...unit.statusEffects];
-        const dotEffects = updatedStatusEffects.filter(effect => 
+        const dotEffects = updatedStatusEffects.filter(effect =>
           effect.type === "burn" || effect.type === "poison");
-        const ccEffects = updatedStatusEffects.filter(effect => 
+        const ccEffects = updatedStatusEffects.filter(effect =>
           effect.type === "frozen" || effect.type === "stunned");
-        
+
         // Process DoT effects
         dotEffects.forEach(effect => {
           // Apply damage for DoT effects
           if (effect.type === "burn") {
             const burnDamage = 2; // Set burn damage value
             unitHP -= burnDamage;
-            
+
             addToActionLog({
               text: `${unit.name} takes ${burnDamage} burn damage`,
               type: "damage"
@@ -997,16 +997,16 @@ function BattlefieldCombat() {
           } else if (effect.type === "poison") {
             const poisonDamage = 1; // Set poison damage value
             unitHP -= poisonDamage;
-            
+
             addToActionLog({
               text: `${unit.name} takes ${poisonDamage} poison damage`,
               type: "damage"
             });
           }
-          
+
           // Reduce duration for DoT effects
           effect.duration -= 1;
-          
+
           // Log expired effects
           if (effect.duration === 0) {
             addToActionLog({
@@ -1015,7 +1015,7 @@ function BattlefieldCombat() {
             });
           }
         });
-        
+
         // Check if unit died from DoT
         const isDead = unitHP <= 0;
         if (isDead && !unit.isDead) {
@@ -1024,7 +1024,7 @@ function BattlefieldCombat() {
             type: "defeat"
           });
         }
-        
+
         return {
           ...unit,
           hp: Math.max(0, unitHP),
@@ -1050,21 +1050,21 @@ function BattlefieldCombat() {
     setPlayerUnits(prev =>
       prev.map(unit => {
         if (unit.isDead) return unit;
-        
+
         let unitHP = unit.hp;
         const updatedStatusEffects = [...unit.statusEffects];
-        const dotEffects = updatedStatusEffects.filter(effect => 
+        const dotEffects = updatedStatusEffects.filter(effect =>
           effect.type === "burn" || effect.type === "poison");
-        const ccEffects = updatedStatusEffects.filter(effect => 
-          effect.type === "frozen" || effect.type === "stunned");
-        
+        const ccEffects = updatedStatusEffects.filter(effect =>
+          effect.type === "frozen" || effect.type === "stunned" || effect.type === "confused");
+
         // Process DoT effects
         dotEffects.forEach(effect => {
           // Apply damage for DoT effects
           if (effect.type === "burn") {
             const burnDamage = 2; // Set burn damage value
             unitHP -= burnDamage;
-            
+
             addToActionLog({
               text: `${unit.name} takes ${burnDamage} burn damage`,
               type: "damage"
@@ -1072,16 +1072,16 @@ function BattlefieldCombat() {
           } else if (effect.type === "poison") {
             const poisonDamage = 1; // Set poison damage value
             unitHP -= poisonDamage;
-            
+
             addToActionLog({
               text: `${unit.name} takes ${poisonDamage} poison damage`,
               type: "damage"
             });
           }
-          
+
           // Reduce duration for DoT effects
           effect.duration -= 1;
-          
+
           // Log expired effects
           if (effect.duration === 0) {
             addToActionLog({
@@ -1090,7 +1090,7 @@ function BattlefieldCombat() {
             });
           }
         });
-        
+
         // Check if unit died from DoT
         const isDead = unitHP <= 0;
         if (isDead && !unit.isDead) {
@@ -1099,13 +1099,16 @@ function BattlefieldCombat() {
             type: "defeat"
           });
         }
-        
+
+        // Automatically process CC effects like stun, frozen, and confused at the start of player turn
+        processUnitStatusEffects(unit);
+
         return {
           ...unit,
           hp: Math.max(0, unitHP),
           isDead: isDead,
           statusEffects: [
-            ...updatedStatusEffects, // Keep CC effects unchanged
+            ...ccEffects, // Keep CC effects unchanged
             ...dotEffects.filter(effect => effect.duration > 0) // Only keep active DoT effects
           ]
         };
@@ -1113,6 +1116,195 @@ function BattlefieldCombat() {
     );
 
     addToActionLog("--- Player turn begins ---");
+  }
+
+  // New function to process player status effects automatically
+  function processUnitStatusEffects(unit) {
+    // Check if unit has status effects
+    if (!unit.statusEffects || unit.statusEffects.length === 0) return;
+
+    console.log("Processing unit:", unit.name, "with effects:", unit.statusEffects);
+
+    // Check for stun/freeze effects first
+    const stunEffect = unit.statusEffects.find(effect =>
+      effect.type === "stunned" || effect.type === "frozen"
+    );
+
+    if (stunEffect) {
+      // Process stun/freeze - unit skips turn
+      addToActionLog({
+        text: `${unit.name} is ${stunEffect.name} and skips their turn!`,
+        type: "status"
+      });
+
+      // Set the unit as acted and decrease status duration
+      setPlayerUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === unit.instanceId) {
+            // Update the statusEffects array
+            const updatedStatusEffects = u.statusEffects
+              .map(effect => {
+                if (effect.type === stunEffect.type) {
+                  const newDuration = effect.duration - 1;
+
+                  // Log if the effect expires
+                  if (newDuration === 0) {
+                    addToActionLog({
+                      text: `${effect.name} on ${u.name} has expired`,
+                      type: "status"
+                    });
+                  }
+
+                  return {
+                    ...effect,
+                    duration: newDuration
+                  };
+                }
+                return effect;
+              })
+              .filter(effect => effect.duration > 0);
+
+            return {
+              ...u,
+              acted: true, // Mark as having acted
+              statusEffects: updatedStatusEffects
+            };
+          }
+          return u;
+        })
+      );
+    } else {
+      // Check for confusion
+      const confusedEffect = unit.statusEffects.find(effect => effect.type === "confused");
+
+      if (confusedEffect) {
+        console.log("Found confused effect:", confusedEffect);
+        // Handle confused unit automatically
+        addToActionLog({
+          text: `${unit.name} is confused and will attack randomly!`,
+          type: "status"
+        });
+
+        // Choose a random target (can be any player or enemy unit except self)
+        const allPossibleTargets = [
+          ...playerUnits.filter(u => !u.isDead && u.instanceId !== unit.instanceId),
+          ...enemyUnits.filter(u => !u.isDead)
+        ];
+
+        console.log("Possible targets for confused unit:", allPossibleTargets);
+
+        if (allPossibleTargets.length > 0) {
+          // Select a random target
+          const randomIndex = Math.floor(Math.random() * allPossibleTargets.length);
+          const randomTarget = allPossibleTargets[randomIndex];
+
+          // Log the random attack selection
+          addToActionLog({
+            text: `Confused ${unit.name} randomly attacks ${randomTarget.name}!`,
+            type: "attack"
+          });
+
+          // Set attacking unit for UI feedback
+          setAnimatingUnitId(unit.instanceId || unit.id);
+
+          // Execute the attack after a delay
+          setTimeout(() => {
+            // Check if target is from player team or enemy team
+            const isTargetAlly = playerUnits.some(u => u.instanceId === randomTarget.instanceId);
+
+            if (isTargetAlly) {
+              // Attack ally with friendly fire
+              handleFriendlyFire(unit.id, randomTarget.id);
+            } else {
+              // Attack enemy with regular attack
+              handleBasicAttack("player", unit.id, randomTarget.id);
+            }
+
+            // Now that the action is complete, process the confusion effect's duration
+            setTimeout(() => {
+              // Only update the status effect, the unit has already been marked as acted
+              setPlayerUnits(prev =>
+                prev.map(u => {
+                  if (u.instanceId === unit.instanceId) {
+                    // Update the statusEffects array
+                    const updatedStatusEffects = u.statusEffects
+                      .map(effect => {
+                        // Only process confusion effect
+                        if (effect.type === "confused") {
+                          const newDuration = effect.duration - 1;
+
+                          // Log if the effect expires
+                          if (newDuration === 0) {
+                            addToActionLog({
+                              text: `${effect.name} on ${u.name} has expired`,
+                              type: "status"
+                            });
+                          }
+
+                          return {
+                            ...effect,
+                            duration: newDuration
+                          };
+                        }
+                        return effect;
+                      })
+                      .filter(effect => effect.duration > 0);
+
+                    return {
+                      ...u,
+                      statusEffects: updatedStatusEffects
+                    };
+                  }
+                  return u;
+                })
+              );
+
+              // Clear animation
+              setAnimatingUnitId(null);
+            }, 500);
+          }, 800);
+        } else {
+          // No valid targets, skip turn
+          handleSkip("player", unit.id);
+
+          // Process the confused effect duration after skipping
+          setTimeout(() => {
+            setPlayerUnits(prev =>
+              prev.map(u => {
+                if (u.instanceId === unit.instanceId) {
+                  const updatedStatusEffects = u.statusEffects
+                    .map(effect => {
+                      if (effect.type === "confused") {
+                        const newDuration = effect.duration - 1;
+
+                        if (newDuration === 0) {
+                          addToActionLog({
+                            text: `${effect.name} on ${u.name} has expired`,
+                            type: "status"
+                          });
+                        }
+
+                        return {
+                          ...effect,
+                          duration: newDuration
+                        };
+                      }
+                      return effect;
+                    })
+                    .filter(effect => effect.duration > 0);
+
+                  return {
+                    ...u,
+                    statusEffects: updatedStatusEffects
+                  };
+                }
+                return u;
+              })
+            );
+          }, 500);
+        }
+      }
+    }
   }
 
   // Reset the "acted" field so that each unit can act again in the new round
@@ -1137,8 +1329,8 @@ function BattlefieldCombat() {
     if (activeTeam === "enemy" && !gameOver) {
       // Check for enemies that should skip their turns (stunned or frozen)
       const skippingEnemies = enemyUnits.filter(
-        enemy => !enemy.isDead && 
-          !enemy.acted && 
+        enemy => !enemy.isDead &&
+          !enemy.acted &&
           enemy.statusEffects.some(effect => effect.type === "stunned" || effect.type === "frozen")
       );
 
@@ -1147,9 +1339,9 @@ function BattlefieldCombat() {
         // Process each stunned/frozen enemy
         skippingEnemies.forEach(enemy => {
           // Find the CC effect (stunned/frozen)
-          const ccEffect = enemy.statusEffects.find(e => 
+          const ccEffect = enemy.statusEffects.find(e =>
             e.type === "stunned" || e.type === "frozen");
-          
+
           // Log the skip action
           addToActionLog({
             text: `${enemy.name} is ${ccEffect.name} and skips their turn!`,
@@ -1157,7 +1349,7 @@ function BattlefieldCombat() {
           });
 
           // Process the CC effect - reduce duration
-          setEnemyUnits(prev => 
+          setEnemyUnits(prev =>
             prev.map(unit => {
               // Make sure we only affect this specific enemy instance
               if (unit.instanceId === enemy.instanceId) {
@@ -1165,7 +1357,7 @@ function BattlefieldCombat() {
                   // Only reduce duration for the CC effect that caused the skip
                   if (effect.type === ccEffect.type) {
                     const newDuration = effect.duration - 1;
-                    
+
                     // Log if the effect expires
                     if (newDuration === 0) {
                       addToActionLog({
@@ -1173,7 +1365,7 @@ function BattlefieldCombat() {
                         type: "status"
                       });
                     }
-                    
+
                     return {
                       ...effect,
                       duration: newDuration
@@ -1181,7 +1373,7 @@ function BattlefieldCombat() {
                   }
                   return effect;
                 }).filter(effect => effect.duration > 0);
-                
+
                 return {
                   ...unit,
                   statusEffects: updatedStatusEffects,
@@ -1246,7 +1438,7 @@ function BattlefieldCombat() {
               // No ability or on cooldown, perform a basic attack
               handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
             }
-            
+
             // Move to next enemy after attack/ability
             setTimeout(() => {
               performEnemyAction(index + 1);
@@ -1298,13 +1490,13 @@ function BattlefieldCombat() {
         prev.map(unit => {
           if (unit.instanceId === target.instanceId || unit.id === target.id) {
             const newStatusEffects = [...unit.statusEffects];
-            
+
             // Remove any existing confusion effect first to avoid stacking
             const existingConfusedIndex = newStatusEffects.findIndex(effect => effect.type === "confused");
             if (existingConfusedIndex !== -1) {
               newStatusEffects.splice(existingConfusedIndex, 1);
             }
-            
+
             // Add the confused effect
             newStatusEffects.push({
               type: "confused",
@@ -1312,13 +1504,13 @@ function BattlefieldCombat() {
               icon: "🌀",
               duration: 1
             });
-            
+
             // Log the effect application
             addToActionLog({
               text: `${target.name} is confused by ${pixie.ability.name}!`,
               type: "status"
             });
-            
+
             return {
               ...unit,
               statusEffects: newStatusEffects
@@ -1330,7 +1522,7 @@ function BattlefieldCombat() {
 
       // Add the complete ability log
       addToActionLog(tangleLogEntry);
-      
+
       // Set ability on cooldown
       setEnemyUnits(prev =>
         prev.map(u => {
@@ -1379,11 +1571,11 @@ function BattlefieldCombat() {
     // Apply the healing effect to all allies after a short delay
     setTimeout(() => {
       // Get all enemy units that are allies of the Wood Sprite (excluding itself)
-      const aliveAllies = enemyUnits.filter(unit => 
-        !unit.isDead && 
+      const aliveAllies = enemyUnits.filter(unit =>
+        !unit.isDead &&
         (unit.instanceId !== woodSprite.instanceId && unit.id !== woodSprite.id)
       );
-      
+
       if (aliveAllies.length > 0) {
         // Apply healing to all allies
         setEnemyUnits(prev =>
@@ -1393,7 +1585,7 @@ function BattlefieldCombat() {
               // Calculate new HP with healing (capped at maxHP)
               const healAmount = 2; // Heal for 2 HP
               const newHP = Math.min(ally.hp + healAmount, ally.maxHP);
-              
+
               // Add to the ability log if healing was applied
               if (newHP > ally.hp) {
                 sporesLogEntry.targets.push({
@@ -1401,14 +1593,14 @@ function BattlefieldCombat() {
                   Damage: `-${healAmount}`, // Negative damage indicates healing
                   Status: "Healed"
                 });
-                
+
                 // Log the healing
                 addToActionLog({
                   text: `${ally.name} is healed for ${healAmount} HP by ${woodSprite.ability.name}`,
                   type: "heal"
                 });
               }
-              
+
               return {
                 ...ally,
                 hp: newHP
@@ -1417,7 +1609,7 @@ function BattlefieldCombat() {
             return ally;
           })
         );
-        
+
         // Add the complete ability log
         addToActionLog(sporesLogEntry);
       } else {
@@ -1427,7 +1619,7 @@ function BattlefieldCombat() {
           type: "ability"
         });
       }
-      
+
       // Set ability on cooldown
       setEnemyUnits(prev =>
         prev.map(u => {
@@ -1488,7 +1680,7 @@ function BattlefieldCombat() {
         prev.map(unit => {
           if (unit.instanceId === target.instanceId || unit.id === target.id) {
             const newStatusEffects = [...unit.statusEffects];
-            
+
             // Add the mesmerize effect
             newStatusEffects.push({
               type: "stunned",
@@ -1496,13 +1688,13 @@ function BattlefieldCombat() {
               icon: "💫",
               duration: 1
             });
-            
+
             // Log the effect application
             addToActionLog({
               text: `${target.name} is mesmerized by the alluring glow!`,
               type: "status"
             });
-            
+
             return {
               ...unit,
               statusEffects: newStatusEffects
@@ -1514,7 +1706,7 @@ function BattlefieldCombat() {
 
       // Add the complete ability log
       addToActionLog(abilityLogEntry);
-      
+
       // Set ability on cooldown
       setEnemyUnits(prev =>
         prev.map(u => {
@@ -1576,32 +1768,32 @@ function BattlefieldCombat() {
     // For player units, check if they're CC'd before allowing selection
     if (team === "player" && activeTeam === "player") {
       // Check if unit has stun/freeze effect
-      const hasCCEffect = unit.statusEffects?.some(effect => 
+      const hasCCEffect = unit.statusEffects?.some(effect =>
         effect.type === "stunned" || effect.type === "frozen");
-      
+
       // Check if unit is confused
       const isConfused = unit.statusEffects?.some(effect => effect.type === "confused");
-        
+
       if (hasCCEffect && !unit.acted) {
         // Find the CC effect (stunned/frozen)
-        const ccEffect = unit.statusEffects.find(e => 
+        const ccEffect = unit.statusEffects.find(e =>
           e.type === "stunned" || e.type === "frozen");
-        
+
         // Log and process the skip
         addToActionLog({
           text: `${unit.name} is ${ccEffect.name} and skips their turn!`,
           type: "status"
         });
-        
+
         // Process the CC effect - reduce duration
-        setPlayerUnits(prev => 
+        setPlayerUnits(prev =>
           prev.map(u => {
             if (u.instanceId === unit.instanceId || u.id === unit.id) {
               const updatedStatusEffects = u.statusEffects.map(effect => {
                 // Only reduce duration for the CC effect that caused the skip
                 if (effect.type === ccEffect.type) {
                   const newDuration = effect.duration - 1;
-                  
+
                   // Log if the effect expires
                   if (newDuration === 0) {
                     addToActionLog({
@@ -1609,7 +1801,7 @@ function BattlefieldCombat() {
                       type: "status"
                     });
                   }
-                  
+
                   return {
                     ...effect,
                     duration: newDuration
@@ -1617,7 +1809,7 @@ function BattlefieldCombat() {
                 }
                 return effect;
               }).filter(effect => effect.duration > 0);
-              
+
               return {
                 ...u,
                 statusEffects: updatedStatusEffects,
@@ -1627,45 +1819,45 @@ function BattlefieldCombat() {
             return u;
           })
         );
-        
+
         // Don't allow selection of CC'd unit
         return;
       } else if (isConfused && !unit.acted) {
         // Handle confused unit's selection - completely reworked this section
-        
+
         // First, select and show the unit is selected
         setSelectedPlayerUnit(unit);
-        
+
         addToActionLog({
           text: `${unit.name} is confused and will attack randomly!`,
           type: "status"
         });
-        
+
         // Choose a random target (can be any player or enemy unit except self)
         const allPossibleTargets = [
-          ...playerUnits.filter(u => !u.isDead && u.instanceId !== unit.instanceId), 
+          ...playerUnits.filter(u => !u.isDead && u.instanceId !== unit.instanceId),
           ...enemyUnits.filter(u => !u.isDead)
         ];
-        
+
         if (allPossibleTargets.length > 0) {
           // Select a random target
           const randomIndex = Math.floor(Math.random() * allPossibleTargets.length);
           const randomTarget = allPossibleTargets[randomIndex];
-          
+
           // Log the random attack selection
           addToActionLog({
             text: `Confused ${unit.name} randomly attacks ${randomTarget.name}!`,
             type: "attack"
           });
-          
+
           // Set attacking unit for UI feedback
           setAttackingUnit(unit);
-          
+
           // Execute the attack after a delay
           setTimeout(() => {
             // Check if target is from player team or enemy team
             const isTargetAlly = playerUnits.some(u => u.instanceId === randomTarget.instanceId);
-            
+
             if (isTargetAlly) {
               // Attack ally with friendly fire
               handleFriendlyFire(unit.id, randomTarget.id);
@@ -1673,11 +1865,11 @@ function BattlefieldCombat() {
               // Attack enemy with regular attack
               handleBasicAttack("player", unit.id, randomTarget.id);
             }
-            
+
             // Now that the action is complete, process the confusion effect's duration
             setTimeout(() => {
               // Only update the status effect, the unit has already been marked as acted
-              setPlayerUnits(prev => 
+              setPlayerUnits(prev =>
                 prev.map(u => {
                   if (u.instanceId === unit.instanceId) {
                     // Update the statusEffects array
@@ -1685,7 +1877,7 @@ function BattlefieldCombat() {
                       // Only process confusion effect
                       if (effect.type === "confused") {
                         const newDuration = effect.duration - 1;
-                        
+
                         // Log if the effect expires
                         if (newDuration === 0) {
                           addToActionLog({
@@ -1693,7 +1885,7 @@ function BattlefieldCombat() {
                             type: "status"
                           });
                         }
-                        
+
                         return {
                           ...effect,
                           duration: newDuration
@@ -1701,7 +1893,7 @@ function BattlefieldCombat() {
                       }
                       return effect;
                     }).filter(effect => effect.duration > 0);
-                    
+
                     return {
                       ...u,
                       statusEffects: updatedStatusEffects
@@ -1710,7 +1902,7 @@ function BattlefieldCombat() {
                   return u;
                 })
               );
-              
+
               // Clear selection and attacking status
               setSelectedPlayerUnit(null);
               setAttackingUnit(null);
@@ -1719,17 +1911,17 @@ function BattlefieldCombat() {
         } else {
           // No valid targets, skip turn
           handleSkip("player", unit.id);
-          
+
           // Process the confused effect duration after skipping
           setTimeout(() => {
-            setPlayerUnits(prev => 
+            setPlayerUnits(prev =>
               prev.map(u => {
                 if (u.instanceId === unit.instanceId) {
                   const updatedStatusEffects = u.statusEffects
                     .map(effect => {
                       if (effect.type === "confused") {
                         const newDuration = effect.duration - 1;
-                        
+
                         // Log if the effect expires
                         if (newDuration === 0) {
                           addToActionLog({
@@ -1737,7 +1929,7 @@ function BattlefieldCombat() {
                             type: "status"
                           });
                         }
-                        
+
                         return {
                           ...effect,
                           duration: newDuration
@@ -1746,7 +1938,7 @@ function BattlefieldCombat() {
                       return effect;
                     })
                     .filter(effect => effect.duration > 0);
-                  
+
                   return {
                     ...u,
                     statusEffects: updatedStatusEffects
@@ -1755,11 +1947,11 @@ function BattlefieldCombat() {
                 return u;
               })
             );
-            
+
             setSelectedPlayerUnit(null);
           }, 500);
         }
-        
+
         return; // Exit early to prevent normal unit selection
       }
     }
@@ -1770,7 +1962,7 @@ function BattlefieldCombat() {
         // Get the caster (selected player unit)
         const caster = selectedPlayerUnit;
         if (!caster) return;
-        
+
         // Handle different abilities based on the caster's name
         switch (caster.name) {
           case "Lyra Ashwyn":
@@ -1787,43 +1979,43 @@ function BattlefieldCombat() {
                   Status: "Cleansed"
                 }]
               };
-              
+
               // Update the player units to heal and cleanse status effects
               setPlayerUnits(prev =>
                 prev.map(ally => {
                   if (ally.instanceId === unit.instanceId || ally.id === unit.id) {
                     // Calculate new HP with healing
                     const newHP = Math.min(ally.hp + 8, ally.maxHP);
-                    
+
                     // Remove all negative status effects (keeping only positive ones if any)
-                    const positiveEffects = ally.statusEffects.filter(effect => 
-                      effect.type !== "burn" && 
-                      effect.type !== "poison" && 
-                      effect.type !== "stunned" && 
+                    const positiveEffects = ally.statusEffects.filter(effect =>
+                      effect.type !== "burn" &&
+                      effect.type !== "poison" &&
+                      effect.type !== "stunned" &&
                       effect.type !== "frozen"
                     );
-                    
+
                     // Log removed effects
-                    const removedEffects = ally.statusEffects.filter(effect => 
-                      effect.type === "burn" || 
-                      effect.type === "poison" || 
-                      effect.type === "stunned" || 
+                    const removedEffects = ally.statusEffects.filter(effect =>
+                      effect.type === "burn" ||
+                      effect.type === "poison" ||
+                      effect.type === "stunned" ||
                       effect.type === "frozen"
                     );
-                    
+
                     if (removedEffects.length > 0) {
                       addToActionLog({
                         text: `${removedEffects.length} negative effects removed from ${ally.name}`,
                         type: "status"
                       });
                     }
-                    
+
                     // Log healing
                     addToActionLog({
                       text: `${ally.name} is healed for 8 HP`,
                       type: "heal"
                     });
-                    
+
                     return {
                       ...ally,
                       hp: newHP,
@@ -1833,10 +2025,10 @@ function BattlefieldCombat() {
                   return ally;
                 })
               );
-              
+
               // Add the complete ability log
               addToActionLog(triageLogEntry);
-              
+
               // Set ability on cooldown and mark caster as acted
               setPlayerUnits(prev =>
                 prev.map(u => {
@@ -1853,13 +2045,13 @@ function BattlefieldCombat() {
                   return u;
                 })
               );
-              
+
               // Check if this is the first turn and end it if so
               if (!firstTurnUsed) {
                 setFirstTurnUsed(true);
                 setTimeout(() => endPlayerTurn(), 800);
               }
-              
+
               // Clear animations and ability mode
               setTimeout(() => {
                 setAnimatingUnitId(null);
@@ -1869,7 +2061,7 @@ function BattlefieldCombat() {
               }, 800);
             }, 500);
             break;
-            
+
           case "Blood Mage":
             // Don't allow targeting self with Sanguine Pact
             if (unit.id === caster.id) {
@@ -1879,7 +2071,7 @@ function BattlefieldCombat() {
               });
               return;
             }
-            
+
             // Execute Sanguine Pact - sacrifice HP to grant damage boost
             setTimeout(() => {
               // Create ability log entry
@@ -1889,20 +2081,20 @@ function BattlefieldCombat() {
                 abilityName: caster.ability.name,
                 targets: []
               };
-              
+
               // First, blood mage sacrifices 2 HP
-              setPlayerUnits(prev => 
+              setPlayerUnits(prev =>
                 prev.map(u => {
                   if (u.id === caster.id) {
                     // Calculate new HP after sacrifice (minimum 1)
                     const newHP = Math.max(1, u.hp - 2);
-                    
+
                     // Log the blood sacrifice
                     addToActionLog({
                       text: `${u.name} sacrifices 2 HP in a blood ritual!`,
                       type: "ability"
                     });
-                    
+
                     return {
                       ...u,
                       hp: newHP,
@@ -1916,9 +2108,9 @@ function BattlefieldCombat() {
                   return u;
                 })
               );
-              
+
               // Then, grant the ally a temporary damage buff
-              setPlayerUnits(prev => 
+              setPlayerUnits(prev =>
                 prev.map(ally => {
                   if (ally.instanceId === unit.instanceId || ally.id === unit.id) {
                     // Add buff to log entry
@@ -1927,21 +2119,21 @@ function BattlefieldCombat() {
                       Damage: "+6", // Indicates a buff rather than damage
                       Status: "Damage Boost"
                     });
-                    
+
                     // Log the damage boost
                     addToActionLog({
                       text: `${ally.name} gains +6 attack power this round!`,
                       type: "status"
                     });
-                    
+
                     // Add a temporary damage boost status effect
                     const newStatusEffects = [...ally.statusEffects];
-                    
+
                     // Add damage boost effect (removing any existing ones first)
-                    const filteredEffects = newStatusEffects.filter(effect => 
+                    const filteredEffects = newStatusEffects.filter(effect =>
                       effect.type !== "damage-boost"
                     );
-                    
+
                     filteredEffects.push({
                       type: "damage-boost",
                       name: "Blood Empowered",
@@ -1949,7 +2141,7 @@ function BattlefieldCombat() {
                       duration: 1, // Lasts until the end of the round
                       amount: 6    // +6 damage
                     });
-                    
+
                     return {
                       ...ally,
                       statusEffects: filteredEffects,
@@ -1960,16 +2152,16 @@ function BattlefieldCombat() {
                   return ally;
                 })
               );
-              
+
               // Add the complete ability log
               addToActionLog(sanguinePactLogEntry);
-              
+
               // Check if this is the first turn and end it if so
               if (!firstTurnUsed) {
                 setFirstTurnUsed(true);
                 setTimeout(() => endPlayerTurn(), 800);
               }
-              
+
               // Clear animations and ability mode
               setTimeout(() => {
                 setAnimatingUnitId(null);
@@ -1979,7 +2171,7 @@ function BattlefieldCombat() {
               }, 800);
             }, 500);
             break;
-            
+
           default:
             // For other abilities, cancel ability mode when clicking an ally
             addToActionLog({
@@ -1992,7 +2184,7 @@ function BattlefieldCombat() {
         // Get the caster (selected player unit)
         const caster = selectedPlayerUnit;
         if (!caster) return;
-        
+
         // Handle different abilities based on the caster's name
         switch (caster.name) {
           case "Brom the Bastion":
@@ -2009,14 +2201,14 @@ function BattlefieldCombat() {
                   Status: "Stunned"
                 }]
               };
-              
+
               // Apply damage and stun effect to the target
               setEnemyUnits(prev =>
                 prev.map(enemy => {
                   if (enemy.instanceId === unit.instanceId) {
                     const newHP = enemy.hp - caster.damage;
                     const newStatusEffects = [...enemy.statusEffects];
-                    
+
                     // Add stunned status effect
                     newStatusEffects.push({
                       type: "stunned",
@@ -2024,13 +2216,13 @@ function BattlefieldCombat() {
                       icon: "🛡️",
                       duration: 1
                     });
-                    
+
                     // Log stun effect
                     addToActionLog({
                       text: `${enemy.name} is stunned by ${caster.name}'s ${caster.ability.name}!`,
                       type: "status"
                     });
-                    
+
                     // Check if enemy is defeated
                     if (newHP <= 0) {
                       addToActionLog({
@@ -2038,7 +2230,7 @@ function BattlefieldCombat() {
                         type: "defeat"
                       });
                     }
-                    
+
                     return {
                       ...enemy,
                       hp: Math.max(0, newHP),
@@ -2049,10 +2241,10 @@ function BattlefieldCombat() {
                   return enemy;
                 })
               );
-              
+
               // Add the complete ability log
               addToActionLog(ironWallLogEntry);
-              
+
               // Set ability on cooldown and mark caster as acted
               setPlayerUnits(prev =>
                 prev.map(u => {
@@ -2069,7 +2261,7 @@ function BattlefieldCombat() {
                   return u;
                 })
               );
-              
+
               // Clear animations and ability mode
               setTimeout(() => {
                 setAnimatingUnitId(null);
@@ -2079,7 +2271,7 @@ function BattlefieldCombat() {
               }, 800);
             }, 500);
             break;
-            
+
           default:
             // For other abilities, cancel ability mode when clicking an enemy
             addToActionLog({
@@ -2133,9 +2325,9 @@ function BattlefieldCombat() {
   function handleFriendlyFire(attackerId, targetId) {
     const attacker = playerUnits.find(u => u.instanceId === attackerId || u.id === attackerId);
     const target = playerUnits.find(u => u.instanceId === targetId || u.id === targetId);
-    
+
     if (!attacker || !target || target.isDead) return;
-    
+
     // Add to action log with new friendly fire format
     addToActionLog({
       unit: attacker.name,
@@ -2156,7 +2348,7 @@ function BattlefieldCombat() {
     // Apply damage after animation starts
     setTimeout(() => {
       setDamagedUnitId(target.instanceId || target.id);
-      
+
       // Apply damage to player target AND mark attacker as acted in a single update
       setPlayerUnits((prev) =>
         prev.map((unit) => {
