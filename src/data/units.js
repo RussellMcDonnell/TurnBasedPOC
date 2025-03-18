@@ -82,6 +82,7 @@ export const units = {
     damage: 2,
     image: treantGuardianArt,
     fullArt: treantGuardianArt,
+    keywords: ["Melee", "Armored", "Taunt"],
     ability: {
       name: "Barkskin",
       icon: "🌳",
@@ -97,6 +98,7 @@ export const units = {
     damage: 1,
     image: woodSpriteArt,
     fullArt: woodSpriteArt,
+    keywords: ["Ranged"],
     ability: {
       name: "Rejuvenating Spores",
       icon: "✨",
@@ -112,6 +114,7 @@ export const units = {
     damage: 2,
     image: pixieTricksterArt,
     fullArt: pixieTricksterArt,
+    keywords: ["Ranged, Poisonous"],
     ability: {
       name: "Trickster's Tangle",
       icon: "🌀",
@@ -127,11 +130,35 @@ export const units = {
     damage: 0,
     image: willowispArt,
     fullArt: willowispArt,
+    keywords: ["LastStand"],
     ability: {
       name: "Alluring Glow",
       icon: "💫",
-      description: "Mesmerizes an enemy, preventing them from acting for 1 turn.",
+      description: "Mesmerizes/Stun an enemy, preventing them from acting for 1 turn.",
       maxCooldown: 2,
+      execute: function(caster, target) {
+        // Apply the stunned status effect to the target
+        if (!target.statusEffects) target.statusEffects = [];
+        
+        // Create the stunned effect
+        const stunnedEffect = {
+          type: "stunned",
+          name: "Mesmerized",
+          icon: "💫",
+          duration: 1  // Lasts for 1 turn
+        };
+        
+        // Add the effect to target's status effects
+        target.statusEffects.push(stunnedEffect);
+        
+        // Return a result to display in the action log
+        return {
+          success: true,
+          damage: 0,
+          status: "Mesmerized",
+          message: `${target.name} is mesmerized by the alluring glow!`
+        };
+      }
     },
     type: "enemy"
   },
@@ -142,6 +169,7 @@ export const units = {
     damage: 4,
     image: direWolfArt,
     fullArt: direWolfArt,
+    keywords: ["Melee, First Strike"],
     ability: {
       name: "Pack Hunter",
       icon: "🐺",
@@ -298,29 +326,6 @@ export const units = {
       description: "Reduces incoming damage through superior armor and defensive tactics."
     },
     description: "A stalwart defender who excels at absorbing damage.",
-    role: "Tank",
-    type: "player"
-  },
-  "juggernaut": {
-    id: "juggernaut",
-    name: "Juggernaut",
-    maxHP: 16,
-    damage: 4,
-    image: juggernautArt,
-    fullArt: juggernautArt,
-    actions: ["Attack", "Skip"],
-    keywords: ["Melee", "Taunt", "Armored"],
-    ability: {
-      name: "Titanic Slam",
-      icon: "💥",
-      description: "Slam the ground, dealing damage and stunning the targets across from the Juggernaut.",
-      maxCooldown: 3,
-    },
-    passive: {
-      name: "Undomitable",
-      description: "Gains increased defense when below 50% health."
-    },
-    description: "An unstoppable force that draws enemy attention.",
     role: "Tank",
     type: "player"
   },

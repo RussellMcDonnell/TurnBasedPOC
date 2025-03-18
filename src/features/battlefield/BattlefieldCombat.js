@@ -1209,15 +1209,15 @@ function BattlefieldCombat() {
         return;
       }
 
-      // Let each active enemy unit do a basic attack on the first alive player unit, then end turn
+      // Let each active enemy unit do a basic attack or use ability
       const alivePlayerUnits = playerUnits.filter((u) => !u.isDead);
       const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].instanceId || alivePlayerUnits[0].id : null;
 
       if (targetId && activeEnemies.length > 0) {
-        const performEnemyAttack = (index) => {
+        const performEnemyAction = (index) => {
           const enemy = activeEnemies[index];
           if (!enemy) {
-            // All enemies have attacked, end turn
+            // All enemies have acted, end turn
             setCurrentlyAttacking(null);
             setTimeout(() => {
               endEnemyTurn();
@@ -1227,22 +1227,119 @@ function BattlefieldCombat() {
 
           setCurrentlyAttacking(enemy.instanceId || enemy.id);
           setTimeout(() => {
-            handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
-            // Move to next enemy after attack
+            // Check if this enemy has an ability and is a willowisp
+            if (enemy.name === "Will-o'-the-Wisps" && enemy.ability && enemy.ability.name === "Alluring Glow" && 
+                enemy.ability.currentCooldown === 0) {
+              
+              // Execute the Alluring Glow ability
+              handleEnemyAbilityUse(enemy, targetId);
+            } else {
+              // Perform a basic attack
+              handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
+            }
+            
+            // Move to next enemy after attack/ability
             setTimeout(() => {
-              performEnemyAttack(index + 1);
+              performEnemyAction(index + 1);
             }, 500);
           }, 1000);
         };
 
-        // Start the sequential attacks
-        performEnemyAttack(0);
+        // Start the sequential actions
+        performEnemyAction(0);
       } else {
         // No valid attacks possible, end turn
         endEnemyTurn();
       }
     }
   }, [activeTeam, gameOver]);
+
+  // Add new function to handle enemy ability usage
+  function handleEnemyAbilityUse(enemy, targetId) {
+    // Find the target player unit
+    const target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
+    if (!target) return;
+
+    // Create a log entry for the enemy ability
+    const abilityLogEntry = {
+      unit: enemy.name,
+      type: "ability",
+      abilityName: enemy.ability.name,
+      targets: [{
+        unit: target.name,
+        Damage: "0",
+        Status: "Mesmerized"
+      }]
+    };
+
+    // Add animation
+    setAnimatingUnitId(enemy.instanceId || enemy.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${enemy.name} uses ${enemy.ability.name} on ${target.name}!`,
+      type: "ability"
+    });
+
+    // Apply the mesmerize/stun status effect to the target after a short delay
+    setTimeout(() => {
+      // Apply mesmerize effect to target
+      setPlayerUnits(prev =>
+        prev.map(unit => {
+          if (unit.instanceId === target.instanceId || unit.id === target.id) {
+            const newStatusEffects = [...unit.statusEffects];
+            
+            // Add the mesmerize effect
+            newStatusEffects.push({
+              type: "stunned",
+              name: "Mesmerized",
+              icon: "💫",
+              duration: 1
+            });
+            
+            // Log the effect application
+            addToActionLog({
+              text: `${target.name} is mesmerized by the alluring glow!`,
+              type: "status"
+            });
+            
+            return {
+              ...unit,
+              statusEffects: newStatusEffects
+            };
+          }
+          return unit;
+        })
+      );
+
+      // Add the complete ability log
+      addToActionLog(abilityLogEntry);
+      
+      // Set ability on cooldown
+      setEnemyUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === enemy.instanceId || u.id === enemy.id) {
+            return {
+              ...u,
+              acted: true,
+              ability: u.ability ? {
+                ...u.ability,
+                currentCooldown: u.ability.maxCooldown
+              } : null
+            };
+          }
+          return u;
+        })
+      );
+
+      // Clear animations
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setAnimatingAbility(false);
+      }, 800);
+    }, 500);
+  }
 
   // Add keyboard event handler
   useEffect(() => {
