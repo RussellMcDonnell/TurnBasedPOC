@@ -1,0 +1,27 @@
+/* Add styling for units with taunt */
+.has-taunt {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid #ffcc00; /* Golden outline for taunt units */
+  box-shadow: 0 0 12px #ffcc00; /* Glow effect */
+}
+
+.has-taunt::after {
+  content: "🛡️"; /* Shield emoji to indicate taunt */
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 16px;
+  text-shadow: 0 0 3px black;
+}
+
+/* Add a subtle animation to emphasize taunt units */
+@keyframes taunt-pulse {
+  0% { box-shadow: 0 0 12px #ffcc00; }
+  50% { box-shadow: 0 0 20px #ffcc00; }
+  100% { box-shadow: 0 0 12px #ffcc00; }
+}
+
+.has-taunt {
+  animation: taunt-pulse 2s infinite;
+}

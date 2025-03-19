@@ -94,7 +94,8 @@ function BattlefieldCombat() {
         ability: unit.ability ? {
           ...unit.ability,
           currentCooldown: 0
-        } : null
+        } : null,
+        hasTaunt: unit.keywords?.includes("Taunt") || false // Add Taunt property
       };
     });
   };
@@ -1324,6 +1325,30 @@ function BattlefieldCombat() {
     }
   }
 
+  // Helper function to check if a unit has taunt
+  const hasTaunt = (unit) => {
+    return unit.hasTaunt || unit.keywords?.includes("Taunt");
+  };
+
+  // Helper function to get valid targets considering Taunt
+  const getValidTargets = (attackerTeam) => {
+    if (attackerTeam === "player") {
+      // Players can target any enemy
+      return enemyUnits.filter(unit => !unit.isDead);
+    } else {
+      // For enemy team, check if there are any units with Taunt
+      const taunters = playerUnits.filter(unit => !unit.isDead && hasTaunt(unit));
+      
+      // If there are taunting units, enemies must target them
+      if (taunters.length > 0) {
+        return taunters;
+      }
+      
+      // Otherwise, enemies can target any player unit
+      return playerUnits.filter(unit => !unit.isDead);
+    }
+  };
+
   // Modified enemy turn logic for sequential attacks
   useEffect(() => {
     if (activeTeam === "enemy" && !gameOver) {
@@ -1401,9 +1426,19 @@ function BattlefieldCombat() {
         return;
       }
 
-      // Let each active enemy unit do a basic attack or use ability
-      const alivePlayerUnits = playerUnits.filter((u) => !u.isDead);
-      const targetId = alivePlayerUnits.length ? alivePlayerUnits[0].instanceId || alivePlayerUnits[0].id : null;
+      // Get valid targets following Taunt rules
+      const validTargets = getValidTargets("enemy");
+      
+      // If no valid targets, end turn
+      if (validTargets.length === 0) {
+        setTimeout(() => {
+          endEnemyTurn();
+        }, 200);
+        return;
+      }
+      
+      // Select a random target from valid targets (usually the first one, or random from taunters)
+      const targetId = validTargets[Math.floor(Math.random() * validTargets.length)].instanceId;
 
       if (targetId && activeEnemies.length > 0) {
         const performEnemyAction = (index) => {
@@ -2294,6 +2329,19 @@ function BattlefieldCombat() {
     if (attackingUnit) {
       // If we're in attack mode and clicked an enemy
       if (team === "enemy" && !unit.isDead) {
+        // Check if there are any taunting units
+        const taunters = enemyUnits.filter(enemy => !enemy.isDead && hasTaunt(enemy));
+        
+        // If there are taunting units and the clicked unit doesn't have taunt, show a message
+        if (taunters.length > 0 && !hasTaunt(unit)) {
+          addToActionLog({
+            text: `You must attack units with Taunt first!`,
+            type: "normal"
+          });
+          return;
+        }
+        
+        // Otherwise proceed with attack
         handleBasicAttack("player", attackingUnit.id, unit.id);
         setAttackingUnit(null);
         setSelectedPlayerUnit(null);
@@ -2459,6 +2507,7 @@ function BattlefieldCombat() {
               ${animatingUnitId === unit.instanceId ? (animatingAbility ? 'using-ability' : 'attacking') : ''}
               ${damagedUnitId === unit.instanceId ? 'taking-damage' : ''}
               ${selectedEnemyUnit && attackingUnit ? 'target-selected' : ''}
+              ${hasTaunt(unit) ? 'has-taunt' : ''}
             `}
             onClick={() => handleUnitClick(unit, team)}
             onViewArt={handleViewFullArt}
