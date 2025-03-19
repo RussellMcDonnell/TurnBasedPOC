@@ -474,8 +474,31 @@ function BattlefieldCombat() {
       const attacker = enemyUnits.find((u) => u.instanceId === attackerId || u.id === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
-      const target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
-      if (!target) return;
+      // Check if the specified target is dead
+      let target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
+      
+      // If target is dead or doesn't exist, find a new valid target
+      if (!target || target.isDead) {
+        // Get valid targets following Taunt rules
+        const validTargets = getValidTargets("enemy");
+        
+        if (validTargets.length === 0) {
+          // No valid targets, mark as acted and return
+          setEnemyUnits((prev) =>
+            prev.map((u) => ((u.instanceId === attacker.instanceId) ? { ...u, acted: true } : u))
+          );
+          return;
+        }
+        
+        // Select a random target from valid targets
+        target = validTargets[Math.floor(Math.random() * validTargets.length)];
+        
+        // Log that enemy is changing target
+        addToActionLog({
+          text: `${attacker.name} changes target to ${target.name}!`,
+          type: "normal"
+        });
+      }
 
       // Add to action log with new format
       addToActionLog({
