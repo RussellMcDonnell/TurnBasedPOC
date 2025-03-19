@@ -500,7 +500,17 @@ function BattlefieldCombat() {
           prev.map((unit) => {
             // Important fix: only compare instanceId, not the original id
             if (unit.instanceId === target.instanceId && !unit.isDead) {
-              const newHP = unit.hp - attacker.damage;
+              var damage = attacker.damage;
+
+              // Check if unit is Dire Wolf and add bonus damage for Pack Hunter
+              if (attacker.name === "Dire Wolf") {
+                // Give two bonus damage for each additional Dire Wolf
+                const packHunterBonus = (enemyUnits.filter(u => u.name === "Dire Wolf" && !u.isDead).length - 1) * 2;
+                damage += packHunterBonus;
+              }
+
+              // Apply damage to player unit
+              const newHP = unit.hp - damage;
 
               if (newHP <= 0) {
                 addToActionLog({
