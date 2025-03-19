@@ -173,7 +173,7 @@ export const units = {
     ability: {
       name: "Pack Hunter",
       icon: "🐺",
-      description: "Gains +2 damage for each other Dire Wolf in combat.",
+      description: "Attack and gain +2 damage for each other ally Dire Wolf in combat.",
       maxCooldown: 0,
     },
     type: "enemy"
