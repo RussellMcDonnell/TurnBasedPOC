@@ -15,7 +15,7 @@ export const keywords = {
       description: "Trigger an effect upon death"
     },
     "Lifesteal": {
-      description: "Heals the unit based on the amount of damage dealt."
+      description: "Basic attacks heal based on the amount of damage dealt"
     },
     "Melee": {
       description: "Unit takes retaliation damage when attacking."

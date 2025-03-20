@@ -425,6 +425,12 @@ function BattlefieldCombat() {
       // Apply damage after animation starts
       setTimeout(() => {
         setDamagedUnitId(target.instanceId || target.id);
+        
+        // Calculate actual damage dealt and store it for lifesteal
+        let actualDamage = Math.min(attacker.damage, target.hp);
+        let hasLifesteal = attacker.keywords && attacker.keywords.includes("Lifesteal");
+        
+        // Apply damage to the target
         setEnemyUnits((prev) =>
           prev.map((unit) => {
             // Important fix: only compare instanceId, not the original id
@@ -447,6 +453,32 @@ function BattlefieldCombat() {
             return unit;
           })
         );
+        
+        // Apply lifesteal healing as a separate operation AFTER damage is dealt
+        if (hasLifesteal) {
+          setTimeout(() => {
+            // Apply healing to the attacker - in a separate update to avoid duplicate healing
+            setPlayerUnits((prevUnits) =>
+              prevUnits.map((u) => {
+                if (u.instanceId === attacker.instanceId) {
+                  const newHP = Math.min(u.hp + actualDamage, u.maxHP); // Don't exceed max HP
+                  
+                  // Log the healing
+                  addToActionLog({
+                    text: `${u.name} heals for ${actualDamage} from Lifesteal`,
+                    type: "heal"
+                  });
+                  
+                  return {
+                    ...u,
+                    hp: newHP
+                  };
+                }
+                return u;
+              })
+            );
+          }, 100);
+        }
 
         // Process retaliation if enabled
         if (gameSettings.enableRetaliation && !target.isDead) {
@@ -519,20 +551,26 @@ function BattlefieldCombat() {
 
       setTimeout(() => {
         setDamagedUnitId(target.instanceId || target.id);
+        
+        // Calculate attack damage and lifesteal value
+        var damage = attacker.damage;
+
+        // Check if unit is Dire Wolf and add bonus damage for Pack Hunter
+        if (attacker.name === "Dire Wolf") {
+          // Give two bonus damage for each additional Dire Wolf
+          const packHunterBonus = (enemyUnits.filter(u => u.name === "Dire Wolf" && !u.isDead).length - 1) * 2;
+          damage += packHunterBonus;
+        }
+
+        // Calculate actual damage for lifesteal
+        let actualDamage = Math.min(damage, target.hp);
+        let hasLifesteal = attacker.keywords && attacker.keywords.includes("Lifesteal");
+        
+        // Apply damage to player unit
         setPlayerUnits((prev) =>
           prev.map((unit) => {
             // Important fix: only compare instanceId, not the original id
             if (unit.instanceId === target.instanceId && !unit.isDead) {
-              var damage = attacker.damage;
-
-              // Check if unit is Dire Wolf and add bonus damage for Pack Hunter
-              if (attacker.name === "Dire Wolf") {
-                // Give two bonus damage for each additional Dire Wolf
-                const packHunterBonus = (enemyUnits.filter(u => u.name === "Dire Wolf" && !u.isDead).length - 1) * 2;
-                damage += packHunterBonus;
-              }
-
-              // Apply damage to player unit
               const newHP = unit.hp - damage;
 
               if (newHP <= 0) {
@@ -551,6 +589,32 @@ function BattlefieldCombat() {
             return unit;
           })
         );
+        
+        // Apply lifesteal healing as a separate operation AFTER damage is dealt
+        if (hasLifesteal) {
+          setTimeout(() => {
+            // Apply healing to the attacker
+            setEnemyUnits((prevUnits) =>
+              prevUnits.map((u) => {
+                if (u.instanceId === attacker.instanceId) {
+                  const newHP = Math.min(u.hp + actualDamage, u.maxHP); // Don't exceed max HP
+                  
+                  // Log the healing
+                  addToActionLog({
+                    text: `${u.name} heals for ${actualDamage} from Lifesteal`,
+                    type: "heal"
+                  });
+                  
+                  return {
+                    ...u,
+                    hp: newHP
+                  };
+                }
+                return u;
+              })
+            );
+          }, 100);
+        }
 
         // Process retaliation if enabled
         if (gameSettings.enableRetaliation && !target.isDead) {
