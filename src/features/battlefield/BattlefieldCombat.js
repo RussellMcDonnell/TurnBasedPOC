@@ -425,11 +425,11 @@ function BattlefieldCombat() {
       // Apply damage after animation starts
       setTimeout(() => {
         setDamagedUnitId(target.instanceId);
-        
+
         // Calculate actual damage dealt and store it for lifesteal
         let actualDamage = Math.min(attacker.damage, target.hp);
         let hasLifesteal = attacker.keywords && attacker.keywords.includes("Lifesteal");
-        
+
         // Apply damage to the target
         setEnemyUnits((prev) =>
           prev.map((unit) => {
@@ -453,7 +453,7 @@ function BattlefieldCombat() {
             return unit;
           })
         );
-        
+
         // Apply lifesteal healing as a separate operation AFTER damage is dealt
         if (hasLifesteal) {
           setTimeout(() => {
@@ -462,13 +462,13 @@ function BattlefieldCombat() {
               prevUnits.map((u) => {
                 if (u.instanceId === attacker.instanceId) {
                   const newHP = Math.min(u.hp + actualDamage, u.maxHP); // Don't exceed max HP
-                  
+
                   // Log the healing
                   addToActionLog({
                     text: `${u.name} heals for ${actualDamage} from Lifesteal`,
                     type: "heal"
                   });
-                  
+
                   return {
                     ...u,
                     hp: newHP
@@ -508,12 +508,12 @@ function BattlefieldCombat() {
 
       // Check if the specified target is dead
       let target = playerUnits.find((u) => u.instanceId === targetId);
-      
+
       // If target is dead or doesn't exist, find a new valid target
       if (!target || target.isDead) {
         // Get valid targets following Taunt rules
         const validTargets = getValidTargets("enemy");
-        
+
         if (validTargets.length === 0) {
           // No valid targets, mark as acted and return
           setEnemyUnits((prev) =>
@@ -521,10 +521,10 @@ function BattlefieldCombat() {
           );
           return;
         }
-        
+
         // Select a random target from valid targets
         target = validTargets[Math.floor(Math.random() * validTargets.length)];
-        
+
         // Log that enemy is changing target
         addToActionLog({
           text: `${attacker.name} changes target to ${target.name}!`,
@@ -551,7 +551,7 @@ function BattlefieldCombat() {
 
       setTimeout(() => {
         setDamagedUnitId(target.instanceId);
-        
+
         // Calculate attack damage and lifesteal value
         var damage = attacker.damage;
 
@@ -565,7 +565,7 @@ function BattlefieldCombat() {
         // Calculate actual damage for lifesteal
         let actualDamage = Math.min(damage, target.hp);
         let hasLifesteal = attacker.keywords && attacker.keywords.includes("Lifesteal");
-        
+
         // Apply damage to player unit
         setPlayerUnits((prev) =>
           prev.map((unit) => {
@@ -589,7 +589,7 @@ function BattlefieldCombat() {
             return unit;
           })
         );
-        
+
         // Apply lifesteal healing as a separate operation AFTER damage is dealt
         if (hasLifesteal) {
           setTimeout(() => {
@@ -598,13 +598,13 @@ function BattlefieldCombat() {
               prevUnits.map((u) => {
                 if (u.instanceId === attacker.instanceId) {
                   const newHP = Math.min(u.hp + actualDamage, u.maxHP); // Don't exceed max HP
-                  
+
                   // Log the healing
                   addToActionLog({
                     text: `${u.name} heals for ${actualDamage} from Lifesteal`,
                     type: "heal"
                   });
-                  
+
                   return {
                     ...u,
                     hp: newHP
@@ -1435,12 +1435,12 @@ function BattlefieldCombat() {
     } else {
       // For enemy team, check if there are any units with Taunt
       const taunters = playerUnits.filter(unit => !unit.isDead && hasTaunt(unit));
-      
+
       // If there are taunting units, enemies must target them
       if (taunters.length > 0) {
         return taunters;
       }
-      
+
       // Otherwise, enemies can target any player unit
       return playerUnits.filter(unit => !unit.isDead);
     }
@@ -1525,7 +1525,7 @@ function BattlefieldCombat() {
 
       // Get valid targets following Taunt rules
       const validTargets = getValidTargets("enemy");
-      
+
       // If no valid targets, end turn
       if (validTargets.length === 0) {
         setTimeout(() => {
@@ -1533,11 +1533,11 @@ function BattlefieldCombat() {
         }, 200);
         return;
       }
-      
-      // Select a random target from valid targets (usually the first one, or random from taunters)
-      const targetId = validTargets[Math.floor(Math.random() * validTargets.length)].instanceId;
 
-      if (targetId && activeEnemies.length > 0) {
+      // Select a random target from valid targets (usually the first one, or random from taunters)
+      var targetId = validTargets[Math.floor(Math.random() * validTargets.length)].instanceId;
+
+      if (validTargets.length > 0 && activeEnemies.length > 0) {
         const performEnemyAction = (index) => {
           const enemy = activeEnemies[index];
           if (!enemy) {
@@ -1548,8 +1548,8 @@ function BattlefieldCombat() {
             }, 500);
             return;
           }
-
-          setCurrentlyAttacking(enemy.instanceId || enemy.id);
+          
+          setCurrentlyAttacking(enemy.instanceId);
           setTimeout(() => {
             // Check if this enemy has an ability to use
             if (enemy.ability && enemy.ability.currentCooldown === 0) {
@@ -2428,7 +2428,7 @@ function BattlefieldCombat() {
       if (team === "enemy" && !unit.isDead) {
         // Check if there are any taunting units
         const taunters = enemyUnits.filter(enemy => !enemy.isDead && hasTaunt(enemy));
-        
+
         // If there are taunting units and the clicked unit doesn't have taunt, show a message
         if (taunters.length > 0 && !hasTaunt(unit)) {
           addToActionLog({
@@ -2437,7 +2437,7 @@ function BattlefieldCombat() {
           });
           return;
         }
-        
+
         // Otherwise proceed with attack
         handleBasicAttack("player", attackingUnit.instanceId, unit.instanceId);
         setAttackingUnit(null);
