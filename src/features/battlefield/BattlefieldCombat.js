@@ -399,10 +399,10 @@ function BattlefieldCombat() {
     if (gameOver) return;
 
     if (attackerTeam === "player") {
-      const attacker = playerUnits.find((u) => u.instanceId === attackerId || u.id === attackerId);
+      const attacker = playerUnits.find((u) => u.instanceId === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
-      const target = enemyUnits.find((u) => u.instanceId === targetId || u.id === targetId);
+      const target = enemyUnits.find((u) => u.instanceId === targetId);
       if (!target) return;
 
       // Add to action log with new format
@@ -420,11 +420,11 @@ function BattlefieldCombat() {
       setDamagedUnitId(null);
 
       // Start attack animation immediately
-      setAnimatingUnitId(attacker.instanceId || attacker.id);
+      setAnimatingUnitId(attacker.instanceId);
 
       // Apply damage after animation starts
       setTimeout(() => {
-        setDamagedUnitId(target.instanceId || target.id);
+        setDamagedUnitId(target.instanceId);
         
         // Calculate actual damage dealt and store it for lifesteal
         let actualDamage = Math.min(attacker.damage, target.hp);
@@ -433,7 +433,7 @@ function BattlefieldCombat() {
         // Apply damage to the target
         setEnemyUnits((prev) =>
           prev.map((unit) => {
-            // Important fix: only compare instanceId, not the original id
+            // FIXED: Only compare instanceId, not the original id
             if (unit.instanceId === target.instanceId && !unit.isDead) {
               const newHP = unit.hp - attacker.damage;
 
@@ -446,7 +446,7 @@ function BattlefieldCombat() {
 
               return {
                 ...unit,
-                hp: newHP,
+                hp: Math.max(0, newHP),
                 isDead: newHP <= 0,
               };
             }
@@ -503,11 +503,11 @@ function BattlefieldCombat() {
       }
     } else {
       // Enemy attack with similar timing
-      const attacker = enemyUnits.find((u) => u.instanceId === attackerId || u.id === attackerId);
+      const attacker = enemyUnits.find((u) => u.instanceId === attackerId);
       if (!attacker || attacker.acted || attacker.isDead) return;
 
       // Check if the specified target is dead
-      let target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
+      let target = playerUnits.find((u) => u.instanceId === targetId);
       
       // If target is dead or doesn't exist, find a new valid target
       if (!target || target.isDead) {
@@ -547,10 +547,10 @@ function BattlefieldCombat() {
       setDamagedUnitId(null);
 
       // Start attack animation immediately
-      setAnimatingUnitId(attacker.instanceId || attacker.id);
+      setAnimatingUnitId(attacker.instanceId);
 
       setTimeout(() => {
-        setDamagedUnitId(target.instanceId || target.id);
+        setDamagedUnitId(target.instanceId);
         
         // Calculate attack damage and lifesteal value
         var damage = attacker.damage;
@@ -569,7 +569,7 @@ function BattlefieldCombat() {
         // Apply damage to player unit
         setPlayerUnits((prev) =>
           prev.map((unit) => {
-            // Important fix: only compare instanceId, not the original id
+            // FIXED: Only compare instanceId, not the original id
             if (unit.instanceId === target.instanceId && !unit.isDead) {
               const newHP = unit.hp - damage;
 
@@ -582,7 +582,7 @@ function BattlefieldCombat() {
 
               return {
                 ...unit,
-                hp: newHP,
+                hp: Math.max(0, newHP),
                 isDead: newHP <= 0,
               };
             }
@@ -1315,7 +1315,7 @@ function BattlefieldCombat() {
               handleFriendlyFire(unit.id, randomTarget.id);
             } else {
               // Attack enemy with regular attack
-              handleBasicAttack("player", unit.id, randomTarget.id);
+              handleBasicAttack("player", unit.instanceId, randomTarget.id);
             }
 
             // Now that the action is complete, process the confusion effect's duration
@@ -1564,11 +1564,11 @@ function BattlefieldCombat() {
                 handleTrickstersTangle(enemy, targetId);
               } else {
                 // Default to basic attack for other units or abilities
-                handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
+                handleBasicAttack("enemy", enemy.instanceId, targetId);
               }
             } else {
               // No ability or on cooldown, perform a basic attack
-              handleBasicAttack("enemy", enemy.instanceId || enemy.id, targetId);
+              handleBasicAttack("enemy", enemy.instanceId, targetId);
             }
 
             // Move to next enemy after attack/ability
@@ -1995,7 +1995,7 @@ function BattlefieldCombat() {
               handleFriendlyFire(unit.id, randomTarget.id);
             } else {
               // Attack enemy with regular attack
-              handleBasicAttack("player", unit.id, randomTarget.id);
+              handleBasicAttack("player", unit.instanceId, randomTarget.instanceId);
             }
 
             // Now that the action is complete, process the confusion effect's duration
@@ -2439,7 +2439,7 @@ function BattlefieldCombat() {
         }
         
         // Otherwise proceed with attack
-        handleBasicAttack("player", attackingUnit.id, unit.id);
+        handleBasicAttack("player", attackingUnit.instanceId, unit.instanceId);
         setAttackingUnit(null);
         setSelectedPlayerUnit(null);
       }
@@ -2554,7 +2554,7 @@ function BattlefieldCombat() {
         break;
 
       case "Confirm":
-        handleBasicAttack("player", attackingUnit.id, selectedEnemyUnit.id);
+        handleBasicAttack("player", attackingUnit.instanceId, selectedEnemyUnit.instanceId);
         setAttackingUnit(null);
         setSelectedPlayerUnit(null);
         setSelectedEnemyUnit(null);
