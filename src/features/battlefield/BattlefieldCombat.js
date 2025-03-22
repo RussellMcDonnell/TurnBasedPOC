@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTeams } from "../../features/teams/TeamContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../../App.css";
 import Sidebar from "../../components/sidebar/Sidebar";
 import UnitCard from "../../components/unit-card/UnitCard";
@@ -2697,6 +2697,8 @@ function BattlefieldCombat() {
     setViewingFullArt(null);
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="BattlefieldCombat" style={{ background: `url(${backgroundImage}) center/cover no-repeat` }}>
       <>
@@ -2798,9 +2800,16 @@ function BattlefieldCombat() {
           <div className="game-over">
             <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
             <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
-            <button className="return-to-menu" onClick={() => setIsInGame(false)}>
-              Return to Main Menu
-            </button>
+            
+            {winner === "player" ? (
+              <button className="return-to-menu" onClick={() => navigate('/campaign')}>
+                Continue
+              </button>
+            ) : (
+              <button className="return-to-menu" onClick={() => setIsInGame(false)}>
+                Return to Main Menu
+              </button>
+            )}
           </div>
         )}
 
