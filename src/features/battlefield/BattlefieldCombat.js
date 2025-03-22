@@ -910,7 +910,7 @@ function BattlefieldCombat() {
               setEnemyUnits(prev =>
                 prev.map(enemy => {
                   // Check if this enemy is one of our targets
-                  const isTarget = allTargets.some(target => target.instanceId === enemy.instanceId || target.id === enemy.id);
+                  const isTarget = allTargets.some(target => target.instanceId === enemy.instanceId || target.id === target.id);
 
                   if (isTarget && !enemy.isDead) {
                     // Apply damage equal to the caster's attack
@@ -2650,10 +2650,14 @@ function BattlefieldCombat() {
       });
     }
     
-    // Your original renderUnitList implementation here
+    // Filter out dead enemy units so they completely disappear from the battlefield
+    const displayedUnits = team === "enemy" 
+      ? units.filter(unit => !unit.isDead)
+      : units;
+    
     return (
       <div className="unit-list">
-        {units.map((unit) => (
+        {displayedUnits.map((unit) => (
           <UnitCard
             key={unit.instanceId || unit.id}
             unit={unit}
