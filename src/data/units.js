@@ -55,7 +55,7 @@ export const units = {
     role: "Mage",
     type: "player"
   },
-  "ashbringer":{
+  "ashbringer": {
     id: "ashbringer",
     name: "Ashbringer",
     maxHP: 50,
@@ -136,10 +136,10 @@ export const units = {
       icon: "💫",
       description: "Mesmerizes/Stun an enemy, preventing them from acting for 1 turn.",
       maxCooldown: 2,
-      execute: function(caster, target) {
+      execute: function (caster, target) {
         // Apply the stunned status effect to the target
         if (!target.statusEffects) target.statusEffects = [];
-        
+
         // Create the stunned effect
         const stunnedEffect = {
           type: "stunned",
@@ -147,10 +147,10 @@ export const units = {
           icon: "💫",
           duration: 1  // Lasts for 1 turn
         };
-        
+
         // Add the effect to target's status effects
         target.statusEffects.push(stunnedEffect);
-        
+
         // Return a result to display in the action log
         return {
           success: true,
@@ -524,14 +524,14 @@ export const units = {
 
 // Helper function to get a unit by ID
 export const getUnitById = (id) => {
-  return units[id] ? { 
-    ...units[id], 
-    hp: units[id].maxHP, 
+  return units[id] ? {
+    ...units[id],
+    hp: units[id].maxHP,
     currentCooldown: 0,
     statusEffects: [],
     getActions() {
       // If unit is stunned or frozen, they can only skip their turn
-      if (this.statusEffects.some(effect => 
+      if (this.statusEffects.some(effect =>
         effect.type === 'stunned' || effect.type === 'frozen')) {
         return ["Skip"];
       }
@@ -548,39 +548,32 @@ export const getPlayerUnits = () => {
 
 // Enemy configurations
 export const enemyTeams = {
+  "Shrouded Woods": [
+    "treantGuardian",
+    "woodSprite",
+    "pixieTrickster",
+    "willowisp",
+    "direWolf",
+  ],
+  "River of Shadows": [
+    "treantGuardian",
+    "woodSprite",
+    "pixieTrickster",
+  ],
+  "The Hollow Cavern": [
+    "feyQueen",
+    "treantGuardian",
+    "woodSprite",
+    "pixieTrickster",
+  ],
+  "Wolf Pack Ambush": [
+    "direWolf",
+    "direWolf",
+    "direWolf",
+    "direWolf",
+  ],
   "Dragon Lair": [
-      "ashbringer",
-      "lyn"
+    "ashbringer",
+    "lyn",
   ],
-  "Forest Guardians": [
-      "treantGuardian",
-      "woodSprite",
-      "pixieTrickster"
-  ],
-  "Enchanted Grove": [
-      "willowisp",
-      "pixieTrickster",
-      "woodSprite",
-      "woodSprite"
-  ],
-  "Wolf Pack": [
-      "direWolf",
-      "direWolf",
-      "direWolf"
-  ],
-  "Nature's Defenders": [
-      "grassGolem",
-      "sunflowerSentinel",
-      "woodSprite"
-  ],
-  "Plains Raiders": [
-      "nomadRaider",
-      "windfox",
-      "plainsShaman"
-  ],
-  "Forest Sovereigns": [
-      "elderTreant",
-      "feyQueen",
-      "lordOfPride"
-  ]
 };

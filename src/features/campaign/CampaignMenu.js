@@ -26,7 +26,7 @@ const campaignNodes = [
     difficulty: "Easy",
     preview: darkForest,
     battlegroundBackground: darkForestBattleground,
-    enemyTeam: "Enchanted Grove"  // Will-o'-wisps, pixies, and wood sprites
+    enemyTeam: "Shrouded Woods"
   },
   {
     id: 2,
@@ -47,7 +47,7 @@ const campaignNodes = [
     difficulty: "Medium",
     preview: darkForestRiver,
     battlegroundBackground: darkForestWithRiverBattleground,
-    enemyTeam: "Forest Guardians"  // Treant Guardian, Wood Sprite, Pixie Trickster
+    enemyTeam: "River of Shadows"
   },
   {
     id: 4,
@@ -59,7 +59,7 @@ const campaignNodes = [
     difficulty: "Medium",
     preview: darkForestCave,
     battlegroundBackground: darkForestWithCaveBattleground,
-    enemyTeam: "Nature's Defenders"  // Grass Golem, Sunflower Sentinel, Wood Sprite
+    enemyTeam: "The Hollow Cavern"
   },
   {
     id: 5,
@@ -80,7 +80,7 @@ const campaignNodes = [
     difficulty: "Medium",
     preview: mountainAmbush,
     battlegroundBackground: mountainAmbushBattleground,
-    enemyTeam: "Wolf Pack"  // Three Dire Wolves
+    enemyTeam: "Wolf Pack Ambush"  // Four Dire Wolves
   },
   {
     id: 7,
