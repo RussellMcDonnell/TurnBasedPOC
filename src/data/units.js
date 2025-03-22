@@ -291,7 +291,7 @@ export const units = {
     ability: {
       name: "Nature's Aid",
       icon: "🌿",
-      description: "Calls upon nature's magic to heal all allies and boost their defensive capabilities.",
+      description: "Fey Queen summons 1 Wood Sprite, 1 Pixie Trickster, and 1 Will-o'-the-Wisps to the battlefield.",
       maxCooldown: 3,
     },
     role: "Mage",
