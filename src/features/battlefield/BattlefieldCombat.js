@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTeams } from "../../features/teams/TeamContext";
 import { useLocation } from "react-router-dom";
 import "../../App.css";
@@ -13,6 +13,8 @@ import { getUnitById, enemyTeams } from "../../data/units";
 import dragonsLairBg from "../../assets/images/battlegrounds/dragons-lair.png";
 
 function BattlefieldCombat() {
+  console.log("BattlefieldCombat rendering");
+  
   // Get location and campaign level data if coming from campaign
   const location = useLocation();
   const levelData = location.state;
@@ -24,7 +26,7 @@ function BattlefieldCombat() {
     : dragonsLairBg;
 
   // Add team context hook
-  const { getActiveCampaignTeam } = useTeams();
+  const { getActiveCampaignTeam, updateCampaignTeamStats } = useTeams();
   const [isInGame, setIsInGame] = useState(false);
 
   // Initialize enemy team based on campaign data or default
@@ -67,7 +69,9 @@ function BattlefieldCombat() {
   const [actionLog, setActionLog] = useState([]);
 
   // Helper function to prepare units for the game state
-  const prepareUnits = (units) => {
+  const prepareUnits = (units, storedHealthStatus = null) => {
+    console.log("prepareUnits called with", units?.length, "units and storedHealthStatus:", storedHealthStatus);
+    
     // First, map units to fetch player unit details
     units = units.map(unit => getUnitById(unit));
 
@@ -83,13 +87,16 @@ function BattlefieldCombat() {
 
       // Create a unique instance ID that includes the count for all units
       const uniqueId = `${unit.id}-${unitCounts[unit.id]}`;
+      
+      // Check if we have stored health status for this unit
+      const storedStatus = storedHealthStatus ? storedHealthStatus[unit.id] : null;
 
       return {
         ...unit,
         instanceId: uniqueId, // Store the unique instance ID
         acted: false,
-        isDead: false,
-        hp: unit.maxHP,
+        isDead: storedStatus ? storedStatus.isDead : false,
+        hp: storedStatus ? storedStatus.currentHP : unit.maxHP, // Use stored HP if available, otherwise use maxHP
         statusEffects: [],
         ability: unit.ability ? {
           ...unit.ability,
@@ -103,13 +110,25 @@ function BattlefieldCombat() {
   // Initialize player units from campaign team
   const [playerUnits, setPlayerUnits] = useState(() => {
     const campaignTeam = getActiveCampaignTeam();
-    return prepareUnits(campaignTeam ? campaignTeam.units : []);
+    console.log("Initializing playerUnits with campaignTeam:", campaignTeam);
+    
+    if (!campaignTeam) return prepareUnits([]);
+    
+    // If we're in campaign mode and have stored health/death status, pass it to prepareUnits
+    if (isCampaignMode && campaignTeam.campaignStats && campaignTeam.campaignStats.unitHealthStatus) {
+      console.log("Using stored campaign health status:", campaignTeam.campaignStats.unitHealthStatus);
+      return prepareUnits(campaignTeam.units, campaignTeam.campaignStats.unitHealthStatus);
+    }
+    
+    // Otherwise just prepare units normally
+    return prepareUnits(campaignTeam.units);
   });
 
   // Initialize enemy units based on selectedEnemyTeam
   const [enemyUnits, setEnemyUnits] = useState(() => {
     // Check if the enemy team exists in enemyTeams
     if (enemyTeams[selectedEnemyTeam]) {
+      console.log("Initializing enemyUnits with team:", selectedEnemyTeam);
       return prepareUnits(enemyTeams[selectedEnemyTeam]);
     } else {
       // Fallback to a default enemy team
@@ -159,17 +178,25 @@ function BattlefieldCombat() {
     }
   }, []);
 
-  // Effect to update player units when campaign team changes
+  // Effect to update player units when campaign team changes - MODIFIED to prevent health reset
   useEffect(() => {
-    const campaignTeam = getActiveCampaignTeam();
-    if (campaignTeam) {
-      setPlayerUnits(prepareUnits(campaignTeam.units));
+    // Only run this effect on non-campaign modes or when explicitly needed
+    if (!isCampaignMode) {
+      const campaignTeam = getActiveCampaignTeam();
+      console.log("Campaign team change detected in non-campaign mode:", campaignTeam);
+      
+      if (campaignTeam) {
+        console.log("Updating playerUnits from campaign team (non-campaign mode)");
+        setPlayerUnits(prepareUnits(campaignTeam.units));
+      }
     }
-  }, [getActiveCampaignTeam]);
+  }, [getActiveCampaignTeam, isCampaignMode]);
 
   // Effect to update enemy units when enemy team changes
   useEffect(() => {
+    console.log("selectedEnemyTeam changed to:", selectedEnemyTeam);
     if (enemyTeams[selectedEnemyTeam]) {
+      console.log("Updating enemyUnits from team:", selectedEnemyTeam);
       setEnemyUnits(prepareUnits(enemyTeams[selectedEnemyTeam]));
     }
   }, [selectedEnemyTeam]);
@@ -212,6 +239,7 @@ function BattlefieldCombat() {
 
   // Update gameState whenever relevant pieces change
   useEffect(() => {
+    console.log("Updating gameState with playerUnits:", playerUnits?.length);
     setGameState({
       playerUnits,
       enemyUnits,
@@ -225,6 +253,7 @@ function BattlefieldCombat() {
 
   // Handle imported game state
   const handleImportGameState = (importedState) => {
+    console.log("Importing game state:", importedState);
     try {
       // Set team selections if present
       if (importedState.selectedEnemyTeam) setSelectedEnemyTeam(importedState.selectedEnemyTeam);
@@ -301,6 +330,31 @@ function BattlefieldCombat() {
         text: "Victory! All enemies have been defeated!",
         type: "victory"
       });
+      
+      // Save player units' health and death status for campaign progression
+      if (isCampaignMode) {
+        // Store each unit's current health and death status
+        const unitHealthStatus = {};
+        
+        playerUnits.forEach(unit => {
+          // Store both health and death status for each unit by instance ID
+          unitHealthStatus[unit.id] = {
+            currentHP: unit.hp,
+            isDead: unit.isDead
+          };
+        });
+        
+        // Update campaign team stats with the current health/death status
+        updateCampaignTeamStats({
+          unitHealthStatus: unitHealthStatus,
+          levelsCompleted: levelData.level ? levelData.level.id : 0
+        });
+        
+        addToActionLog({
+          text: "Unit health and status saved for next battle!",
+          type: "campaign"
+        });
+      }
     } else if (allPlayersDead && !gameOver) {
       setGameOver(true);
       setWinner("enemy");
@@ -2586,8 +2640,17 @@ function BattlefieldCombat() {
     }
   };
 
-  // Modified renderUnitList to include animation classes and handle full art button
-  function renderUnitList(units, team) {
+  // Memoize the renderUnitList function to prevent unnecessary recreation
+  const renderUnitList = useCallback((units, team) => {
+    console.log(`renderUnitList called for ${team} team with ${units?.length} units`);
+    // Log unit health to help debugging
+    if (units) {
+      units.forEach(unit => {
+        console.log(`${team} unit ${unit.name} (${unit.instanceId}): HP=${unit.hp}/${unit.maxHP}, isDead=${unit.isDead}`);
+      });
+    }
+    
+    // Your original renderUnitList implementation here
     return (
       <div className="unit-list">
         {units.map((unit) => (
@@ -2612,7 +2675,17 @@ function BattlefieldCombat() {
         ))}
       </div>
     );
-  }
+  }, [
+    // Add all state dependencies that renderUnitList uses
+    animatingUnitId, 
+    damagedUnitId, 
+    selectedPlayerUnit, 
+    selectedEnemyUnit, 
+    attackingUnit, 
+    activeTeam, 
+    gameOver,
+    usingAbility
+  ]);
 
   // Function to handle viewing full art
   const handleViewFullArt = (unit) => {

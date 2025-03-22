@@ -127,6 +127,16 @@ export const TeamProvider = ({ children }) => {
           ...updatedStats
         }
       };
+      
+      // If we're updating unit health status specifically, ensure proper formatting
+      if (updatedStats.unitHealthStatus) {
+        // Make sure the health status object is properly structured
+        updatedTeam.campaignStats.unitHealthStatus = {
+          ...campaignTeam.campaignStats.unitHealthStatus || {},
+          ...updatedStats.unitHealthStatus
+        };
+      }
+      
       setCampaignTeam(updatedTeam);
       return updatedTeam;
     }
