@@ -361,6 +361,11 @@ function BattlefieldCombat() {
         text: "Defeat! Your party has been wiped out!",
         type: "defeat"
       });
+
+      // Return to main menu after a delay (just like handleSurrender)
+      setTimeout(() => {
+        setIsInGame(false);
+      }, 2000);
     }
   }
 
@@ -3120,7 +3125,7 @@ function BattlefieldCombat() {
                 Continue
               </button>
             ) : (
-              <button className="return-to-menu" onClick={() => setIsInGame(false)}>
+              <button className="return-to-menu" onClick={() => navigate('/')}>
                 Return to Main Menu
               </button>
             )}
