@@ -1616,6 +1616,9 @@ function BattlefieldCombat() {
               } else if (enemy.name === "Pixie Trickster" && enemy.ability.name === "Trickster's Tangle") {
                 // Execute the Trickster's Tangle ability
                 handleTrickstersTangle(enemy, targetId);
+              } else if (enemy.name === "Fey Queen" && enemy.ability.name === "Nature's Aid") {
+                // Execute the Fey Queen's summoning ability
+                handleFeyQueenSummon(enemy);
               } else {
                 // Default to basic attack for other units or abilities
                 handleBasicAttack("enemy", enemy.instanceId, targetId);
@@ -1910,6 +1913,144 @@ function BattlefieldCombat() {
         })
       );
 
+      // Clear animations
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setAnimatingAbility(false);
+      }, 800);
+    }, 500);
+  }
+
+  // Add function to handle Fey Queen's summoning ability
+  function handleFeyQueenSummon(feyQueen) {
+    // Create a log entry for the Fey Queen ability
+    const summonLogEntry = {
+      unit: feyQueen.name,
+      type: "ability",
+      abilityName: feyQueen.ability.name,
+      targets: []
+    };
+
+    // Add animation
+    setAnimatingUnitId(feyQueen.instanceId || feyQueen.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${feyQueen.name} casts ${feyQueen.ability.name}!`,
+      type: "ability"
+    });
+
+    setTimeout(() => {
+      // Check how many alive enemy units are currently on the battlefield
+      const aliveEnemyCount = enemyUnits.filter(unit => !unit.isDead).length;
+      
+      // Maximum allowed enemy units is 5
+      const maxEnemies = 5;
+      
+      // Calculate how many units we can summon (up to 3 if there's room)
+      const availableSlots = maxEnemies - aliveEnemyCount;
+      
+      // If no slots available, show message and return
+      if (availableSlots <= 0) {
+        addToActionLog({
+          text: `${feyQueen.name} attempts to summon allies, but the battlefield is full!`,
+          type: "ability"
+        });
+        
+        // Set ability on cooldown
+        setEnemyUnits(prev =>
+          prev.map(u => {
+            if (u.instanceId === feyQueen.instanceId || u.id === feyQueen.id) {
+              return {
+                ...u,
+                acted: true,
+                ability: u.ability ? {
+                  ...u.ability,
+                  currentCooldown: u.ability.maxCooldown
+                } : null
+              };
+            }
+            return u;
+          })
+        );
+        
+        // Clear animations
+        setTimeout(() => {
+          setAnimatingUnitId(null);
+          setAnimatingAbility(false);
+        }, 800);
+        
+        return;
+      }
+      
+      // Prepare the units to summon (in priority order)
+      const unitsToSummon = ["woodSprite", "pixieTrickster", "willowisp"];
+      
+      // Limit to available slots
+      const actualSummons = unitsToSummon.slice(0, availableSlots);
+      
+      // Get the summoned units with full details
+      const summonedUnits = actualSummons.map(unitId => getUnitById(unitId));
+      
+      // Log which units are being summoned
+      const summonNames = summonedUnits.map(unit => unit.name).join(", ");
+      addToActionLog({
+        text: `${feyQueen.name} summons ${summonNames} to the battlefield!`,
+        type: "summon"
+      });
+      
+      // Add summoned units to the enemy units array
+      setEnemyUnits(prev => {
+        // Prepare the new units with instance IDs
+        const newUnits = summonedUnits.map(unit => {
+          // Create a unique instance ID for the new unit
+          const timestamp = Date.now();
+          const uniqueId = `${unit.id}-${timestamp}`;
+          
+          // Add to the summon log
+          summonLogEntry.targets.push({
+            unit: unit.name,
+            Status: "Summoned"
+          });
+          
+          return {
+            ...unit,
+            instanceId: uniqueId,
+            acted: true, // Summoned units can't act on the turn they're summoned
+            hp: unit.maxHP,
+            statusEffects: [],
+            ability: unit.ability ? {
+              ...unit.ability,
+              currentCooldown: 0
+            } : null
+          };
+        });
+        
+        // Return previous units plus the new summoned ones
+        return [...prev, ...newUnits];
+      });
+      
+      // Add the complete ability log
+      addToActionLog(summonLogEntry);
+      
+      // Set ability on cooldown for Fey Queen
+      setEnemyUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === feyQueen.instanceId || u.id === feyQueen.id) {
+            return {
+              ...u,
+              acted: true,
+              ability: u.ability ? {
+                ...u.ability,
+                currentCooldown: u.ability.maxCooldown
+              } : null
+            };
+          }
+          return u;
+        })
+      );
+      
       // Clear animations
       setTimeout(() => {
         setAnimatingUnitId(null);
