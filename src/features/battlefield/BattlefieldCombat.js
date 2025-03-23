@@ -14,7 +14,7 @@ import dragonsLairBg from "../../assets/images/battlegrounds/dragons-lair.png";
 
 function BattlefieldCombat() {
   console.log("BattlefieldCombat rendering");
-  
+
   // Get location and campaign level data if coming from campaign
   const location = useLocation();
   const levelData = location.state;
@@ -71,7 +71,7 @@ function BattlefieldCombat() {
   // Helper function to prepare units for the game state
   const prepareUnits = (units, storedHealthStatus = null) => {
     console.log("prepareUnits called with", units?.length, "units and storedHealthStatus:", storedHealthStatus);
-    
+
     // First, map units to fetch player unit details
     units = units.map(unit => getUnitById(unit));
 
@@ -85,7 +85,7 @@ function BattlefieldCombat() {
 
       // Create a unique instance ID that includes the count for all units
       const uniqueId = `${unit.id}-${unitCounts[unit.id]}`;
-      
+
       // Check if we have stored health status for this unit
       const storedStatus = storedHealthStatus ? storedHealthStatus[unit.id] : null;
 
@@ -110,15 +110,15 @@ function BattlefieldCombat() {
   const [playerUnits, setPlayerUnits] = useState(() => {
     const campaignTeam = getActiveCampaignTeam();
     console.log("Initializing playerUnits with campaignTeam:", campaignTeam);
-    
+
     if (!campaignTeam) return prepareUnits([]);
-    
+
     // If we're in campaign mode and have stored health/death status, pass it to prepareUnits
     if (isCampaignMode && campaignTeam.campaignStats && campaignTeam.campaignStats.unitHealthStatus) {
       console.log("Using stored campaign health status:", campaignTeam.campaignStats.unitHealthStatus);
       return prepareUnits(campaignTeam.units, campaignTeam.campaignStats.unitHealthStatus);
     }
-    
+
     // Otherwise just prepare units normally
     return prepareUnits(campaignTeam.units);
   });
@@ -183,7 +183,7 @@ function BattlefieldCombat() {
     if (!isCampaignMode) {
       const campaignTeam = getActiveCampaignTeam();
       console.log("Campaign team change detected in non-campaign mode:", campaignTeam);
-      
+
       if (campaignTeam) {
         console.log("Updating playerUnits from campaign team (non-campaign mode)");
         setPlayerUnits(prepareUnits(campaignTeam.units));
@@ -329,12 +329,12 @@ function BattlefieldCombat() {
         text: "Victory! All enemies have been defeated!",
         type: "victory"
       });
-      
+
       // Save player units' health and death status for campaign progression
       if (isCampaignMode) {
         // Store each unit's current health and death status
         const unitHealthStatus = {};
-        
+
         playerUnits.forEach(unit => {
           // Store both health and death status for each unit by instance ID
           unitHealthStatus[unit.id] = {
@@ -342,13 +342,13 @@ function BattlefieldCombat() {
             isDead: unit.isDead
           };
         });
-        
+
         // Update campaign team stats with the current health/death status
         updateCampaignTeamStats({
           unitHealthStatus: unitHealthStatus,
           levelsCompleted: levelData.level ? levelData.level.id : 0
         });
-        
+
         addToActionLog({
           text: "Unit health and status saved for next battle!",
           type: "campaign"
@@ -520,13 +520,13 @@ function BattlefieldCombat() {
                   if (isMelee) {
                     // Add poison effect to melee attacker
                     setTimeout(() => {
-                      setPlayerUnits(prevUnits => 
+                      setPlayerUnits(prevUnits =>
                         prevUnits.map(u => {
                           if (u.instanceId === attacker.instanceId) {
                             const newStatusEffects = [...u.statusEffects];
                             // Check if already poisoned to avoid stacking
                             const alreadyPoisoned = newStatusEffects.some(effect => effect.type === "poison");
-                            
+
                             if (!alreadyPoisoned) {
                               newStatusEffects.push({
                                 type: "poison",
@@ -1693,9 +1693,6 @@ function BattlefieldCombat() {
         return;
       }
 
-      // Select a random target from valid targets (usually the first one, or random from taunters)
-      var targetId = validTargets[Math.floor(Math.random() * validTargets.length)].instanceId;
-
       if (validTargets.length > 0 && activeEnemies.length > 0) {
         const performEnemyAction = (index) => {
           const enemy = activeEnemies[index];
@@ -1707,7 +1704,10 @@ function BattlefieldCombat() {
             }, 500);
             return;
           }
-          
+
+          // Select a random target from valid targets (usually the first one, or random from taunters)
+          var targetId = validTargets[Math.floor(Math.random() * validTargets.length)].instanceId;
+
           setCurrentlyAttacking(enemy.instanceId);
           setTimeout(() => {
             // Check if this enemy has an ability to use
@@ -2052,20 +2052,20 @@ function BattlefieldCombat() {
     setTimeout(() => {
       // Check how many alive enemy units are currently on the battlefield
       const aliveEnemyCount = enemyUnits.filter(unit => !unit.isDead).length;
-      
+
       // Maximum allowed enemy units is 5
       const maxEnemies = 5;
-      
+
       // Calculate how many units we can summon (up to 3 if there's room)
       const availableSlots = maxEnemies - aliveEnemyCount;
-      
+
       // If no slots available, show message and return
       if (availableSlots <= 0) {
         addToActionLog({
           text: `${feyQueen.name} attempts to summon allies, but the battlefield is full!`,
           type: "ability"
         });
-        
+
         // Set ability on cooldown
         setEnemyUnits(prev =>
           prev.map(u => {
@@ -2082,32 +2082,32 @@ function BattlefieldCombat() {
             return u;
           })
         );
-        
+
         // Clear animations
         setTimeout(() => {
           setAnimatingUnitId(null);
           setAnimatingAbility(false);
         }, 800);
-        
+
         return;
       }
-      
+
       // Prepare the units to summon (in priority order)
       const unitsToSummon = ["woodSprite", "pixieTrickster", "willowisp"];
-      
+
       // Limit to available slots
       const actualSummons = unitsToSummon.slice(0, availableSlots);
-      
+
       // Get the summoned units with full details
       const summonedUnits = actualSummons.map(unitId => getUnitById(unitId));
-      
+
       // Log which units are being summoned
       const summonNames = summonedUnits.map(unit => unit.name).join(", ");
       addToActionLog({
         text: `${feyQueen.name} summons ${summonNames} to the battlefield!`,
         type: "summon"
       });
-      
+
       // Add summoned units to the enemy units array
       setEnemyUnits(prev => {
         // Prepare the new units with instance IDs
@@ -2115,13 +2115,13 @@ function BattlefieldCombat() {
           // Create a unique instance ID for the new unit
           const timestamp = Date.now();
           const uniqueId = `${unit.id}-${timestamp}`;
-          
+
           // Add to the summon log
           summonLogEntry.targets.push({
             unit: unit.name,
             Status: "Summoned"
           });
-          
+
           return {
             ...unit,
             instanceId: uniqueId,
@@ -2134,14 +2134,14 @@ function BattlefieldCombat() {
             } : null
           };
         });
-        
+
         // Return previous units plus the new summoned ones
         return [...prev, ...newUnits];
       });
-      
+
       // Add the complete ability log
       addToActionLog(summonLogEntry);
-      
+
       // Set ability on cooldown for Fey Queen
       setEnemyUnits(prev =>
         prev.map(u => {
@@ -2158,7 +2158,7 @@ function BattlefieldCombat() {
           return u;
         })
       );
-      
+
       // Clear animations
       setTimeout(() => {
         setAnimatingUnitId(null);
@@ -2959,12 +2959,12 @@ function BattlefieldCombat() {
         console.log(`${team} unit ${unit.name} (${unit.instanceId}): HP=${unit.hp}/${unit.maxHP}, isDead=${unit.isDead}`);
       });
     }
-    
+
     // Filter out dead enemy units so they completely disappear from the battlefield
-    const displayedUnits = team === "enemy" 
+    const displayedUnits = team === "enemy"
       ? units.filter(unit => !unit.isDead)
       : units;
-    
+
     return (
       <div className="unit-list">
         {displayedUnits.map((unit) => (
@@ -2991,12 +2991,12 @@ function BattlefieldCombat() {
     );
   }, [
     // Add all state dependencies that renderUnitList uses
-    animatingUnitId, 
-    damagedUnitId, 
-    selectedPlayerUnit, 
-    selectedEnemyUnit, 
-    attackingUnit, 
-    activeTeam, 
+    animatingUnitId,
+    damagedUnitId,
+    selectedPlayerUnit,
+    selectedEnemyUnit,
+    attackingUnit,
+    activeTeam,
     gameOver,
     usingAbility
   ]);
@@ -3114,7 +3114,7 @@ function BattlefieldCombat() {
           <div className="game-over">
             <h2>{winner === "player" ? "Victory!" : "Defeat!"}</h2>
             <p>{winner === "player" ? "You have defeated all enemies!" : "Your party has been defeated."}</p>
-            
+
             {winner === "player" ? (
               <button className="return-to-menu" onClick={() => navigate('/campaign')}>
                 Continue
