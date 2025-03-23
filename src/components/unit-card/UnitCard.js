@@ -25,21 +25,6 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
           <h3 className="unit-name">{unit.name}</h3>
           <img src={unit.image} alt={unit.name} className="unit-image" />
           
-          {/* Status Effect Indicators */}
-          {unit.statusEffects && unit.statusEffects.length > 0 && (
-            <div className="status-indicators">
-              {unit.statusEffects.map((effect, idx) => (
-                <div 
-                  key={`status-${idx}`} 
-                  className={`status-icon ${effect.type}`} 
-                  title={effect.name}
-                >
-                  {effect.icon}
-                </div>
-              ))}
-            </div>
-          )}
-          
           {unit.ability && (
             <div className="unit-ability">
               <div className="ability-header">
@@ -69,6 +54,21 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
             </div>
           )}
         </div>
+        
+        {/* Status Effect Indicators - moved to right before the stats */}
+        {unit.statusEffects && unit.statusEffects.length > 0 && (
+          <div className="status-indicators">
+            {unit.statusEffects.map((effect, idx) => (
+              <div 
+                key={`status-${idx}`} 
+                className={`status-icon ${effect.type}`} 
+                title={effect.name}
+              >
+                {effect.icon}
+              </div>
+            ))}
+          </div>
+        )}
         
         <div className="unit-stats">
           <span className="stat">
