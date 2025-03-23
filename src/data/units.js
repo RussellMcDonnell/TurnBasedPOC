@@ -86,7 +86,7 @@ export const units = {
     ability: {
       name: "Barkskin",
       icon: "🌳",
-      description: "Increases defense, reducing incoming damage by 50% for 2 turns.",
+      description: "Treant Guardian hardens its bark, gaining an (8) hit point shield. Melee attackers striking the shield are poisoned.",
       maxCooldown: 3,
     },
     type: "enemy"
