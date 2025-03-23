@@ -1,7 +1,7 @@
 /* Status effect styling for unit cards */
 .unit-card {
   position: relative;
-}
+  }
 
 .unit-card-content {
   display: flex;
@@ -17,12 +17,13 @@
   max-width: 100%;
   border-radius: 8px;
   object-fit: cover;
-}
+  }
 
 .unit-card-top {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+flex-direction: column;
+flex-direction: column;
+align-items: center;
   text-align: center;
 }
 
@@ -40,7 +41,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 24px;
+width: 24px;
   height: 24px;
   border-radius: 50%;
   font-size: 16px;
@@ -62,7 +63,7 @@
   gap: 4px;
   margin: 5px 0;
   padding: 0 5px;
-}
+  }
 
 .keyword-tag {
   font-size: 0.7rem;
@@ -72,6 +73,10 @@
   border-radius: 10px;
   cursor: help;
   transition: background-color 0.2s;
+  background-color: rgba(70, 130, 180, 0.5);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 9px;
 }
 
 .keyword-tag:hover {
@@ -82,6 +87,23 @@
 .unit-stats {
   display: flex;
   justify-content: space-between;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+}
+
+.stat-icon {
+  margin-right: 3px;
+}
+
+.shield-stat {
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #3498db;
+  font-weight: bold;
+  animation: pulse 1.5s infinite;
 }
 
 /* Pulsing animation for status effects */
@@ -100,4 +122,89 @@
     opacity: 0.6;
     transform: scale(1);
   }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(52, 152, 219, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+}
+
+/* Status effect indicators */
+.status-indicators {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 10;
+  top: 5px;
+  right: 5px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.status-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+}
+
+.status-icon.burn { background-color: rgba(255, 69, 0, 0.7); }
+.status-icon.poison { background-color: rgba(0, 128, 0, 0.7); }
+.status-icon.frozen { background-color: rgba(0, 191, 255, 0.7); }
+.status-icon.stunned { background-color: rgba(255, 215, 0, 0.7); }
+.status-icon.confused { background-color: rgba(128, 0, 128, 0.7); }
+
+/* Specific status effect styling */
+.status-icon.frozen {
+  background: rgba(0, 128, 255, 0.7);
+  animation: pulse 1.5s infinite;
+}
+
+/* Animation for attacking */
+.unit-card.attacking {
+  animation: attack-pulse 0.5s;
+}
+
+@keyframes attack-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1) translateY(-5px); }
+  100% { transform: scale(1); }
+}
+
+.unit-card.taking-damage {
+  animation: damage-flash 0.5s;
+}
+
+@keyframes damage-flash {
+  0% { background-color: rgba(0, 0, 0, 0.7); }
+  50% { background-color: rgba(255, 0, 0, 0.7); }
+  100% { background-color: rgba(0, 0, 0, 0.7); }
+}
+
+/* Animation for ability use */
+.unit-card.using-ability {
+  animation: ability-pulse 0.8s;
+}
+
+@keyframes ability-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(70, 130, 180, 0); }
+  50% { transform: scale(1.1) translateY(-5px); box-shadow: 0 0 20px rgba(70, 130, 180, 0.8); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(70, 130, 180, 0); }
+}
+
+.has-taunt {
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
 }

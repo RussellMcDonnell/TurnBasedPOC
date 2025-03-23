@@ -75,6 +75,12 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
             <span className="stat-icon">❤️</span>
             {unit.hp}/{unit.maxHP}
           </span>
+          {unit.shield > 0 && (
+            <span className="stat shield-stat">
+              <span className="stat-icon">🛡️</span>
+              {unit.shield}
+            </span>
+          )}
           <span className="stat">
             <span className="stat-icon">⚔️</span>
             {unit.damage}
@@ -84,4 +90,5 @@ function UnitCard({ unit, team, isSelected, isAttacking, className = "", onClick
     </div>
   );
 }
+
 export default UnitCard;

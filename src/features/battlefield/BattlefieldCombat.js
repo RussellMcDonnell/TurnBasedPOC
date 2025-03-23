@@ -80,9 +80,7 @@ function BattlefieldCombat() {
 
     return units.map(unit => {
       // Generate a unique ID for all units
-      if (!unitCounts[unit.id]) {
-        unitCounts[unit.id] = 0;
-      }
+      if (!unitCounts[unit.id]) unitCounts[unit.id] = 0;
       unitCounts[unit.id]++;
 
       // Create a unique instance ID that includes the count for all units
@@ -97,6 +95,7 @@ function BattlefieldCombat() {
         acted: false,
         isDead: storedStatus ? storedStatus.isDead : false,
         hp: storedStatus ? storedStatus.currentHP : unit.maxHP, // Use stored HP if available, otherwise use maxHP
+        shield: 0, // Add shield property for all units
         statusEffects: [],
         ability: unit.ability ? {
           ...unit.ability,
@@ -481,15 +480,88 @@ function BattlefieldCombat() {
         setDamagedUnitId(target.instanceId);
 
         // Calculate actual damage dealt and store it for lifesteal
-        let actualDamage = Math.min(attacker.damage, target.hp);
+        let actualDamage = attacker.damage;
         let hasLifesteal = attacker.keywords && attacker.keywords.includes("Lifesteal");
+        let damageAbsorbedByShield = 0;
 
         // Apply damage to the target
         setEnemyUnits((prev) =>
           prev.map((unit) => {
-            // FIXED: Only compare instanceId, not the original id
+            // Only compare instanceId, not the original id
             if (unit.instanceId === target.instanceId && !unit.isDead) {
-              const newHP = unit.hp - attacker.damage;
+              let remainingDamage = attacker.damage;
+              let newShield = unit.shield;
+              let newHP = unit.hp;
+
+              // Handle shield damage first if shield exists
+              if (newShield > 0) {
+                // Calculate how much damage is absorbed by shield
+                damageAbsorbedByShield = Math.min(newShield, remainingDamage);
+                newShield -= damageAbsorbedByShield;
+                remainingDamage -= damageAbsorbedByShield;
+
+                if (newShield === 0) {
+                  addToActionLog({
+                    text: `${unit.name}'s shield is broken!`,
+                    type: "status"
+                  });
+                } else {
+                  addToActionLog({
+                    text: `${unit.name}'s shield absorbs ${damageAbsorbedByShield} damage!`,
+                    type: "status"
+                  });
+                }
+
+                // Handle Treant Guardian's poison effect when shield is hit
+                if (unit.name === "Treant Guardian" && unit.shield > 0) {
+                  // Check if the attacker is a melee unit
+                  const isMelee = attacker.keywords && attacker.keywords.includes("Melee");
+
+                  if (isMelee) {
+                    // Add poison effect to melee attacker
+                    setTimeout(() => {
+                      setPlayerUnits(prevUnits => 
+                        prevUnits.map(u => {
+                          if (u.instanceId === attacker.instanceId) {
+                            const newStatusEffects = [...u.statusEffects];
+                            // Check if already poisoned to avoid stacking
+                            const alreadyPoisoned = newStatusEffects.some(effect => effect.type === "poison");
+                            
+                            if (!alreadyPoisoned) {
+                              newStatusEffects.push({
+                                type: "poison",
+                                name: "Poisoned",
+                                icon: "☠️",
+                                duration: 2 // Poison lasts for 2 turns
+                              });
+
+                              // Log the poisoning effect
+                              addToActionLog({
+                                text: `${u.name} is poisoned by ${unit.name}'s hardened bark!`,
+                                type: "status"
+                              });
+                            }
+
+                            return {
+                              ...u,
+                              statusEffects: newStatusEffects
+                            };
+                          }
+                          return u;
+                        })
+                      );
+                    }, 100);
+                  }
+                }
+              }
+
+              // Apply remaining damage to HP if any
+              if (remainingDamage > 0) {
+                newHP -= remainingDamage;
+              }
+
+              // Calculate actual damage for lifesteal (damage to HP, not shield)
+              actualDamage = Math.min(remainingDamage, unit.hp);
 
               if (newHP <= 0) {
                 addToActionLog({
@@ -500,6 +572,7 @@ function BattlefieldCombat() {
 
               return {
                 ...unit,
+                shield: newShield,
                 hp: Math.max(0, newHP),
                 isDead: newHP <= 0,
               };
@@ -515,11 +588,12 @@ function BattlefieldCombat() {
             setPlayerUnits((prevUnits) =>
               prevUnits.map((u) => {
                 if (u.instanceId === attacker.instanceId) {
-                  const newHP = Math.min(u.hp + actualDamage, u.maxHP); // Don't exceed max HP
+                  const healAmount = Math.min(actualDamage, attacker.damage);
+                  const newHP = Math.min(u.hp + healAmount, u.maxHP); // Don't exceed max HP
 
                   // Log the healing
                   addToActionLog({
-                    text: `${u.name} heals for ${actualDamage} from Lifesteal`,
+                    text: `${u.name} heals for ${healAmount} from Lifesteal`,
                     type: "heal"
                   });
 
@@ -606,10 +680,8 @@ function BattlefieldCombat() {
       setTimeout(() => {
         setDamagedUnitId(target.instanceId);
 
-        // Calculate attack damage and lifesteal value
-        var damage = attacker.damage;
-
         // Check if unit is Dire Wolf and add bonus damage for Pack Hunter
+        let damage = attacker.damage;
         if (attacker.name === "Dire Wolf") {
           // Give two bonus damage for each additional Dire Wolf
           const packHunterBonus = (enemyUnits.filter(u => u.name === "Dire Wolf" && !u.isDead).length - 1) * 2;
@@ -617,15 +689,46 @@ function BattlefieldCombat() {
         }
 
         // Calculate actual damage for lifesteal
-        let actualDamage = Math.min(damage, target.hp);
+        let actualDamage = damage;
         let hasLifesteal = attacker.keywords && attacker.keywords.includes("Lifesteal");
+        let damageAbsorbedByShield = 0;
 
         // Apply damage to player unit
         setPlayerUnits((prev) =>
           prev.map((unit) => {
-            // FIXED: Only compare instanceId, not the original id
+            // Only compare instanceId, not the original id
             if (unit.instanceId === target.instanceId && !unit.isDead) {
-              const newHP = unit.hp - damage;
+              let remainingDamage = damage;
+              let newShield = unit.shield;
+              let newHP = unit.hp;
+
+              // Handle shield damage first if shield exists
+              if (newShield > 0) {
+                // Calculate how much damage is absorbed by shield
+                damageAbsorbedByShield = Math.min(newShield, remainingDamage);
+                newShield -= damageAbsorbedByShield;
+                remainingDamage -= damageAbsorbedByShield;
+
+                if (newShield === 0) {
+                  addToActionLog({
+                    text: `${unit.name}'s shield is broken!`,
+                    type: "status"
+                  });
+                } else {
+                  addToActionLog({
+                    text: `${unit.name}'s shield absorbs ${damageAbsorbedByShield} damage!`,
+                    type: "status"
+                  });
+                }
+              }
+
+              // Apply remaining damage to HP if any
+              if (remainingDamage > 0) {
+                newHP -= remainingDamage;
+              }
+
+              // Calculate actual damage for lifesteal (damage to HP, not shield)
+              actualDamage = Math.min(remainingDamage, unit.hp);
 
               if (newHP <= 0) {
                 addToActionLog({
@@ -636,6 +739,7 @@ function BattlefieldCombat() {
 
               return {
                 ...unit,
+                shield: newShield,
                 hp: Math.max(0, newHP),
                 isDead: newHP <= 0,
               };
@@ -651,11 +755,12 @@ function BattlefieldCombat() {
             setEnemyUnits((prevUnits) =>
               prevUnits.map((u) => {
                 if (u.instanceId === attacker.instanceId) {
-                  const newHP = Math.min(u.hp + actualDamage, u.maxHP); // Don't exceed max HP
+                  const healAmount = Math.min(actualDamage, attacker.damage);
+                  const newHP = Math.min(u.hp + healAmount, u.maxHP); // Don't exceed max HP
 
                   // Log the healing
                   addToActionLog({
-                    text: `${u.name} heals for ${actualDamage} from Lifesteal`,
+                    text: `${u.name} heals for ${healAmount} from Lifesteal`,
                     type: "heal"
                   });
 
@@ -1619,6 +1724,9 @@ function BattlefieldCombat() {
               } else if (enemy.name === "Fey Queen" && enemy.ability.name === "Nature's Aid") {
                 // Execute the Fey Queen's summoning ability
                 handleFeyQueenSummon(enemy);
+              } else if (enemy.name === "Treant Guardian" && enemy.ability.name === "Barkskin") {
+                // Execute the Treant Guardian's Barkskin ability
+                handleBarkskin(enemy);
               } else {
                 // Default to basic attack for other units or abilities
                 handleBasicAttack("enemy", enemy.instanceId, targetId);
@@ -2051,6 +2159,67 @@ function BattlefieldCombat() {
         })
       );
       
+      // Clear animations
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setAnimatingAbility(false);
+      }, 800);
+    }, 500);
+  }
+
+  // Add function to handle Treant Guardian's Barkskin ability
+  function handleBarkskin(treant) {
+    // Create a log entry for the ability
+    const barkskinLogEntry = {
+      unit: treant.name,
+      type: "ability",
+      abilityName: treant.ability.name,
+      targets: [{
+        unit: treant.name,
+        Damage: "0",
+        Status: "Shield (+8)"
+      }]
+    };
+
+    // Add animation
+    setAnimatingUnitId(treant.instanceId || treant.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${treant.name} casts ${treant.ability.name}, hardening its bark!`,
+      type: "ability"
+    });
+
+    // Apply the shield after a short delay
+    setTimeout(() => {
+      // Apply shield to the treant
+      setEnemyUnits(prev =>
+        prev.map(unit => {
+          if (unit.instanceId === treant.instanceId || unit.id === treant.id) {
+            // Apply shield
+            addToActionLog({
+              text: `${treant.name} gains an 8 hit point shield!`,
+              type: "status"
+            });
+
+            return {
+              ...unit,
+              shield: 8,
+              acted: true,
+              ability: unit.ability ? {
+                ...unit.ability,
+                currentCooldown: unit.ability.maxCooldown
+              } : null
+            };
+          }
+          return unit;
+        })
+      );
+
+      // Add the complete ability log
+      addToActionLog(barkskinLogEntry);
+
       // Clear animations
       setTimeout(() => {
         setAnimatingUnitId(null);
