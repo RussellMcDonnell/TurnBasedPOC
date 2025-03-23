@@ -859,6 +859,18 @@ function BattlefieldCombat() {
         activateBlizzard();
 
         // Blizzard ability - damages all enemies with chance to stun
+        // For non-targeted abilities like this, execute ability immediately and mark unit as having acted
+        setPlayerUnits((prev) =>
+          prev.map((u) => ((u.instanceId === unit.instanceId || u.id === unit.id) ? { 
+            ...u, 
+            acted: true, 
+            ability: u.ability ? {
+              ...u.ability,
+              currentCooldown: u.ability.maxCooldown
+            } : null 
+          } : u))
+        );
+
         setTimeout(() => {
           const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead);
 
@@ -908,27 +920,16 @@ function BattlefieldCombat() {
           // Add the complete ability log after processing all effects
           addToActionLog(abilityLogEntry);
 
-          // Set ability on cooldown
-          setPlayerUnits(prev =>
-            prev.map(u => {
-              if (u.instanceId === unitId || u.id === unitId) {
-                return {
-                  ...u,
-                  acted: true,
-                  ability: {
-                    ...u.ability,
-                    currentCooldown: u.ability.maxCooldown
-                  }
-                };
-              }
-              return u;
-            })
-          );
-
           // Clear animations
           setTimeout(() => {
             setAnimatingUnitId(null);
             setAnimatingAbility(false);
+            
+            // Only end the turn after the ability is fully processed for non-targeted abilities
+            if (!requiresTargetSelection && !firstTurnUsed) {
+              setFirstTurnUsed(true);
+              endPlayerTurn();
+            }
           }, 800);
         }, 500);
         break;
@@ -1152,13 +1153,12 @@ function BattlefieldCombat() {
 
     // Set first turn as used if it's the first turn
     if (!firstTurnUsed) {
-
       // Only automatically end turn for abilities that don't require target selection
-      if (!requiresTargetSelection) {
-        setFirstTurnUsed(true);
-        endPlayerTurn();
+      // But now we'll end the turn AFTER the ability completes, not before
+      if (requiresTargetSelection) {
+        // For abilities that need targeting, the turn will end after the target is selected and ability is executed
+        // Nothing to do here
       }
-      // For abilities that need targeting, the turn will end after the target is selected and ability is executed
     }
   }
 
@@ -1574,12 +1574,14 @@ function BattlefieldCombat() {
     if (team === "player") {
       setPlayerUnits((prev) =>
         prev.map((u) => {
+          // Explicitly set acted to false for all units to ensure reset
           return { ...u, acted: false };
         })
       );
     } else {
       setEnemyUnits((prev) =>
         prev.map((u) => {
+          // Explicitly set acted to false for all units to ensure reset
           return { ...u, acted: false };
         })
       );

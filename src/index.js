@@ -14,7 +14,6 @@ import CampaignMenu from './features/campaign/CampaignMenu';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
     <TeamProvider>
       <Router>
         <Routes>
@@ -28,7 +27,6 @@ root.render(
         </Routes>
       </Router>
     </TeamProvider>
-  </React.StrictMode>
 );
 
 reportWebVitals();
