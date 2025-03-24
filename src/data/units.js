@@ -67,7 +67,7 @@ export const units = {
     ability: {
       name: "Infernal Roar",
       icon: "🔥",
-      description: "Unleashes a devastating blast of dragonfire, dealing 12 damage to all enemies and applying Burned status for 2 turns.",
+      description: "Unleashes a devastating blast of dragonfire, dealing ATK(8) damage to all enemies and applying Burned status for 2 turns.",
       maxCooldown: 3,
     },
     type: "enemy"
