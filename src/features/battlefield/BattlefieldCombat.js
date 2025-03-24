@@ -1734,6 +1734,9 @@ function BattlefieldCombat() {
               } else if (enemy.name === "Treant Guardian" && enemy.ability.name === "Barkskin") {
                 // Execute the Treant Guardian's Barkskin ability
                 handleBarkskin(enemy);
+              } else if (enemy.name === "Ashbringer" && enemy.ability.name === "Infernal Roar") {
+                // Execute the Ashbringer's Infernal Roar ability
+                handleInfernalRoar(enemy);
               } else {
                 // Default to basic attack for other units or abilities
                 handleBasicAttack("enemy", enemy.instanceId, targetId);
@@ -2235,6 +2238,108 @@ function BattlefieldCombat() {
     }, 500);
   }
 
+  // Add function to handle Ashbringer's Infernal Roar ability
+  function handleInfernalRoar(ashbringer) {
+    // Create a log entry for the ability
+    const infernalRoarLogEntry = {
+      unit: ashbringer.name,
+      type: "ability",
+      abilityName: ashbringer.ability.name,
+      targets: []
+    };
+
+    // Add animation
+    setAnimatingUnitId(ashbringer.instanceId || ashbringer.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${ashbringer.name} unleashes a devastating ${ashbringer.ability.name}!`,
+      type: "ability"
+    });
+
+    // Create a fire animation effect (could be expanded in future)
+    // For now we'll just add a dramatic pause before damage is applied
+    setTimeout(() => {
+      // Apply damage and burn status to all alive player units
+      setPlayerUnits(prev =>
+        prev.map(unit => {
+          if (!unit.isDead) {
+            const newHP = unit.hp - ashbringer.damage;
+            const newStatusEffects = [...unit.statusEffects];
+            
+            // Check if already burned to avoid stacking
+            const alreadyBurned = newStatusEffects.some(effect => effect.type === "burn");
+            
+            if (!alreadyBurned) {
+              // Add burned status effect with consistent typing
+              newStatusEffects.push({
+                type: "burn",
+                name: "Burned",
+                icon: "🔥",
+                duration: 2  // Burns for 2 turns as per the ability description
+              });
+              
+              // Log status effect application
+              addToActionLog({
+                text: `${unit.name} is engulfed in dragonfire and Burned!`,
+                type: "status"
+              });
+            }
+
+            // Add to ability log
+            infernalRoarLogEntry.targets.push({
+              unit: unit.name,
+              Damage: ashbringer.damage.toString(),
+              Status: alreadyBurned ? "None" : "Burned"
+            });
+
+            if (newHP <= 0) {
+              addToActionLog({
+                text: `${unit.name} is defeated!`,
+                type: "defeat"
+              });
+            }
+
+            return {
+              ...unit,
+              hp: Math.max(0, newHP),
+              isDead: newHP <= 0,
+              statusEffects: newStatusEffects
+            };
+          }
+          return unit;
+        })
+      );
+
+      // Add the complete ability log
+      addToActionLog(infernalRoarLogEntry);
+
+      // Set ability on cooldown
+      setEnemyUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === ashbringer.instanceId || u.id === ashbringer.id) {
+            return {
+              ...u,
+              acted: true,
+              ability: u.ability ? {
+                ...u.ability,
+                currentCooldown: u.ability.maxCooldown
+              } : null
+            };
+          }
+          return u;
+        })
+      );
+
+      // Clear animations
+      setTimeout(() => {
+        setAnimatingUnitId(null);
+        setAnimatingAbility(false);
+      }, 800);
+    }, 500);
+  }
+
   // Add keyboard event handler
   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -2508,7 +2613,7 @@ function BattlefieldCombat() {
 
                     if (removedEffects.length > 0) {
                       addToActionLog({
-                        text: `${removedEffects.length} negative effects removed from ${ally.name}`,
+                        text: `${removedEffects.length } negative effects removed from ${ally.name}`,
                         type: "status"
                       });
                     }
@@ -2791,29 +2896,6 @@ function BattlefieldCombat() {
         setTimeout(() => endPlayerTurn(), 1500);
       }
 
-      return;
-    }
-
-    if (attackingUnit) {
-      // If we're in attack mode and clicked an enemy
-      if (team === "enemy" && !unit.isDead) {
-        // Check if there are any taunting units
-        const taunters = enemyUnits.filter(enemy => !enemy.isDead && hasTaunt(enemy));
-
-        // If there are taunting units and the clicked unit doesn't have taunt, show a message
-        if (taunters.length > 0 && !hasTaunt(unit)) {
-          addToActionLog({
-            text: `You must attack units with Taunt first!`,
-            type: "normal"
-          });
-          return;
-        }
-
-        // Otherwise proceed with attack
-        handleBasicAttack("player", attackingUnit.instanceId, unit.instanceId);
-        setAttackingUnit(null);
-        setSelectedPlayerUnit(null);
-      }
       return;
     }
 
