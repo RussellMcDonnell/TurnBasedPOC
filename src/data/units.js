@@ -58,8 +58,8 @@ export const units = {
   "ashbringer": {
     id: "ashbringer",
     name: "Ashbringer",
-    maxHP: 50,
-    hp: 50,
+    maxHP: 40,
+    hp: 40,
     damage: 8,
     image: ashbringerPortrait,
     fullArt: ashbringerPortrait,
