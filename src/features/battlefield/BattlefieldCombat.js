@@ -2357,8 +2357,12 @@ function BattlefieldCombat() {
           handleAction("Attack");
           break;
         case 'e':
+          // Settings shortcut - toggle settings dialog
+          if (!attackingUnit && !selectedEnemyUnit) {
+            setIsSettingsOpen(prev => !prev);
+          }
           // Confirm attack if in attack mode and a target is selected
-          if (attackingUnit && selectedEnemyUnit) {
+          else if (attackingUnit && selectedEnemyUnit) {
             handleAction("Confirm");
           }
           break;
@@ -2373,7 +2377,7 @@ function BattlefieldCombat() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [selectedPlayerUnit, gameOver, activeTeam, attackingUnit, selectedEnemyUnit]); // Added dependencies for the new functionality
+  }, [selectedPlayerUnit, gameOver, activeTeam, attackingUnit, selectedEnemyUnit, setIsSettingsOpen]); // Added setIsSettingsOpen dependency
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {

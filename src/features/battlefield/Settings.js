@@ -24,6 +24,10 @@ function Settings({ isOpen, onClose, gameSettings, onSettingsChange }) {
                 <kbd>S</kbd>
                 <span>Skip turn</span>
               </div>
+              <div className="shortcut">
+                <kbd>E</kbd>
+                <span>Confirm</span>
+              </div>
             </div>
           </div>
         </div>
