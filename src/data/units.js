@@ -80,7 +80,7 @@ export const units = {
     damage: 4,
     image: lynValkenPortrait,
     fullArt: lynValkenPortrait,
-    keywords: ["Melee", "Armored", "Taunt"],
+    keywords: [],
     ability: {
       name: "Dragon's Whisper",
       icon: "🐉",

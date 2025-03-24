@@ -2613,7 +2613,7 @@ function BattlefieldCombat() {
 
                     if (removedEffects.length > 0) {
                       addToActionLog({
-                        text: `${removedEffects.length } negative effects removed from ${ally.name}`,
+                        text: `${removedEffects.length} negative efects removed from ${ally.name}`,
                         type: "status"
                       });
                     }
@@ -2897,6 +2897,23 @@ function BattlefieldCombat() {
       }
 
       return;
+    }
+
+    if (attackingUnit) {
+      // If we're in attack mode and clicked an enemy
+      if (team === "enemy" && !unit.isDead) {
+        // Check if there are any taunting units
+        const taunters = enemyUnits.filter(enemy => !enemy.isDead && hasTaunt(enemy));
+
+        // If there are taunting units and the clicked unit doesn't have taunt, show a message
+        if (taunters.length > 0 && !hasTaunt(unit)) {
+          addToActionLog({
+            text: `You must attack units with Taunt first!`,
+            type: "normal"
+          });
+          return;
+        }
+      }
     }
 
     if (team === "player") {
