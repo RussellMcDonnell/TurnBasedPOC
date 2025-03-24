@@ -2356,6 +2356,12 @@ function BattlefieldCombat() {
           // Attack
           handleAction("Attack");
           break;
+        case 'e':
+          // Confirm attack if in attack mode and a target is selected
+          if (attackingUnit && selectedEnemyUnit) {
+            handleAction("Confirm");
+          }
+          break;
         case 's':
           // Skip
           handleAction("Skip");
@@ -2367,7 +2373,7 @@ function BattlefieldCombat() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [selectedPlayerUnit, gameOver, activeTeam]); // Dependencies for the effect
+  }, [selectedPlayerUnit, gameOver, activeTeam, attackingUnit, selectedEnemyUnit]); // Added dependencies for the new functionality
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
