@@ -363,7 +363,7 @@ export const units = {
       name: "Triage Tactics",
       icon: "💉",
       description: "Remove all negative status effects from an ally, and heal them 8.",
-      maxCooldown: 4,
+      maxCooldown: 1,
     },
     passive: {
       name: "Combat Medic",
@@ -432,7 +432,7 @@ export const units = {
       name: "Sanguine Pact",
       icon: "🩸",
       description: "Blood Mage sacrifices 2 hit points to grant an ally 6 damage this round",
-      maxCooldown: 3,
+      maxCooldown: 2,
     },
     passive: {
       name: "Vampiric Hemophage",

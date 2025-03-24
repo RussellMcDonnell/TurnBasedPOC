@@ -48,9 +48,10 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
               </div>
               <p className="ability-description">{unit.ability.description}</p>
               <p className="ability-cooldown">
-                Cooldown: {unit.ability.currentCooldown > 0 ? 
-                  `${unit.ability.currentCooldown}/${unit.ability.maxCooldown} turns` : 
-                  'Ready'}
+                {unit.ability.currentCooldown > 0 ? 
+                  <>🕒 On Cooldown: {unit.ability.currentCooldown}/{unit.ability.maxCooldown} turns</> : 
+                  <>✨ Ready (Max CD: {unit.ability.maxCooldown} turns)</>
+                }
               </p>
             </div>
           </div>

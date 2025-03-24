@@ -141,6 +141,30 @@
 }
 
 .ability-cooldown {
+  font-size: 0.9em;
+  color: #ccc;
+  text-align: right;
+  padding: 5px 8px;
+  margin-top: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Style for when ability is on cooldown */
+.ability-cooldown:has(:first-child:contains("On Cooldown")) {
+  color: #ff9e7c;
+  background: rgba(255, 69, 0, 0.1);
+  border-left: 2px solid #ff6b6b;
+}
+
+/* Style for when ability is ready */
+.ability-cooldown:has(:first-child:contains("Ready")) {
+  color: #7cf8ff;
+  background: rgba(0, 255, 255, 0.1);
+  border-left: 2px solid #00ccff;
+}
+
+.ability-cooldown {
   font-size: 0.85em;
   color: #aaa;
   text-align: right;
