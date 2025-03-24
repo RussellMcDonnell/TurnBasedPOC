@@ -1737,7 +1737,11 @@ function BattlefieldCombat() {
               } else if (enemy.name === "Ashbringer" && enemy.ability.name === "Infernal Roar") {
                 // Execute the Ashbringer's Infernal Roar ability
                 handleInfernalRoar(enemy);
-              } else {
+              } else if (enemy.name === "Lyn Valken" && enemy.ability.name === "Dragon's Whisper") {
+                // Execute the Lyn Valken's Dragon's Whisper ability
+                handleDragonsWhisper(enemy);
+              }
+               else {
                 // Default to basic attack for other units or abilities
                 handleBasicAttack("enemy", enemy.instanceId, targetId);
               }
@@ -1958,66 +1962,119 @@ function BattlefieldCombat() {
     const target = playerUnits.find((u) => u.instanceId === targetId || u.id === targetId);
     if (!target) return;
 
-    // Create a log entry for the enemy ability
-    const abilityLogEntry = {
-      unit: enemy.name,
+    // Handle specific abilities based on the enemy unit
+    switch (enemy.name) {
+      case "Will-o'-the-Wisps":
+        // Create a log entry for the enemy ability
+        const abilityLogEntry = {
+          unit: enemy.name,
+          type: "ability",
+          abilityName: enemy.ability.name,
+          targets: [{
+            unit: target.name,
+            Damage: "0",
+            Status: "Mesmerized"
+          }]
+        };
+
+        // Add animation
+        setAnimatingUnitId(enemy.instanceId || enemy.id);
+        setAnimatingAbility(true);
+
+        // Display message in action log
+        addToActionLog({
+          text: `${enemy.name} uses ${enemy.ability.name} on ${target.name}!`,
+          type: "ability"
+        });
+
+        // Apply the mesmerize/stun status effect to the target after a short delay
+        setTimeout(() => {
+          // Apply mesmerize effect to target
+          setPlayerUnits(prev =>
+            prev.map(unit => {
+              if (unit.instanceId === target.instanceId || unit.id === target.id) {
+                const newStatusEffects = [...unit.statusEffects];
+
+                // Add the mesmerize effect
+                newStatusEffects.push({
+                  type: "stunned",
+                  name: "Mesmerized",
+                  icon: "💫",
+                  duration: 1
+                });
+
+                // Log the effect application
+                addToActionLog({
+                  text: `${target.name} is mesmerized by the alluring glow!`,
+                  type: "status"
+                });
+
+                return {
+                  ...unit,
+                  statusEffects: newStatusEffects
+                };
+              }
+              return unit;
+            })
+          );
+
+          // Add the complete ability log
+          addToActionLog(abilityLogEntry);
+
+          // Set ability on cooldown
+          setEnemyUnits(prev =>
+            prev.map(u => {
+              if (u.instanceId === enemy.instanceId || u.id === enemy.id) {
+                return {
+                  ...u,
+                  acted: true,
+                  ability: u.ability ? {
+                    ...u.ability,
+                    currentCooldown: u.ability.maxCooldown
+                  } : null
+                };
+              }
+              return u;
+            })
+          );
+
+          // Clear animations
+          setTimeout(() => {
+            setAnimatingUnitId(null);
+            setAnimatingAbility(false);
+          }, 800);
+        }, 500);
+        break;
+      default:
+        // Default handling for other enemies
+        break;
+    }
+  }
+
+  // Add function to handle Lyn Valken's Dragon's Whisper ability
+  function handleDragonsWhisper(lyn) {
+    // Create a log entry for the ability
+    const dragonsWhisperLog = {
+      unit: lyn.name,
       type: "ability",
-      abilityName: enemy.ability.name,
-      targets: [{
-        unit: target.name,
-        Damage: "0",
-        Status: "Mesmerized"
-      }]
+      abilityName: lyn.ability.name,
+      targets: []
     };
 
-    // Add animation
-    setAnimatingUnitId(enemy.instanceId || enemy.id);
-    setAnimatingAbility(true);
+    // Find Ashbringer among the enemy units
+    const ashbringer = enemyUnits.find(unit => unit.name === "Ashbringer" && !unit.isDead);
 
-    // Display message in action log
-    addToActionLog({
-      text: `${enemy.name} uses ${enemy.ability.name} on ${target.name}!`,
-      type: "ability"
-    });
+    if (!ashbringer) {
+      // Ashbringer is not found or is dead
+      addToActionLog({
+        text: `${lyn.name} attempts to use ${lyn.ability.name}, but Ashbringer is not available!`,
+        type: "ability"
+      });
 
-    // Apply the mesmerize/stun status effect to the target after a short delay
-    setTimeout(() => {
-      // Apply mesmerize effect to target
-      setPlayerUnits(prev =>
-        prev.map(unit => {
-          if (unit.instanceId === target.instanceId || unit.id === target.id) {
-            const newStatusEffects = [...unit.statusEffects];
-
-            // Add the mesmerize effect
-            newStatusEffects.push({
-              type: "stunned",
-              name: "Mesmerized",
-              icon: "💫",
-              duration: 1
-            });
-
-            // Log the effect application
-            addToActionLog({
-              text: `${target.name} is mesmerized by the alluring glow!`,
-              type: "status"
-            });
-
-            return {
-              ...unit,
-              statusEffects: newStatusEffects
-            };
-          }
-          return unit;
-        })
-      );
-
-      // Add the complete ability log
-      addToActionLog(abilityLogEntry);
-
-      // Set ability on cooldown
+      // Still set ability on cooldown
       setEnemyUnits(prev =>
         prev.map(u => {
-          if (u.instanceId === enemy.instanceId || u.id === enemy.id) {
+          if (u.instanceId === lyn.instanceId || u.id === lyn.id) {
             return {
               ...u,
               acted: true,
@@ -2030,6 +2087,93 @@ function BattlefieldCombat() {
           return u;
         })
       );
+      return;
+    }
+
+    // Add animation
+    setAnimatingUnitId(lyn.instanceId || lyn.id);
+    setAnimatingAbility(true);
+
+    // Display message in action log
+    addToActionLog({
+      text: `${lyn.name} uses ${lyn.ability.name} to strengthen her bond with ${ashbringer.name}!`,
+      type: "ability"
+    });
+
+    // Apply the buff effects after a short delay
+    setTimeout(() => {
+      // Calculate the damage boost (50% more)
+      const boostedDamage = Math.floor(ashbringer.damage * 1.5);
+      const damageIncrease = boostedDamage - ashbringer.damage;
+
+      // Update Ashbringer with boosted damage and reset acted status
+      setEnemyUnits(prev =>
+        prev.map(unit => {
+          if (unit.instanceId === ashbringer.instanceId || unit.id === ashbringer.id) {
+            // Add the status effect to track the buff duration
+            const newStatusEffects = [...unit.statusEffects];
+            
+            // Remove any existing Dragon's Whisper buff to avoid stacking
+            const existingBuffIndex = newStatusEffects.findIndex(effect => effect.type === "dragons_whisper");
+            if (existingBuffIndex !== -1) {
+              newStatusEffects.splice(existingBuffIndex, 1);
+            }
+            
+            // Add the buff effect - ensure icon is a string
+            newStatusEffects.push({
+              type: "dragons_whisper",
+              name: "Dragon's Whisper",
+              icon: "🐉",
+              duration: 2,
+              damageBoost: damageIncrease
+            });
+            
+            // Add to the log entry
+            dragonsWhisperLog.targets.push({
+              unit: unit.name,
+              Status: "Empowered (+50% damage for 2 turns, extra action)"
+            });
+
+            // Log the effect application
+            addToActionLog({
+              text: `${ashbringer.name}'s damage increased by 50% for 2 turns!`,
+              type: "status"
+            });
+            addToActionLog({
+              text: `${ashbringer.name} gains an extra action this turn!`,
+              type: "status"
+            });
+
+            return {
+              ...unit,
+              damage: boostedDamage,
+              acted: false, // Grant extra action by resetting acted status
+              statusEffects: newStatusEffects
+            };
+          }
+          return unit;
+        })
+      );
+
+      // Set Lyn's ability on cooldown
+      setEnemyUnits(prev =>
+        prev.map(u => {
+          if (u.instanceId === lyn.instanceId || u.id === lyn.id) {
+            return {
+              ...u,
+              acted: true,
+              ability: u.ability ? {
+                ...u.ability,
+                currentCooldown: u.ability.maxCooldown
+              } : null
+            };
+          }
+          return u;
+        })
+      );
+
+      // Add the complete ability log
+      addToActionLog(dragonsWhisperLog);
 
       // Clear animations
       setTimeout(() => {
