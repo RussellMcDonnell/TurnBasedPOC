@@ -14,12 +14,72 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 - Node.js (LTS version recommended)
 - npm (comes with Node.js)
+- Git
+
+### Dependencies
+
+The project uses the following dependencies:
+- React 19.0.0
+- React DOM 19.0.0
+- React Router 7.3.0
+- Testing libraries (Jest, React Testing Library)
 
 ### Installation
 
 1. Clone the repository
+```bash
+git clone https://your-repository-url/TurnBasedPOC.git
+```
 2. Navigate to the project directory
+```bash
+cd TurnBasedPOC
+```
 3. Install dependencies:
+```bash
+npm install
+```
+
+### Git Operations
+
+#### Pulling Changes
+
+To update your local repository with the latest changes from the remote repository:
+
+1. Fetch the latest changes without merging:
+```bash
+git fetch
+```
+
+2. Check what changes are available:
+```bash
+git status
+```
+
+3. Pull and merge changes into your current branch:
+```bash
+git pull
+```
+
+4. If you have local changes that you want to preserve when pulling:
+   
+   a. Stash your changes first:
+   ```bash
+   git stash
+   ```
+   
+   b. Pull the latest changes:
+   ```bash
+   git pull
+   ```
+   
+   c. Apply your stashed changes:
+   ```bash
+   git stash pop
+   ```
+   
+   d. Resolve any merge conflicts if they occur
+
+5. After pulling new changes, you may need to install new dependencies:
 ```bash
 npm install
 ```
@@ -57,6 +117,11 @@ Each unit can take one of the following actions per turn:
    - Unique skills with various effects
    - Uses cooldown system
    - May deal more damage, apply status effects, or support allies
+   - Examples include:
+     - Blizzard: Area of effect damage with chance to freeze enemies
+     - Iron Wall Assault: Damage and stun a target enemy
+     - Triage Tactics: Heal allies and remove negative status effects
+     - Sanguine Pact: Sacrifice HP to empower an ally's damage
 
 3. **Combo Attacks**
    - Special attacks combining multiple units
@@ -69,10 +134,25 @@ Each unit can take one of the following actions per turn:
 
 Various abilities can apply status effects that persist for multiple turns:
 
-- **Burn**: Damage over time
-- **Stun**: Skip next turn
-- **Poison**: Health loss each turn
-- **Shield**: Temporary damage reduction
+- **Burn**: Damage over time (2 damage per turn)
+- **Poison**: Health loss each turn (1 damage per turn)
+- **Stun/Frozen**: Skip next turn
+- **Confused**: Attack random targets (can hit allies)
+- **Shield**: Temporary damage protection
+- **Damage Boost**: Increased attack power for a limited time
+
+### Combat Features
+
+- **Taunt**: Units with taunt must be targeted first
+- **Lifesteal**: Units heal for damage dealt
+- **Pack Hunter**: Some units gain bonuses when fighting together
+- **Retaliation**: Optional setting for units to counter-attack when hit
+
+### Campaign Mode
+
+- Progress through a series of battles with persistent unit health
+- Different battlegrounds with unique enemy teams
+- Unit damage and death persists between battles
 
 ### Victory Conditions
 
