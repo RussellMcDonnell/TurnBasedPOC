@@ -63,6 +63,13 @@ export const units = {
     damage: 8,
     image: ashbringerPortrait,
     fullArt: ashbringerPortrait,
+    keywords: ["Melee", "Armored", "Taunt"],
+    ability: {
+      name: "Infernal Roar",
+      icon: "🔥",
+      description: "Unleashes a devastating blast of dragonfire, dealing 12 damage to all enemies and applying Burned status for 2 turns.",
+      maxCooldown: 3,
+    },
     type: "enemy"
   },
   "lyn": {
@@ -73,6 +80,13 @@ export const units = {
     damage: 4,
     image: lynValkenPortrait,
     fullArt: lynValkenPortrait,
+    keywords: ["Melee", "Armored", "Taunt"],
+    ability: {
+      name: "Dragon's Whisper",
+      icon: "🐉",
+      description: "Lyn strengthens her bond with Ashbringer, granting the dragon an extra action this turn and increasing its damage by 50% for 2 turns.",
+      maxCooldown: 4,
+    },
     type: "enemy"
   },
   "treantGuardian": {
