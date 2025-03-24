@@ -132,7 +132,7 @@ function BattlefieldCombat() {
     } else {
       // Fallback to a default enemy team
       console.warn(`Enemy team "${selectedEnemyTeam}" not found, using a default team`);
-      return prepareUnits(enemyTeams["Forest Guardians"]);
+      return prepareUnits(enemyTeams["Shrouded Woods"]);
     }
   });
 
