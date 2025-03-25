@@ -840,32 +840,21 @@ function BattlefieldCombat() {
     setAnimatingUnitId(unit.instanceId || unit.id);
     setAnimatingAbility(true);
 
+    // Create a log entry object for the ability
+    const abilityLogEntry = {
+      unit: unit.name,
+      type: "ability",
+      abilityName: unit.ability.name,
+      targets: []
+    };
+
     // Handle specific abilities
     switch (unit.name) {
       case "Varen Stormrune":
-        // Create a log entry object for the ability
-        const abilityLogEntry = {
-          unit: unit.name,
-          type: "ability",
-          abilityName: unit.ability.name,
-          targets: []
-        };
-
         // Activate blizzard animation effect
         activateBlizzard();
 
         // Blizzard ability - damages all enemies with chance to stun
-        setPlayerUnits((prev) =>
-          prev.map((u) => ((u.instanceId === unit.instanceId || u.id === unit.id) ? {
-            ...u,
-            acted: true,
-            ability: u.ability ? {
-              ...u.ability,
-              currentCooldown: u.ability.maxCooldown
-            } : null
-          } : u))
-        );
-
         setTimeout(() => {
           const aliveEnemies = enemyUnits.filter(enemy => !enemy.isDead);
 
@@ -911,38 +900,19 @@ function BattlefieldCombat() {
               };
             })
           );
-
-          // Add the complete ability log after processing all effects
-          addToActionLog(abilityLogEntry);
-
-          // Clear animations
-          setTimeout(() => {
-            setAnimatingUnitId(null);
-            setAnimatingAbility(false);
-
-            // Only end the turn after the ability is fully processed for non-targeted abilities
-            if (!firstTurnUsed) {
-              setFirstTurnUsed(true);
-              endPlayerTurn();
-            }
-          }, 800);
         }, 500);
         break;
 
       case "Brom the Bastion":
         // Execute Iron Wall Assault ability - damage and stun target
         setTimeout(() => {
-          // Create ability log entry
-          const ironWallLogEntry = {
-            unit: unit.name,
-            type: "ability",
-            abilityName: unit.ability.name,
-            targets: [{
-              unit: targetUnit.name,
-              Damage: unit.damage.toString(),
-              Status: "Stunned"
-            }]
-          };
+
+          // Add target to the ability log entry
+          abilityLogEntry.targets.push({
+            unit: targetUnit.name,
+            Damage: unit.damage.toString(),
+            Status: "Stunned"
+          });
 
           // Apply damage and stun effect to the target
           setEnemyUnits(prev =>
@@ -983,51 +953,19 @@ function BattlefieldCombat() {
               return enemy;
             })
           );
-
-          // Add the complete ability log
-          addToActionLog(ironWallLogEntry);
-
-          // Set ability on cooldown and mark unit as acted
-          setPlayerUnits(prev =>
-            prev.map(u => {
-              if (u.instanceId === unit.instanceId || u.id === unit.id) {
-                return {
-                  ...u,
-                  acted: true,
-                  ability: {
-                    ...u.ability,
-                    currentCooldown: u.ability.maxCooldown
-                  }
-                };
-              }
-              return u;
-            })
-          );
-
-          // Clear animations and ability mode
-          setTimeout(() => {
-            setAnimatingUnitId(null);
-            setAnimatingAbility(false);
-            setUsingAbility(false);
-            setSelectedPlayerUnit(null);
-          }, 800);
         }, 500);
         break;
 
       case "Lyra Ashwyn":
+        // Add target to the ability log entry
+        abilityLogEntry.targets.push({
+          unit: targetUnit.name,
+            Damage: "-8", // Negative damage indicates healing
+            Status: "Cleansed"
+        });
+
         // Execute Triage Tactics ability - heal and cleanse target
         setTimeout(() => {
-          // Create ability log entry
-          const triageLogEntry = {
-            unit: unit.name,
-            type: "ability",
-            abilityName: unit.ability.name,
-            targets: [{
-              unit: targetUnit.name,
-              Damage: "-8", // Negative damage indicates healing
-              Status: "Cleansed"
-            }]
-          };
 
           // Update the player units to heal and cleanse status effects
           setPlayerUnits(prev =>
@@ -1074,51 +1012,10 @@ function BattlefieldCombat() {
               return ally;
             })
           );
-
-          // Add the complete ability log
-          addToActionLog(triageLogEntry);
-
-          // Set ability on cooldown and mark caster as acted
-          setPlayerUnits(prev =>
-            prev.map(u => {
-              if (u.instanceId === unit.instanceId || u.id === unit.id) {
-                return {
-                  ...u,
-                  acted: true,
-                  ability: {
-                    ...u.ability,
-                    currentCooldown: u.ability.maxCooldown
-                  }
-                };
-              }
-              return u;
-            })
-          );
-
-          // Check if this is the first turn and end it if so
-          if (!firstTurnUsed) {
-            setFirstTurnUsed(true);
-            setTimeout(() => endPlayerTurn(), 800);
-          }
-
-          // Clear animations and ability mode
-          setTimeout(() => {
-            setAnimatingUnitId(null);
-            setAnimatingAbility(false);
-            setUsingAbility(false);
-            setSelectedPlayerUnit(null);
-          }, 800);
         }, 500);
         break;
 
       case "Sylara Starborn":
-        // Create a log entry for Shooting Star ability
-        const shootingStarLogEntry = {
-          unit: targetUnit.name,
-          type: "ability",
-          abilityName: targetUnit.ability.name,
-          targets: []
-        };
 
         // For simplicity, choose the first non-dead enemy as the primary target
         // In a complete implementation, this would allow player to choose the target
@@ -1184,7 +1081,7 @@ function BattlefieldCombat() {
                     }
 
                     // Add to ability log
-                    shootingStarLogEntry.targets.push({
+                    abilityLogEntry.targets.push({
                       unit: enemy.name,
                       Damage: targetUnit.damage.toString(),
                       Status: newStatusEffects.length > enemy.statusEffects.length ? "Burned" : "None"
@@ -1208,40 +1105,8 @@ function BattlefieldCombat() {
                   return enemy;
                 })
               );
-
-              // Add the complete ability log
-              addToActionLog(shootingStarLogEntry);
-
-              // Set ability on cooldown
-              setPlayerUnits(prev =>
-                prev.map(u => {
-                  if (u.instanceId === unit.instanceId) {
-                    return {
-                      ...u,
-                      acted: true,
-                      ability: {
-                        ...u.ability,
-                        currentCooldown: u.ability.maxCooldown
-                      }
-                    };
-                  }
-                  return u;
-                })
-              );
-
-              // Clear animations
-              setTimeout(() => {
-                setAnimatingUnitId(null);
-                setAnimatingAbility(false);
-              }, 800);
             }, 600);
           };
-
-          // Start the meteor animation
-          addToActionLog({
-            text: `${targetUnit.name} calls down a blazing meteor!`,
-            type: "ability"
-          });
 
           // Execute animation after a delay
           setTimeout(meteorAnimation, 300);
@@ -1252,9 +1117,6 @@ function BattlefieldCombat() {
             text: `${targetUnit.name} has no valid target for ${targetUnit.ability.name}`,
             type: "normal"
           });
-
-          setAnimatingUnitId(null);
-          setAnimatingAbility(false);
         }
         break;
 
@@ -1270,14 +1132,6 @@ function BattlefieldCombat() {
 
         // Execute Sanguine Pact - sacrifice HP to grant damage boost
         setTimeout(() => {
-          // Create ability log entry
-          const sanguinePactLogEntry = {
-            unit: unit.name,
-            type: "ability",
-            abilityName: unit.ability.name,
-            targets: []
-          };
-
           // First, blood mage sacrifices 2 HP
           setPlayerUnits(prev =>
             prev.map(u => {
@@ -1294,11 +1148,6 @@ function BattlefieldCombat() {
                 return {
                   ...u,
                   hp: newHP,
-                  acted: true,
-                  ability: {
-                    ...u.ability,
-                    currentCooldown: u.ability.maxCooldown
-                  }
                 };
               }
               return u;
@@ -1309,17 +1158,10 @@ function BattlefieldCombat() {
           setPlayerUnits(prev =>
             prev.map(ally => {
               if (ally.instanceId === targetUnit.instanceId || ally.id === targetUnit.id) {
-                // Add buff to log entry
-                sanguinePactLogEntry.targets.push({
+                abilityLogEntry.targets.push({
                   unit: ally.name,
                   Damage: "+6", // Indicates a buff rather than damage
                   Status: "Damage Boost"
-                });
-
-                // Log the damage boost
-                addToActionLog({
-                  text: `${ally.name} gains +6 attack power this round!`,
-                  type: "status"
                 });
 
                 // Add a temporary damage boost status effect
@@ -1350,7 +1192,7 @@ function BattlefieldCombat() {
           );
 
           // Add the complete ability log
-          addToActionLog(sanguinePactLogEntry);
+          addToActionLog(abilityLogEntry);
 
           // Check if this is the first turn and end it if so
           if (!firstTurnUsed) {
@@ -1371,7 +1213,30 @@ function BattlefieldCombat() {
       default:
     }
 
+    // Set ability on cooldown and mark unit as acted
+    setPlayerUnits((prev) =>
+      prev.map((u) => ((u.instanceId === unit.instanceId || u.id === unit.id) ? {
+        ...u,
+        acted: true,
+        ability: u.ability ? {
+          ...u.ability,
+          currentCooldown: u.ability.maxCooldown
+        } : null
+      } : u))
+    );
+
+    // Add the complete ability log
+    addToActionLog(abilityLogEntry);
+
+    // Clear animations and reset ability state
+    setAnimatingUnitId(null);
+    setAnimatingAbility(false);
     setUsingAbility(false);
+
+    if (!firstTurnUsed) {
+      setFirstTurnUsed(true);
+      endPlayerTurn();
+    }
   }
 
   // New function to handle ability usage
