@@ -567,7 +567,6 @@ export const enemyTeams = {
     "woodSprite",
     "pixieTrickster",
     "willowisp",
-    
   ],
   "River of Shadows": [
     "treantGuardian",

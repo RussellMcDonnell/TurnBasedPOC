@@ -56,7 +56,7 @@ const campaignNodes = [
     title: "The Hollow Cavern",
     description: "A cave entrance yawns before you, the air thick with the scent of decay. Something ancient and restless stirs in the darkness within.",
     position: { x: 550, y: 400 },
-    connections: [5],
+    connections: [8],
     type: "combat",
     difficulty: "Medium",
     preview: darkForestCave,
@@ -64,10 +64,19 @@ const campaignNodes = [
     enemyTeam: "The Hollow Cavern"
   },
   {
+    id: 8,
+    title: "Wandering Merchant",
+    description: "A mysterious merchant has set up shop in this dangerous territory. Stock up on supplies while you can.",
+    position: { x: 250, y: 500 },
+    connections: [5],
+    type: "shop",
+    preview: shop
+  },
+  {
     id: 5,
     title: "Wolf Pack Ambush",
     description: "A chilling howl echoes through the forest. Before you can react, glowing eyes emerge from the darkness—you're surrounded.",
-    position: { x: 250, y: 500 },
+    position: { x: 550, y: 600 },
     connections: [6],
     type: "combat",
     difficulty: "Medium",
@@ -79,7 +88,7 @@ const campaignNodes = [
     id: 6,
     title: "Sacred Spring",
     description: "A mystical spring with restorative powers. Your team can rest here and recover their strength before continuing the journey.",
-    position: { x: 550, y: 600 },
+    position: { x: 250, y: 700 },
     connections: [7],
     type: "healing",
     preview: healer
@@ -88,7 +97,7 @@ const campaignNodes = [
     id: 7,
     title: "Dragon's Lair",
     description: "Face the final challenge in the dragon's lair, where ultimate power awaits.",
-    position: { x: 250, y: 700 },
+    position: { x: 550, y: 800 },
     connections: [],
     type: "combat",
     difficulty: "Very Hard",

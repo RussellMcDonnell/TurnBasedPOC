@@ -95,6 +95,8 @@ function BattlefieldCombat() {
         instanceId: uniqueId, // Store the unique instance ID
         acted: false,
         isDead: storedStatus ? storedStatus.isDead : false,
+        damage : storedStatus ? storedStatus.damage : unit.damage, // Use stored damage if available
+        maxHP: storedStatus ? storedStatus.maxHP : unit.maxHP, // Use stored maxHP if available
         hp: storedStatus ? storedStatus.currentHP : unit.maxHP, // Use stored HP if available, otherwise use maxHP
         shield: 0, // Add shield property for all units
         statusEffects: [],
