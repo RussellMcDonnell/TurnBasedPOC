@@ -1620,10 +1620,10 @@ function BattlefieldCombat() {
 
             if (isTargetAlly) {
               // Attack ally with friendly fire
-              handleFriendlyFire(unit.id, randomTarget.id);
+              handleFriendlyFire(unit.instanceId, randomTarget.instanceId);
             } else {
               // Attack enemy with regular attack
-              handleBasicAttack("player", unit.instanceId, randomTarget.id);
+              handleBasicAttack("player", unit.instanceId, randomTarget.instanceId);
             }
 
             // Now that the action is complete, process the confusion effect's duration
