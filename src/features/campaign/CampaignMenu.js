@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './CampaignMenu.css';
 import villageDefense from '../../assets/images/campaign/village-defense.jpg';
 import shop from '../../assets/images/campaign/shop.jpg';
+import healer from '../../assets/images/campaign/heal.jpg';
 import darkForest from '../../assets/images/campaign/dark-forest.jpg';
 import darkForestRiver from '../../assets/images/campaign/dark-forest-with-river.jpg';
 import darkForestCave from '../../assets/images/campaign/dark-forest-cave-entrence.jpg';
@@ -30,12 +31,12 @@ const campaignNodes = [
   },
   {
     id: 2,
-    title: "Traveling Merchant",
-    description: "A traveling merchant offers rare equipment and supplies for your journey ahead.",
+    title: "Forest Shrine",
+    description: "A serene shrine nestled among ancient trees. The healing waters here can restore your team's vitality.",
     position: { x: 550, y: 200 },
     connections: [3],
-    type: "shop",
-    preview: shop
+    type: "healing",
+    preview: healer
   },
   {
     id: 3,
@@ -63,24 +64,24 @@ const campaignNodes = [
   },
   {
     id: 5,
-    title: "Mystic Trader",
-    description: "A mystical merchant appears, offering powerful enchantments and magical artifacts.",
-    position: { x: 250, y: 500 },
-    connections: [6],
-    type: "shop",
-    preview: shop
-  },
-  {
-    id: 6,
     title: "Wolf Pack Ambush",
     description: "A chilling howl echoes through the forest. Before you can react, glowing eyes emerge from the darkness—you're surrounded.",
-    position: { x: 550, y: 600 },
-    connections: [7],
+    position: { x: 250, y: 500 },
+    connections: [6],
     type: "combat",
     difficulty: "Medium",
     preview: mountainAmbush,
     battlegroundBackground: mountainAmbushBattleground,
     enemyTeam: "Wolf Pack Ambush"  // Four Dire Wolves
+  },
+  {
+    id: 6,
+    title: "Sacred Spring",
+    description: "A mystical spring with restorative powers. Your team can rest here and recover their strength before continuing the journey.",
+    position: { x: 550, y: 600 },
+    connections: [7],
+    type: "healing",
+    preview: healer
   },
   {
     id: 7,
@@ -100,13 +101,37 @@ const CampaignMenu = () => {
   const [selectedNode, setSelectedNode] = useState(campaignNodes[0]);
   const navigate = useNavigate();
 
-  const handleBeginBattle = () => {
-    navigate('/battlefield', {
-      state: {
-        gameMode: 'campaign',
-        level: selectedNode
-      }
-    });
+  const handleNodeAction = () => {
+    if (selectedNode.type === 'combat') {
+      // Navigate to battlefield for combat nodes
+      navigate('/battlefield', {
+        state: {
+          gameMode: 'campaign',
+          level: selectedNode
+        }
+      });
+    } else if (selectedNode.type === 'healing') {
+      // Handle healing - this would interact with your team state/context
+      handleHeal();
+    } else if (selectedNode.type === 'shop') {
+      // Navigate to shop page (not implemented yet)
+      navigate('/shop');
+    }
+  };
+
+  const handleHeal = () => {
+    // This function would heal all units in the player's team
+    // You would need to access your team state or context here
+    // For example, if using TeamContext:
+    // const { team, updateTeam } = useContext(TeamContext);
+    // const healedTeam = team.map(unit => ({
+    //   ...unit,
+    //   currentHealth: unit.maxHealth
+    // }));
+    // updateTeam(healedTeam);
+    
+    // For now, just show an alert
+    alert("Your team has been fully healed!");
   };
 
   const handleBackClick = () => {
@@ -170,9 +195,13 @@ const CampaignMenu = () => {
           <p className="description">{selectedNode.description}</p>
           <button 
             className="start-level"
-            onClick={handleBeginBattle}
+            onClick={handleNodeAction}
           >
-            {selectedNode.type === 'combat' ? 'Begin Battle' : 'Visit Shop'}
+            {selectedNode.type === 'combat' 
+              ? 'Begin Battle' 
+              : selectedNode.type === 'healing' 
+                ? 'Rest and Heal' 
+                : 'Visit Shop'}
           </button>
         </div>
       </div>
