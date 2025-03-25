@@ -2881,7 +2881,7 @@ function BattlefieldCombat() {
       if (selectedPlayerUnit?.instanceId === unit.instanceId) {
         // Deselect if clicking the same unit
         setSelectedPlayerUnit(null);
-      } else if (activeTeam === "player" && !unit.acted && !unit.isDead) {
+      } else if (activeTeam === "player" && !unit.isDead) {
         if (selectedPlayerUnit == null) {
           // Select the clicked unit if no unit is selected
           setSelectedPlayerUnit(unit);
