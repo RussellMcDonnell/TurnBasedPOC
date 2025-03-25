@@ -10,6 +10,11 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
         <img src={unit.image} alt={unit.name} className="unit-detail-image" />
         <h2>{unit.name}</h2>
         
+        {/* Display isUsingAbility value */}
+        <div className="ability-status">
+          <p>Using Ability: {isUsingAbility ? "Yes" : "No"}</p>
+        </div>
+        
         {/* Add View Full Art button below the unit image */}
         {unit.fullArt && (
           <button 

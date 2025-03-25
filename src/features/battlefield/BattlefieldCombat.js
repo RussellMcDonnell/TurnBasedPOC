@@ -1381,13 +1381,8 @@ function BattlefieldCombat() {
     const unit = playerUnits.find(u => u.instanceId === unitId);
     if (!unit || unit.acted || unit.isDead || unit.ability.currentCooldown > 0) return;
 
-    addToActionLog({
-      text: `handleSelectAbility`,
-      type: "normal"
-    });
-
+    setSelectedTargetUnit(null);
     setUsingAbility(true);
-    setRequiresTarget(true);
 
     // Handle specific abilities, ability execution will happen when the player clicks confirm.
     switch (unit.name) {
@@ -2775,12 +2770,8 @@ function BattlefieldCombat() {
           handleAction("Attack");
           break;
         case 'e':
-          // Settings shortcut - toggle settings dialog
-          if (!attackingUnit && !selectedTargetUnit) {
-            setIsSettingsOpen(prev => !prev);
-          }
           // Confirm attack if in attack mode and a target is selected
-          else if (attackingUnit && selectedTargetUnit) {
+          if (!requiresTarget || selectedTargetUnit) {
             handleAction("Confirm");
           }
           break;
@@ -2824,7 +2815,7 @@ function BattlefieldCombat() {
         // Process the CC effect - reduce duration
         setPlayerUnits(prev =>
           prev.map(u => {
-            if (u.instanceId === unit.instanceId || u.id === unit.id) {
+            if (u.instanceId === unit.instanceId) {
               const updatedStatusEffects = u.statusEffects.map(effect => {
                 // Only reduce duration for the CC effect that caused the skip
                 if (effect.type === ccEffect.type) {
@@ -2833,7 +2824,7 @@ function BattlefieldCombat() {
                   // Log if the effect expires
                   if (newDuration === 0) {
                     addToActionLog({
-                      text: `${effect.name} on ${unit.name} has expired`,
+                      text: `${effect.name} on ${u.name} has expired`,
                       type: "status"
                     });
                   }
@@ -2848,16 +2839,13 @@ function BattlefieldCombat() {
 
               return {
                 ...u,
-                statusEffects: updatedStatusEffects,
-                acted: true // Mark as having acted
+                acted: true, // Mark as having acted
+                statusEffects: updatedStatusEffects
               };
             }
             return u;
           })
         );
-
-        // Don't allow selection of CC'd unit
-        return;
       } else if (isConfused && !unit.acted) {
         // Handle confused unit's selection - completely reworked this section
 
@@ -3009,113 +2997,7 @@ function BattlefieldCombat() {
           return;
         }
       }
-    }
-
-    if (usingAbility) {
-      // When using an ability, allow clicking on allies for player targeting abilities
-      if (team === "player" && !unit.isDead) {
-
-      }
-    } else if (team === "enemy" && !unit.isDead) {
-      // Get the caster (selected player unit)
-      const caster = selectedPlayerUnit;
-      if (!caster) return;
-
-      // Handle different abilities based on the caster's name
-      switch (caster.name) {
-        case "Brom the Bastion":
-          // Execute Iron Wall Assault ability - damage and stun target
-          setTimeout(() => {
-            // Create ability log entry
-            const ironWallLogEntry = {
-              unit: caster.name,
-              type: "ability",
-              abilityName: caster.ability.name,
-              targets: [{
-                unit: unit.name,
-                Damage: caster.damage.toString(),
-                Status: "Stunned"
-              }]
-            };
-
-            // Apply damage and stun effect to the target
-            setEnemyUnits(prev =>
-              prev.map(enemy => {
-                if (enemy.instanceId === unit.instanceId) {
-                  const newHP = enemy.hp - caster.damage;
-                  const newStatusEffects = [...enemy.statusEffects];
-
-                  // Add stunned status effect
-                  newStatusEffects.push({
-                    type: "stunned",
-                    name: "Stunned",
-                    icon: "🛡️",
-                    duration: 1
-                  });
-
-                  // Log stun effect
-                  addToActionLog({
-                    text: `${enemy.name} is stunned by ${caster.name}'s ${caster.ability.name}!`,
-                    type: "status"
-                  });
-
-                  // Check if enemy is defeated
-                  if (newHP <= 0) {
-                    addToActionLog({
-                      text: `${enemy.name} is defeated!`,
-                      type: "defeat"
-                    });
-                  }
-
-                  return {
-                    ...enemy,
-                    hp: Math.max(0, newHP),
-                    isDead: newHP <= 0,
-                    statusEffects: newStatusEffects
-                  };
-                }
-                return enemy;
-              })
-            );
-
-            // Add the complete ability log
-            addToActionLog(ironWallLogEntry);
-
-            // Set ability on cooldown and mark caster as acted
-            setPlayerUnits(prev =>
-              prev.map(u => {
-                if (u.instanceId === caster.instanceId || u.id === caster.id) {
-                  return {
-                    ...u,
-                    acted: true,
-                    ability: {
-                      ...u.ability,
-                      currentCooldown: u.ability.maxCooldown
-                    }
-                  };
-                }
-                return u;
-              })
-            );
-
-            // Clear animations and ability mode
-            setTimeout(() => {
-              setAnimatingUnitId(null);
-              setAnimatingAbility(false);
-              setUsingAbility(false);
-              setSelectedPlayerUnit(null);
-            }, 800);
-          }, 500);
-          break;
-
-        default:
-          // For other abilities, cancel ability mode when clicking an enemy
-          addToActionLog({
-            text: `This ability cannot target enemies`,
-            type: "normal"
-          });
-          setUsingAbility(false);
-      }
+      setSelectedTargetUnit(unit);
     }
 
     if (team === "player") {
@@ -3150,6 +3032,7 @@ function BattlefieldCombat() {
                 return;
               }
               setSelectedTargetUnit(unit);
+              break;
 
             default:
               // For other abilities, cancel ability mode when clicking an ally
@@ -3198,7 +3081,7 @@ function BattlefieldCombat() {
 
     // Apply damage after animation starts
     setTimeout(() => {
-      setDamagedUnitId(target.instanceId || target.id);
+      setDamagedUnitId(target.instanceId);
 
       // Apply damage to player target AND mark attacker as acted in a single update
       setPlayerUnits((prev) =>
@@ -3280,6 +3163,7 @@ function BattlefieldCombat() {
           type: "normal"
         });
         setAttackingUnit(null);
+        setSelectedTargetUnit(null);
         setUsingAbility(false);
         break;
 
