@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTeams } from '../teams/TeamContext';
 import './CampaignMenu.css';
 import villageDefense from '../../assets/images/campaign/village-defense.jpg';
 import shop from '../../assets/images/campaign/shop.jpg';
@@ -98,6 +99,7 @@ const campaignNodes = [
 ];
 
 const CampaignMenu = () => {
+  const { getActiveCampaignTeam, updateCampaignTeamStats } = useTeams();
   const [selectedNode, setSelectedNode] = useState(campaignNodes[0]);
   const navigate = useNavigate();
 
@@ -120,18 +122,44 @@ const CampaignMenu = () => {
   };
 
   const handleHeal = () => {
-    // This function would heal all units in the player's team
-    // You would need to access your team state or context here
-    // For example, if using TeamContext:
-    // const { team, updateTeam } = useContext(TeamContext);
-    // const healedTeam = team.map(unit => ({
-    //   ...unit,
-    //   currentHealth: unit.maxHealth
-    // }));
-    // updateTeam(healedTeam);
+    // Get the active campaign team
+    const campaignTeam = getActiveCampaignTeam();
     
-    // For now, just show an alert
-    alert("Your team has been fully healed!");
+    if (!campaignTeam) {
+      alert("No active team found!");
+      return;
+    }
+
+    // Get the current health status object
+    const currentStatus = campaignTeam.campaignStats.unitHealthStatus;
+    
+    if (!currentStatus) {
+      alert("No unit health status found!");
+      return;
+    }
+
+    // Create a new health status object where all units are fully healed and alive
+    const healedUnitStatus = {};
+    
+    // Iterate through all units in the current status
+    Object.keys(currentStatus).forEach(unitId => {
+      const unit = currentStatus[unitId];
+      // For each unit, set current HP to their max HP and mark as not dead
+      healedUnitStatus[unitId] = {
+        maxHP: unit.maxHP,
+        damage: unit.damage,
+        currentHP: unit.maxHP, // Use the unit's actual maxHP
+        isDead: false         // Revive any dead units
+      };
+    });
+
+    // Update the campaign team stats with the new healed status
+    updateCampaignTeamStats({
+      unitHealthStatus: healedUnitStatus
+    });
+
+    // Show a success message
+    alert("Your team has been fully healed! All units restored to full health.");
   };
 
   const handleBackClick = () => {

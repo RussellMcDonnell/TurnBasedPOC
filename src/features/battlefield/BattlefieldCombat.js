@@ -339,6 +339,8 @@ function BattlefieldCombat() {
         playerUnits.forEach(unit => {
           // Store both health and death status for each unit by instance ID
           unitHealthStatus[unit.id] = {
+            damage: unit.damage,
+            maxHP: unit.maxHP,
             currentHP: unit.hp,
             isDead: unit.isDead
           };
