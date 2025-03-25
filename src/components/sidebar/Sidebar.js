@@ -1,6 +1,6 @@
 import React from "react";
 import "./Sidebar.css";
-function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = false, hasTarget = false, isUsingAbility = false, onViewFullArt }) {
+function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = false, requiresTarget = false, hasTarget = false, isUsingAbility = false, onViewFullArt }) {
   if (!unit) return null;
   
   return (
@@ -60,21 +60,21 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
         {unit.actions && (
           <div className="action-list">
             <h3>Actions</h3>
-            {isAttacking ? (
+            {(isAttacking || isUsingAbility) ? (
               <>
                 {hasTarget && (
                   <button 
                     className="action-button confirm"
                     onClick={() => onAction("Confirm")}
                   >
-                    Confirm Attack
+                    Confirm
                   </button>
                 )}
                 <button 
                   className="action-button cancel"
                   onClick={() => onAction("Cancel")}
                 >
-                  Cancel Attack
+                  Cancel
                 </button>
               </>
             ) : isUsingAbility ? (
