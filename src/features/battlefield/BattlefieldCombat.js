@@ -2753,40 +2753,41 @@ function BattlefieldCombat() {
     }, 500);
   }
 
+
+  const handleKeyPress = (event) => {
+    if (gameOver || activeTeam !== "player" || !selectedPlayerUnit) return;
+
+    switch (event.key.toLowerCase()) {
+      case 'q':
+        // Ability
+        if (selectedPlayerUnit.ability && selectedPlayerUnit.ability.currentCooldown === 0) {
+          handleAction("UseAbility");
+        }
+        break;
+      case 'a':
+        // Attack
+        handleAction("Attack");
+        break;
+      case 'e':
+        // Confirm attack if in attack mode and a target is selected
+        if (!requiresTarget || selectedTargetUnit) {
+          handleAction("Confirm");
+        }
+        break;
+      case 's':
+        // Skip
+        handleAction("Skip");
+        break;
+      default:
+        break;
+    }
+  };
+
   // Add keyboard event handler
   useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (gameOver || activeTeam !== "player" || !selectedPlayerUnit) return;
-
-      switch (event.key.toLowerCase()) {
-        case 'q':
-          // Ability
-          if (selectedPlayerUnit.ability && selectedPlayerUnit.ability.currentCooldown === 0) {
-            handleAction("UseAbility");
-          }
-          break;
-        case 'a':
-          // Attack
-          handleAction("Attack");
-          break;
-        case 'e':
-          // Confirm attack if in attack mode and a target is selected
-          if (!requiresTarget || selectedTargetUnit) {
-            handleAction("Confirm");
-          }
-          break;
-        case 's':
-          // Skip
-          handleAction("Skip");
-          break;
-        default:
-          break;
-      }
-    };
-
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [selectedPlayerUnit, gameOver, activeTeam, attackingUnit, selectedTargetUnit, setIsSettingsOpen]); // Added setIsSettingsOpen dependency
+  }, [handleKeyPress]);
 
   // Handle unit selection
   const handleUnitClick = (unit, team) => {
