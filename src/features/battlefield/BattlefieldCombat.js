@@ -1024,13 +1024,9 @@ function BattlefieldCombat() {
 
       case "Sylara Starborn":
 
-        // For simplicity, choose the first non-dead enemy as the primary target
-        // In a complete implementation, this would allow player to choose the target
-        const primaryTarget = enemyUnits.find(enemy => !enemy.isDead);
-
-        if (primaryTarget) {
+        if (selectedTargetUnit) {
           // Find index of primary target to determine adjacent enemies
-          const primaryTargetIndex = enemyUnits.findIndex(enemy => enemy.instanceId === primaryTarget.instanceId || enemy.id === primaryTarget.id);
+          const primaryTargetIndex = enemyUnits.findIndex(enemy => enemy.instanceId === selectedTargetUnit.instanceId);
 
           // Get adjacent enemies (ones to the left and right of the primary target)
           // Only include non-dead adjacent enemies
@@ -1047,7 +1043,7 @@ function BattlefieldCombat() {
           }
 
           // All targets (primary + adjacent)
-          const allTargets = [primaryTarget, ...adjacentEnemies];
+          const allTargets = [selectedTargetUnit, ...adjacentEnemies];
 
           // Visual effect: Create a meteor animation
           const meteorAnimation = () => {
@@ -1058,11 +1054,11 @@ function BattlefieldCombat() {
               setEnemyUnits(prev =>
                 prev.map(enemy => {
                   // Check if this enemy is one of our targets
-                  const isTarget = allTargets.some(target => target.instanceId === enemy.instanceId || target.id === target.id);
+                  const isTarget = allTargets.some(target => target.instanceId === enemy.instanceId);
 
                   if (isTarget && !enemy.isDead) {
                     // Apply damage equal to the caster's attack
-                    const newHP = enemy.hp - targetUnit.damage;
+                    const newHP = enemy.hp - unit.damage;
 
                     // Create a new status effects array
                     const newStatusEffects = [...enemy.statusEffects];
