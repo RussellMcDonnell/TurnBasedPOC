@@ -3150,7 +3150,7 @@ function BattlefieldCombat() {
         if (usingAbility) {
           handleAbilityUse("player", selectedPlayerUnit, selectedTargetUnit);
         } else {
-          handleBasicAttack("player", attackingUnit.instanceId, selectedTargetUnit.instanceId);
+          handleBasicAttack("player", selectedPlayerUnit.instanceId, selectedTargetUnit.instanceId);
         }
         setAttackingUnit(null);
         setSelectedPlayerUnit(null);
