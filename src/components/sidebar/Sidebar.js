@@ -62,7 +62,7 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
             <h3>Actions</h3>
             {(isAttacking || isUsingAbility) ? (
               <>
-                {hasTarget && (
+                {(!requiresTarget || hasTarget) && (
                   <button 
                     className="action-button confirm"
                     onClick={() => onAction("Confirm")}
