@@ -892,6 +892,8 @@ function BattlefieldCombat() {
                 });
               }
 
+              finalizeAbilityUse(unit);
+
               return {
                 ...enemy,
                 hp: newHP,
@@ -950,6 +952,9 @@ function BattlefieldCombat() {
                   statusEffects: newStatusEffects
                 };
               }
+
+              finalizeAbilityUse(unit);
+
               return enemy;
             })
           );
@@ -1002,6 +1007,8 @@ function BattlefieldCombat() {
                   text: `${ally.name} is healed for 8 HP`,
                   type: "heal"
                 });
+
+                finalizeAbilityUse(unit);
 
                 return {
                   ...ally,
@@ -1102,6 +1109,9 @@ function BattlefieldCombat() {
                       statusEffects: newStatusEffects
                     };
                   }
+
+                  finalizeAbilityUse(unit);
+
                   return enemy;
                 })
               );
@@ -1187,6 +1197,9 @@ function BattlefieldCombat() {
                   damage: ally.damage + 6
                 };
               }
+              
+              finalizeAbilityUse(unit);
+
               return ally;
             })
           );
@@ -1213,9 +1226,14 @@ function BattlefieldCombat() {
       default:
     }
 
+    // Add the complete ability log
+    addToActionLog(abilityLogEntry);
+  }
+
+  function finalizeAbilityUse(unit) {
     // Set ability on cooldown and mark unit as acted
     setPlayerUnits((prev) =>
-      prev.map((u) => ((u.instanceId === unit.instanceId || u.id === unit.id) ? {
+      prev.map((u) => ((u.instanceId === unit.instanceId) ? {
         ...u,
         acted: true,
         ability: u.ability ? {
@@ -1224,9 +1242,6 @@ function BattlefieldCombat() {
         } : null
       } : u))
     );
-
-    // Add the complete ability log
-    addToActionLog(abilityLogEntry);
 
     // Clear animations and reset ability state
     setAnimatingUnitId(null);
