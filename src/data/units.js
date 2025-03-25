@@ -40,8 +40,8 @@ export const units = {
   "varen": {
     id: "varen",
     name: "Varen Stormrune",
-    maxHP: 30,
-    damage: 5,
+    maxHP: 12,
+    damage: 4,
     image: varenPortrait,
     fullArt: varenFullArt,
     actions: ["Attack", "Skip"],
@@ -60,14 +60,14 @@ export const units = {
     name: "Ashbringer",
     maxHP: 40,
     hp: 40,
-    damage: 8,
+    damage: 6,
     image: ashbringerPortrait,
     fullArt: ashbringerPortrait,
     keywords: ["Melee", "Armored", "Taunt"],
     ability: {
       name: "Infernal Roar",
       icon: "🔥",
-      description: "Unleashes a devastating blast of dragonfire, dealing ATK(8) damage to all enemies and applying Burned status for 2 turns.",
+      description: "Unleashes a devastating blast of dragonfire, dealing damage equal to ATK to all enemies. Each enemy has a 50% chance to be Burned for 2 turns.",
       maxCooldown: 3,
     },
     type: "enemy"
@@ -124,8 +124,8 @@ export const units = {
   "pixieTrickster": {
     id: "pixieTrickster",
     name: "Pixie Trickster",
-    maxHP: 7,
-    damage: 2,
+    maxHP: 9,
+    damage: 3,
     image: pixieTricksterArt,
     fullArt: pixieTricksterArt,
     keywords: ["Ranged", "Poisonous"],
@@ -140,8 +140,8 @@ export const units = {
   "willowisp": {
     id: "willowisp",
     name: "Will-o'-the-Wisps",
-    maxHP: 6,
-    damage: 0,
+    maxHP: 7,
+    damage: 1,
     image: willowispArt,
     fullArt: willowispArt,
     keywords: ["Last Stand"],
@@ -180,7 +180,7 @@ export const units = {
     id: "direWolf",
     name: "Dire Wolf",
     maxHP: 10,
-    damage: 4,
+    damage: 3,
     image: direWolfArt,
     fullArt: direWolfArt,
     keywords: ["Melee", "First Strike"],
@@ -297,7 +297,7 @@ export const units = {
   "feyQueen": {
     id: "feyQueen",
     name: "Fey Queen",
-    maxHP: 25,
+    maxHP: 30,
     damage: 5,
     image: feyQueenArt,
     fullArt: feyQueenArt,
@@ -331,8 +331,8 @@ export const units = {
   "bromTheBastion": {
     id: "bromTheBastion",
     name: "Brom the Bastion",
-    maxHP: 14,
-    damage: 3,
+    maxHP: 15,
+    damage: 4,
     image: bromArt, // Placeholder until specific art is available
     fullArt: bromArt, // Placeholder until specific art is available
     actions: ["Attack", "Skip"],
@@ -354,7 +354,7 @@ export const units = {
   "lyraAshwyn": {
     id: "lyraAshwyn",
     name: "Lyra Ashwyn",
-    maxHP: 9,
+    maxHP: 10,
     damage: 3,
     image: lyraArt,
     fullArt: lyraArt,
@@ -399,7 +399,7 @@ export const units = {
   "sylaraStarborn": {
     id: "sylaraStarborn",
     name: "Sylara Starborn",
-    maxHP: 8,
+    maxHP: 12,
     damage: 4,
     image: sylaraArt,
     fullArt: sylaraArt,
@@ -408,7 +408,7 @@ export const units = {
     ability: {
       name: "Shooting Star",
       icon: "⭐",
-      description: "Call down a blazing meteor that strikes a target and their adjacent allies, dealing ATK damage and inflicting Burned",
+      description: "Call down a blazing meteor that strikes a target and their adjacent allies, dealing ATK damage. Each target has a 25% chance to be Burned.",
       maxCooldown: 3,
     },
     passive: {
@@ -422,7 +422,7 @@ export const units = {
   "bloodMage": {
     id: "bloodMage",
     name: "Blood Mage",
-    maxHP: 12,
+    maxHP: 10,
     damage: 3,
     image: bloodMageArt,
     fullArt: bloodMageArt,
@@ -431,7 +431,7 @@ export const units = {
     ability: {
       name: "Sanguine Pact",
       icon: "🩸",
-      description: "Blood Mage sacrifices 2 hit points to grant an ally 6 damage this round",
+      description: "Blood Mage sacrifices 3 hit points to grant an ally 5 damage this round",
       maxCooldown: 2,
     },
     passive: {
@@ -567,16 +567,21 @@ export const enemyTeams = {
     "woodSprite",
     "pixieTrickster",
     "willowisp",
-    "direWolf",
+    
   ],
   "River of Shadows": [
     "treantGuardian",
     "woodSprite",
     "pixieTrickster",
+    "woodSprite",
+    "pixieTrickster",
+    "willowisp"
   ],
   "The Hollow Cavern": [
-    "feyQueen",
     "treantGuardian",
+    "feyQueen",
+    "treantGuardian"
+    
   ],
   "Wolf Pack Ambush": [
     "direWolf",

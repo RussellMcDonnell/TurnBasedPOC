@@ -1030,29 +1030,31 @@ function BattlefieldCombat() {
                     // Create a new status effects array
                     const newStatusEffects = [...enemy.statusEffects];
 
-                    // Add burn effect (avoiding duplicates)
-                    const hasBurn = newStatusEffects.some(effect => effect.type === "burn");
+                    // 25% chance to apply burn effect (avoiding duplicates)
+                    if (Math.random() < 0.25) {
+                      const hasBurn = newStatusEffects.some(effect => effect.type === "burn");
 
-                    if (!hasBurn) {
-                      newStatusEffects.push({
-                        type: "burn",
-                        name: "Burned",
-                        icon: "🔥",
-                        duration: 2 // Burn lasts for 2 turns
-                      });
+                      if (!hasBurn) {
+                        newStatusEffects.push({
+                          type: "burn",
+                          name: "Burned",
+                          icon: "🔥",
+                          duration: 2 // Burn lasts for 2 turns
+                        });
 
-                      // Log status effect application
-                      addToActionLog({
-                        text: `${enemy.name} is now Burned!`,
-                        type: "status"
-                      });
+                        // Log status effect application
+                        addToActionLog({
+                          text: `${enemy.name} is now Burned!`,
+                          type: "status"
+                        });
+                      }
                     }
 
                     // Add to ability log
                     shootingStarLogEntry.targets.push({
                       unit: enemy.name,
                       Damage: unit.damage.toString(),
-                      Status: "Burned"
+                      Status: newStatusEffects.length > enemy.statusEffects.length ? "Burned" : "None"
                     });
 
                     // Check if enemy is defeated
@@ -2402,40 +2404,41 @@ function BattlefieldCombat() {
       type: "ability"
     });
 
-    // Create a fire animation effect (could be expanded in future)
-    // For now we'll just add a dramatic pause before damage is applied
     setTimeout(() => {
-      // Apply damage and burn status to all alive player units
+      // Apply damage to all alive player units
       setPlayerUnits(prev =>
         prev.map(unit => {
           if (!unit.isDead) {
             const newHP = unit.hp - ashbringer.damage;
             const newStatusEffects = [...unit.statusEffects];
             
-            // Check if already burned to avoid stacking
-            const alreadyBurned = newStatusEffects.some(effect => effect.type === "burn");
-            
-            if (!alreadyBurned) {
-              // Add burned status effect with consistent typing
-              newStatusEffects.push({
-                type: "burn",
-                name: "Burned",
-                icon: "🔥",
-                duration: 2  // Burns for 2 turns as per the ability description
-              });
+            // 50% chance to apply burn status
+            if (Math.random() < 0.5) {
+              // Check if already burned to avoid stacking
+              const alreadyBurned = newStatusEffects.some(effect => effect.type === "burn");
               
-              // Log status effect application
-              addToActionLog({
-                text: `${unit.name} is engulfed in dragonfire and Burned!`,
-                type: "status"
-              });
+              if (!alreadyBurned) {
+                // Add burned status effect with consistent typing
+                newStatusEffects.push({
+                  type: "burn",
+                  name: "Burned",
+                  icon: "🔥",
+                  duration: 2  // Burns for 2 turns
+                });
+                
+                // Log status effect application
+                addToActionLog({
+                  text: `${unit.name} is engulfed in dragonfire and Burned!`,
+                  type: "status"
+                });
+              }
             }
 
             // Add to ability log
             infernalRoarLogEntry.targets.push({
               unit: unit.name,
               Damage: ashbringer.damage.toString(),
-              Status: alreadyBurned ? "None" : "Burned"
+              Status: newStatusEffects.length > unit.statusEffects.length ? "Burned" : "None"
             });
 
             if (newHP <= 0) {
@@ -2643,7 +2646,7 @@ function BattlefieldCombat() {
                         // Log if the effect expires
                         if (newDuration === 0) {
                           addToActionLog({
-                            text: `${effect.name} effect on ${unit.name} has worn off`,
+                            text: `${effect.name} on ${u.name} has expired`,
                             type: "status"
                           });
                         }
@@ -2687,7 +2690,7 @@ function BattlefieldCombat() {
                         // Log if the effect expires
                         if (newDuration === 0) {
                           addToActionLog({
-                            text: `${effect.name} effect on ${unit.name} has worn off`,
+                            text: `${effect.name} on ${u.name} has expired`,
                             type: "status"
                           });
                         }
@@ -3112,7 +3115,7 @@ function BattlefieldCombat() {
     setDamagedUnitId(null);
 
     // Start attack animation immediately
-    setAnimatingUnitId(attacker.instanceId || attacker.id);
+    setAnimatingUnitId(attacker.instanceId);
 
     // Apply damage after animation starts
     setTimeout(() => {
