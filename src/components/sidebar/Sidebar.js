@@ -57,7 +57,7 @@ function Sidebar({ unit, onClose, onAction, position = "right", isAttacking = fa
           </div>
         )}
         
-        {unit.actions && (
+        {unit.actions && position === "left" && (
           <div className="action-list">
             <h3>Actions</h3>
             {(isAttacking || isUsingAbility) ? (
