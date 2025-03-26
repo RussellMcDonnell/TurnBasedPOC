@@ -110,17 +110,37 @@ const campaignNodes = [
 const CampaignMenu = () => {
   const { getActiveCampaignTeam, updateCampaignTeamStats } = useTeams();
   const [selectedNode, setSelectedNode] = useState(campaignNodes[0]);
+  const [combatMode, setCombatMode] = useState(() => {
+    // Initialize from localStorage if available, otherwise default to 'battlefield'
+    return localStorage.getItem('preferredCombatMode') || 'battlefield';
+  });
   const navigate = useNavigate();
+
+  const handleCombatModeChange = (mode) => {
+    setCombatMode(mode);
+    // Save preference to localStorage
+    localStorage.setItem('preferredCombatMode', mode);
+  };
 
   const handleNodeAction = () => {
     if (selectedNode.type === 'combat') {
-      // Navigate to battlefield for combat nodes
-      navigate('/battlefield', {
-        state: {
-          gameMode: 'campaign',
-          level: selectedNode
-        }
-      });
+      if (combatMode === 'battlefield') {
+        // Navigate to battlefield for combat nodes (existing functionality)
+        navigate('/battlefield', {
+          state: {
+            gameMode: 'campaign',
+            level: selectedNode
+          }
+        });
+      } else {
+        // Navigate to grid combat page (to be implemented later)
+        navigate('/grid-combat', {
+          state: {
+            gameMode: 'campaign',
+            level: selectedNode
+          }
+        });
+      }
     } else if (selectedNode.type === 'healing') {
       // Handle healing - this would interact with your team state/context
       handleHeal();
@@ -227,7 +247,26 @@ const CampaignMenu = () => {
         </div>
         <div className="level-details">
           {selectedNode.type === 'combat' && (
-            <p className="difficulty">Difficulty: {selectedNode.difficulty}</p>
+            <>
+              <p className="difficulty">Difficulty: {selectedNode.difficulty}</p>
+              <div className="combat-mode-toggle">
+                <p>Combat Mode:</p>
+                <div className="toggle-buttons">
+                  <button 
+                    className={`toggle-button ${combatMode === 'battlefield' ? 'active' : ''}`}
+                    onClick={() => handleCombatModeChange('battlefield')}
+                  >
+                    Battlefield
+                  </button>
+                  <button 
+                    className={`toggle-button ${combatMode === 'grid' ? 'active' : ''}`}
+                    onClick={() => handleCombatModeChange('grid')}
+                  >
+                    Grid
+                  </button>
+                </div>
+              </div>
+            </>
           )}
           <p className="description">{selectedNode.description}</p>
           <button 

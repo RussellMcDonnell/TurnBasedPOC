@@ -1,0 +1,58 @@
+.grid-combat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  color: white;
+  position: relative;
+  padding: 2rem;
+}
+
+.grid-placeholder {
+  background-color: #2a2a2a;
+  padding: 3rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 600px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.grid-placeholder h1 {
+  margin-bottom: 2rem;
+  color: #4a90e2;
+}
+
+.grid-placeholder p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 2px solid white;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.back-button:before {
+  content: "←";
+  font-size: 1.2rem;
+}

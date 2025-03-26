@@ -9,6 +9,7 @@ import TeamEditor from './features/teams/TeamEditor';
 import Store from './features/store/Store';
 import { TeamProvider } from './features/teams/TeamContext';
 import BattlefieldCombat from './features/battlefield/BattlefieldCombat';
+import GridCombat from './features/grid-combat/GridCombat';
 import SelectPlay from './features/select-play/SelectPlay';
 import CampaignMenu from './features/campaign/CampaignMenu';
 import AdventureShop from './features/adventure-shop/adventure-shop';
@@ -23,6 +24,7 @@ root.render(
           <Route path="/store" element={<Store />} />
           <Route path="/select-play" element={<SelectPlay />} />
           <Route path="/battlefield" element={<BattlefieldCombat />} />
+          <Route path="/grid-combat" element={<GridCombat />} />
           <Route path="/campaign" element={<CampaignMenu />} />
           <Route path="/shop" element={<AdventureShop />} />
           <Route path="/" element={<App />} />
