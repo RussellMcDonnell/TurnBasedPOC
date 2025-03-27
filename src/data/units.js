@@ -68,7 +68,7 @@ export const units = {
       name: "Infernal Roar",
       icon: "🔥",
       description: "Unleashes a devastating blast of dragonfire, dealing damage equal to ATK to all enemies. Each enemy has a 50% chance to be Burned for 2 turns.",
-      maxCooldown: 3,
+      maxCooldown: 5,
     },
     type: "enemy"
   },
