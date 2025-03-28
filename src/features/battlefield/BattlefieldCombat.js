@@ -2872,7 +2872,7 @@ function BattlefieldCombat() {
         // If there are taunting units and the clicked unit doesn't have taunt, show a message
         if (taunters.length > 0 && !hasTaunt(unit)) {
           addToActionLog({
-            text: `You must attack units with Taunt first!`,
+                       text: `You must attack units with Taunt first!`,
             type: "normal"
           });
           return;
