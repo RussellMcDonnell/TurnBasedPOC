@@ -40,7 +40,7 @@ export const units = {
   "varen": {
     id: "varen",
     name: "Varen Stormrune",
-    maxHP: 12,
+    maxHP: 17,
     damage: 4,
     image: varenPortrait,
     fullArt: varenFullArt,
@@ -49,7 +49,7 @@ export const units = {
       name: "Blizzard",
       icon: "❄️",
       description: "Deals damage to all enemy units equal to ATK. Each enemy has a 25% chance to be Stunned for 1 turn (cannot act).",
-      maxCooldown: 2,
+      maxCooldown: 3,
     },
     description: "A powerful frost mage with area-of-effect damage potential.",
     role: "Mage",
@@ -58,9 +58,9 @@ export const units = {
   "ashbringer": {
     id: "ashbringer",
     name: "Ashbringer",
-    maxHP: 40,
-    hp: 40,
-    damage: 6,
+    maxHP: 75,
+    hp: 75,
+    damage: 8,
     image: ashbringerPortrait,
     fullArt: ashbringerPortrait,
     keywords: ["Melee", "Armored", "Taunt"],
@@ -68,16 +68,16 @@ export const units = {
       name: "Infernal Roar",
       icon: "🔥",
       description: "Unleashes a devastating blast of dragonfire, dealing damage equal to ATK to all enemies. Each enemy has a 50% chance to be Burned for 2 turns.",
-      maxCooldown: 5,
+      maxCooldown: 4,
     },
     type: "enemy"
   },
   "lyn": {
     id: "lyn",
     name: "Lyn Valken",
-    maxHP: 20,
-    hp: 20,
-    damage: 4,
+    maxHP: 35,
+    hp: 35,
+    damage: 7,
     image: lynValkenPortrait,
     fullArt: lynValkenPortrait,
     keywords: [],
@@ -92,8 +92,8 @@ export const units = {
   "treantGuardian": {
     id: "treantGuardian",
     name: "Treant Guardian",
-    maxHP: 16,
-    damage: 2,
+    maxHP: 25,
+    damage: 3,
     image: treantGuardianArt,
     fullArt: treantGuardianArt,
     keywords: ["Melee", "Armored", "Taunt"],
@@ -108,8 +108,8 @@ export const units = {
   "woodSprite": {
     id: "woodSprite",
     name: "Wood Sprite",
-    maxHP: 7,
-    damage: 1,
+    maxHP: 10,
+    damage: 2,
     image: woodSpriteArt,
     fullArt: woodSpriteArt,
     keywords: ["Ranged"],
@@ -124,7 +124,7 @@ export const units = {
   "pixieTrickster": {
     id: "pixieTrickster",
     name: "Pixie Trickster",
-    maxHP: 9,
+    maxHP: 12,
     damage: 3,
     image: pixieTricksterArt,
     fullArt: pixieTricksterArt,
@@ -133,15 +133,15 @@ export const units = {
       name: "Trickster's Tangle",
       icon: "🌀",
       description: "Confuses a target, making them use their next action to attack a random ally or enemy target.",
-      maxCooldown: 3,
+      maxCooldown: 2,
     },
     type: "enemy"
   },
   "willowisp": {
     id: "willowisp",
     name: "Will-o'-the-Wisps",
-    maxHP: 7,
-    damage: 1,
+    maxHP: 11,
+    damage: 2,
     image: willowispArt,
     fullArt: willowispArt,
     keywords: ["Last Stand"],
@@ -149,7 +149,7 @@ export const units = {
       name: "Alluring Glow",
       icon: "💫",
       description: "Mesmerizes/Stun an enemy, preventing them from acting for 1 turn.",
-      maxCooldown: 2,
+      maxCooldown: 1,
       execute: function (caster, target) {
         // Apply the stunned status effect to the target
         if (!target.statusEffects) target.statusEffects = [];
@@ -179,7 +179,7 @@ export const units = {
   "direWolf": {
     id: "direWolf",
     name: "Dire Wolf",
-    maxHP: 10,
+    maxHP: 13,
     damage: 3,
     image: direWolfArt,
     fullArt: direWolfArt,
@@ -195,8 +195,8 @@ export const units = {
   "grassGolem": {
     id: "grassGolem",
     name: "Grass Golem",
-    maxHP: 15,
-    damage: 3,
+    maxHP: 25,
+    damage: 4,
     image: grassGolemArt,
     fullArt: grassGolemArt,
     keywords: ["Melee", "Taunt", "Renew"],
@@ -204,7 +204,7 @@ export const units = {
       name: "Thorny Shield",
       icon: "🛡️",
       description: "Reflects 50% of damage taken back to attacker for 2 turns.",
-      maxCooldown: 3,
+      maxCooldown: 4,
     },
     role: "Tank",
     type: "enemy"
@@ -212,8 +212,8 @@ export const units = {
   "sunflowerSentinel": {
     id: "sunflowerSentinel",
     name: "Sunflower Sentinel",
-    maxHP: 10,
-    damage: 3,
+    maxHP: 15,
+    damage: 4,
     image: sunflowerSentinelArt,
     fullArt: sunflowerSentinelArt,
     keywords: ["Ranged", "Poisonous"],
@@ -229,8 +229,8 @@ export const units = {
   "windfox": {
     id: "windfox",
     name: "Windfox",
-    maxHP: 9,
-    damage: 3,
+    maxHP: 14,
+    damage: 4,
     image: windfoxArt,
     fullArt: windfoxArt,
     keywords: ["Melee", "Preemptive Strike"],
@@ -246,8 +246,8 @@ export const units = {
   "plainsShaman": {
     id: "plainsShaman",
     name: "Plains Shaman",
-    maxHP: 7,
-    damage: 2,
+    maxHP: 12,
+    damage: 3,
     image: plainsShamanArt,
     fullArt: plainsShamanArt,
     keywords: ["Ranged"],
@@ -263,7 +263,7 @@ export const units = {
   "nomadRaider": {
     id: "nomadRaider",
     name: "Nomad Raider",
-    maxHP: 12,
+    maxHP: 16,
     damage: 4,
     image: nomadRaiderArt,
     fullArt: nomadRaiderArt,
@@ -281,7 +281,7 @@ export const units = {
     id: "elderTreant",
     name: "Elder Treant",
     maxHP: 50,
-    damage: 6,
+    damage: 8,
     image: elderTreantArt,
     fullArt: elderTreantArt,
     keywords: ["Melee", "Armored", "Taunt", "Renew"],
@@ -289,7 +289,7 @@ export const units = {
       name: "Forest's Wrath",
       icon: "🌳",
       description: "Channels the power of the ancient forest to deal heavy damage to all enemies.",
-      maxCooldown: 3,
+      maxCooldown: 5,
     },
     role: "Tank",
     type: "enemy"
@@ -297,8 +297,8 @@ export const units = {
   "feyQueen": {
     id: "feyQueen",
     name: "Fey Queen",
-    maxHP: 30,
-    damage: 5,
+    maxHP: 40,
+    damage: 6,
     image: feyQueenArt,
     fullArt: feyQueenArt,
     keywords: ["Ranged", "Poisonous"],
@@ -314,7 +314,7 @@ export const units = {
   "lordOfPride": {
     id: "lordOfPride",
     name: "Lord of the Pride",
-    maxHP: 35,
+    maxHP: 60,
     damage: 7,
     image: lordOfPrideArt,
     fullArt: lordOfPrideArt,
@@ -331,7 +331,7 @@ export const units = {
   "bromTheBastion": {
     id: "bromTheBastion",
     name: "Brom the Bastion",
-    maxHP: 15,
+    maxHP: 20,
     damage: 4,
     image: bromArt, // Placeholder until specific art is available
     fullArt: bromArt, // Placeholder until specific art is available
@@ -341,7 +341,7 @@ export const units = {
       name: "Iron Wall Assault",
       icon: "🛡️",
       description: "Brom charges forward with both shields, ramming the enemy, stunning them for 1 turn.",
-      maxCooldown: 3,
+      maxCooldown: 2,
     },
     passive: {
       name: "Aegis Bastion",
@@ -354,7 +354,7 @@ export const units = {
   "lyraAshwyn": {
     id: "lyraAshwyn",
     name: "Lyra Ashwyn",
-    maxHP: 10,
+    maxHP: 13,
     damage: 3,
     image: lyraArt,
     fullArt: lyraArt,
@@ -363,7 +363,7 @@ export const units = {
       name: "Triage Tactics",
       icon: "💉",
       description: "Remove all negative status effects from an ally, and heal them 8.",
-      maxCooldown: 1,
+      maxCooldown: 2,
     },
     passive: {
       name: "Combat Medic",
@@ -376,8 +376,8 @@ export const units = {
   "elyndraChronomancer": {
     id: "elyndraChronomancer",
     name: "Elyndra the Chronomancer",
-    maxHP: 8,
-    damage: 2,
+    maxHP: 15,
+    damage: 3,
     image: elyndraArt,
     fullArt: elyndraArt,
     actions: ["Attack", "Skip"],
@@ -386,7 +386,7 @@ export const units = {
       name: "Temporal Reset",
       icon: "⌛",
       description: "Reverse time on a target ally, undoing the last status effect or damage taken.",
-      maxCooldown: 4,
+      maxCooldown: 3,
     },
     passive: {
       name: "Rewind Fate",
@@ -399,7 +399,7 @@ export const units = {
   "sylaraStarborn": {
     id: "sylaraStarborn",
     name: "Sylara Starborn",
-    maxHP: 12,
+    maxHP: 17,
     damage: 4,
     image: sylaraArt,
     fullArt: sylaraArt,
@@ -422,7 +422,7 @@ export const units = {
   "bloodMage": {
     id: "bloodMage",
     name: "Blood Mage",
-    maxHP: 10,
+    maxHP: 12,
     damage: 3,
     image: bloodMageArt,
     fullArt: bloodMageArt,
@@ -431,7 +431,7 @@ export const units = {
     ability: {
       name: "Sanguine Pact",
       icon: "🩸",
-      description: "Blood Mage sacrifices 3 hit points to grant an ally 5 damage this round",
+      description: "Blood Mage sacrifices 3 hit points to grant an ally 2 damage this round",
       maxCooldown: 2,
     },
     passive: {
@@ -445,7 +445,7 @@ export const units = {
   "silasSteelrage": {
     id: "silasSteelrage",
     name: "Silas Steelrage",
-    maxHP: 12,
+    maxHP: 17,
     damage: 5,
     image: silasArt,
     fullArt: silasArt,
@@ -455,7 +455,7 @@ export const units = {
       name: "Cleave",
       icon: "⚔️",
       description: "Strike from left side to right side, or vice versa, 3 adjacent enemy units",
-      maxCooldown: 3,
+      maxCooldown: 4,
     },
     passive: {
       name: "Blood Rage",
@@ -468,7 +468,7 @@ export const units = {
   "umbralReaper": {
     id: "umbralReaper",
     name: "Umbral Reaper",
-    maxHP: 9,
+    maxHP: 15,
     damage: 4,
     image: umbralReaperArt,
     fullArt: umbralReaperArt,
@@ -491,8 +491,8 @@ export const units = {
   "aerinTwinfang": {
     id: "aerinTwinfang",
     name: "Aerin Twinfang",
-    maxHP: 9,
-    damage: 2,
+    maxHP: 15,
+    damage: 4,
     image: aerinArt,
     fullArt: aerinArt,
     actions: ["Attack", "Skip"],
@@ -501,7 +501,7 @@ export const units = {
       name: "Crossfire",
       icon: "🎯",
       description: "Aerin may select two targets instead of one, striking each once.",
-      maxCooldown: 3,
+      maxCooldown: 2,
     },
     passive: {
       name: "Quick Reload",
@@ -514,8 +514,8 @@ export const units = {
   "arcaneArcher": {
     id: "arcaneArcher",
     name: "Arcane Archer",
-    maxHP: 10,
-    damage: 4,
+    maxHP: 14,
+    damage: 5,
     image: arcaneArcherArt,
     fullArt: arcaneArcherArt,
     actions: ["Attack", "Skip"],
