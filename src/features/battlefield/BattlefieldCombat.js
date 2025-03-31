@@ -1456,6 +1456,26 @@ function BattlefieldCombat() {
     setActiveTeam("player");
     resetActedStatus("enemy");
 
+    // Process cooldowns at turn end for enemy units
+    setEnemyUnits(prev =>
+      prev.map(unit => {
+        const newCooldown = unit.ability ? Math.max(0, unit.ability.currentCooldown - 1) : 0;
+        if (unit.ability && unit.ability.currentCooldown > 0 && newCooldown === 0) {
+          addToActionLog({
+            text: `${unit.name}'s ${unit.ability.name} is ready!`,
+            type: "cooldown"
+          });
+        }
+        return {
+          ...unit,
+          ability: unit.ability ? {
+            ...unit.ability,
+            currentCooldown: newCooldown
+          } : null
+        };
+      })
+    );
+
     // Process damage-over-time effects (burn, poison) at turn end for players
     setPlayerUnits(prev =>
       prev.map(unit => {
