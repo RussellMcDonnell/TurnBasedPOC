@@ -2395,7 +2395,7 @@ function BattlefieldCombat() {
       }
 
       // Prepare the units to summon (in priority order)
-      const unitsToSummon = ["woodSprite", "pixieTrickster", "willowisp"];
+      const unitsToSummon = ["woodSprite", "pixieTrickster", "treantGuardian"];
 
       // Limit to available slots
       const actualSummons = unitsToSummon.slice(0, availableSlots);

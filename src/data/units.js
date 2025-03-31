@@ -579,7 +579,6 @@ export const enemyTeams = {
   "The Hollow Cavern": [
     "treantGuardian",
     "feyQueen",
-    
   ],
   "Wolf Pack Ambush": [
     "direWolf",
