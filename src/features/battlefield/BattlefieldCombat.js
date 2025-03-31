@@ -1102,6 +1102,8 @@ function BattlefieldCombat() {
                       });
                     }
 
+                    finalizeAbilityUse(unit);
+
                     return {
                       ...enemy,
                       hp: Math.max(0, newHP),
@@ -1109,9 +1111,6 @@ function BattlefieldCombat() {
                       statusEffects: newStatusEffects
                     };
                   }
-
-                  finalizeAbilityUse(unit);
-
                   return enemy;
                 })
               );
