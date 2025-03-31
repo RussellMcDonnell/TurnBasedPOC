@@ -1146,11 +1146,11 @@ function BattlefieldCombat() {
             prev.map(u => {
               if (u.instanceId === unit.instanceId) {
                 // Calculate new HP after sacrifice (minimum 1)
-                const newHP = Math.max(1, u.hp - 2);
+                const newHP = Math.max(1, u.hp - 3);
 
                 // Log the blood sacrifice
                 addToActionLog({
-                  text: `${u.name} sacrifices 2 HP in a blood ritual!`,
+                  text: `${u.name} sacrifices 3 HP in a blood ritual!`,
                   type: "ability"
                 });
 
@@ -1169,7 +1169,7 @@ function BattlefieldCombat() {
               if (ally.instanceId === targetUnit.instanceId) {
                 abilityLogEntry.targets.push({
                   unit: ally.name,
-                  Damage: "+6", // Indicates a buff rather than damage
+                  Damage: "+2", // Indicates a buff rather than damage
                   Status: "Damage Boost"
                 });
 
@@ -1186,14 +1186,14 @@ function BattlefieldCombat() {
                   name: "Blood Empowered",
                   icon: "🩸",
                   duration: 1, // Lasts until the end of the round
-                  amount: 6    // +6 damage
+                  amount: 2    // +2 damage
                 });
 
                 return {
                   ...ally,
                   statusEffects: filteredEffects,
                   // Also directly increase the damage for the current round
-                  damage: ally.damage + 6
+                  damage: ally.damage + 2
                 };
               }
               
