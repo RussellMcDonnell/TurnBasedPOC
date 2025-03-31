@@ -1486,6 +1486,10 @@ function BattlefieldCombat() {
           effect.type === "burn" || effect.type === "poison");
         const ccEffects = updatedStatusEffects.filter(effect =>
           effect.type === "frozen" || effect.type === "stunned" || effect.type === "confused");
+        // Extract damage-boost effects separately to handle their expiration
+        const damageBoostEffects = updatedStatusEffects.filter(effect =>
+          effect.type === "damage-boost");
+        let currentDamage = unit.damage;
 
         // Process DoT effects
         dotEffects.forEach(effect => {
@@ -1520,6 +1524,30 @@ function BattlefieldCombat() {
           }
         });
 
+        // Process damage-boost effects and handle their expiration
+        damageBoostEffects.forEach(effect => {
+          // Reduce duration for damage-boost effects
+          effect.duration -= 1;
+
+          // If the effect is expiring, remove the bonus damage
+          if (effect.duration === 0) {
+            // Log the expiration
+            addToActionLog({
+              text: `${effect.name} on ${unit.name} has worn off`,
+              type: "status"
+            });
+
+            // Remove the damage bonus
+            if (effect.amount) {
+              currentDamage -= effect.amount;
+              addToActionLog({
+                text: `${unit.name}'s attack power decreases by ${effect.amount}`,
+                type: "status"
+              });
+            }
+          }
+        });
+
         // Check if unit died from DoT
         const isDead = unitHP <= 0;
         if (isDead && !unit.isDead) {
@@ -1536,9 +1564,11 @@ function BattlefieldCombat() {
           ...unit,
           hp: Math.max(0, unitHP),
           isDead: isDead,
+          damage: currentDamage, // Apply the updated damage value after boost expiration
           statusEffects: [
             ...ccEffects, // Keep CC effects unchanged
-            ...dotEffects.filter(effect => effect.duration > 0) // Only keep active DoT effects
+            ...dotEffects.filter(effect => effect.duration > 0), // Only keep active DoT effects
+            ...damageBoostEffects.filter(effect => effect.duration > 0) // Only keep active damage boost effects
           ]
         };
       })
