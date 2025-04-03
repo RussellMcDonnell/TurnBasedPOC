@@ -335,10 +335,44 @@ function BattlefieldCombat() {
 
       // Save player units' health and death status for campaign progression
       if (isCampaignMode) {
+        // First, reset all damage boosts so they don't persist to next battle
+        // Create a copy of player units with all damage boosts removed
+        const normalizedPlayerUnits = playerUnits.map(unit => {
+          // Find any damage boost effects
+          const damageBoostEffects = unit.statusEffects.filter(effect => 
+            effect.type === "damage-boost"
+          );
+          
+          // Calculate the total damage boost to remove
+          let damageToRemove = 0;
+          damageBoostEffects.forEach(effect => {
+            if (effect.amount) {
+              damageToRemove += effect.amount;
+            }
+          });
+          
+          // If there were damage boosts, log their removal
+          if (damageToRemove > 0) {
+            addToActionLog({
+              text: `${unit.name}'s temporary damage boost has ended`,
+              type: "status"
+            });
+          }
+          
+          // Return unit with original damage value
+          return {
+            ...unit,
+            damage: unit.damage - damageToRemove,
+            statusEffects: unit.statusEffects.filter(effect => 
+              effect.type !== "damage-boost"
+            )
+          };
+        });
+        
         // Store each unit's current health and death status
         const unitHealthStatus = {};
 
-        playerUnits.forEach(unit => {
+        normalizedPlayerUnits.forEach(unit => {
           // Store both health and death status for each unit by instance ID
           unitHealthStatus[unit.id] = {
             damage: unit.damage,
@@ -347,9 +381,9 @@ function BattlefieldCombat() {
             isDead: unit.isDead
           };
         });
-
-        // Update campaign team stats with the current health/death status
-        updateCampaignTeamStats({
+        
+         // Update campaign team stats with the current health/death status
+         updateCampaignTeamStats({
           unitHealthStatus: unitHealthStatus,
           levelsCompleted: levelData.level ? levelData.level.id : 0
         });
